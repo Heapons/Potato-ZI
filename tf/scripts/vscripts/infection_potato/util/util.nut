@@ -78,7 +78,7 @@ PZI_Util.ConVars      <- {} // convar tracking to revert to original values
 PZI_Util.EntShredder  <- [] // entity shredder.  Fixed number of entities deleted per tick.
 PZI_Util.AllNavAreas  <- {} // gets filled by GetAllAreas at the end of this file
 PZI_Util.SafeNavAreas <- {} // gets filled by GetAllAreas at the end of this file
-PZI_Util.NAV_DEBUG    <- false // draw nav areas
+PZI_Util.NAV_DEBUG    <- true // draw nav areas
 
 
 PZI_Util.ROBOT_ARM_PATHS <- [
@@ -2703,11 +2703,13 @@ function PZI_Util::GetSafeNavAreas() {
 	local color_warn   = [ 180, 180,  20,  50 ]
 	local color_danger = [ 180,   0,  20,  50 ]
 
-	local color
+	local color = color_valid
 	local trace = {}
 
 	// filter out areas that are too small or inside a trigger_hurt
 	foreach( name, area in AllNavAreas ) {
+
+		color = color_valid
 
 		if ( area.GetSizeX() < 50 )
 			color = color_small
@@ -2720,40 +2722,40 @@ function PZI_Util::GetSafeNavAreas() {
 
 		else {
 
-			for ( local i = 0; i < NUM_DIRECTIONS; i++ )
-				if ( !area.GetAdjacentArea(i, 1) ) {
+			// this is too broken atm
+			// for ( local i = 0; i < NUM_DIRECTIONS; i++ )
+				// if ( !area.GetAdjacentArea(i, 1) ) {
+// 
+					// color = color_edge
+					// break
+				// }
 
-					color = color_edge
-					break
-				}
+			if ( color != color_edge ) {
+	
+				trace.clear()
+				trace.start <- area.GetCenter()
+				trace.end 	<- area.GetCenter() + Vector( 0, 0, INT_MAX )
+				trace.mask  <- CONTENTS_SOLID
+				trace.hullmin <- area.GetCorner( NORTH_WEST )
+				trace.hullmax <- area.GetCorner( SOUTH_EAST )
+	
+				TraceHull( trace )
+	
+				if ( trace.hit && trace.enthit && trace.enthit.GetClassname() == "trigger_hurt" )
+					color = color_warn
 
-			if ( color == color_edge )
-				continue
-
-			trace.clear()
-			trace.start <- area.GetCenter()
-			trace.end 	<- area.GetCenter() + Vector( 0, 0, INT_MAX )
-			trace.mask  <- CONTENTS_SOLID
-			trace.hullmin <- area.GetCorner( NORTH_WEST )
-			trace.hullmax <- area.GetCorner( SOUTH_EAST )
-
-			TraceHull( trace )
-
-			if ( trace.hit && trace.enthit && trace.enthit.GetClassname() == "trigger_hurt" )
-				color = color_warn
-			else
-				color = color_valid
+			}
 		}
 
 		if ( color == color_valid )
 			SafeNavAreas[name] <- area
 
 		if ( NAV_DEBUG )
-			area.DebugDrawFilled( color[0], color[1], color[2], color[3], 5.0, true, 0.0 )
+			area.DebugDrawFilled( color[0], color[1], color[2], color[3], 15.0, true, 0.0 )
 
 		i++
 
-		if ( !(i % 500) ) // process this many nav areas per tick
+		if ( !(i % 150) ) // process this many nav areas per tick
 			yield SafeNavAreas.len()
 	}
 

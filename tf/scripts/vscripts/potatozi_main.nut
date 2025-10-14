@@ -12,10 +12,10 @@ try { PZI_Events.ClearEvents( null ) } catch( e ) {}
 for ( local ent; ent = Entities.FindByName( ent, "__pzi*" ); )
     EntFireByHandle( ent, "Kill", "", -1, null, null )
 
-Convars.SetValue( "mp_restartgame", 3 )
+// Convars.SetValue( "mp_restartgame", 3 )
 ClientPrint( null, 3, "[PZI] GAMEMODE RELOADED, RESTARTING..." )
 ClientPrint( null, 4, "[PZI] GAMEMODE RELOADED, RESTARTING..." )
-EntFire( "player", "RunScriptCode", "self.AddFlag( FL_FROZEN ); AddThinkToEnt( self, null ); self.TerminateScriptScope()" )
+// EntFire( "player", "RunScriptCode", "self.AddFlag( FL_FROZEN ); AddThinkToEnt( self, null ); self.TerminateScriptScope()" )
 EntFire( "player", "RunScriptCode", "self.RemoveFlag( FL_FROZEN )", 4 )
 
 if ( "PZI_GameStrings" in ROOT )

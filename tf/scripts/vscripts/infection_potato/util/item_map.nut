@@ -2501,7 +2501,7 @@ if ( "PZI_ItemMap" in ROOT )
     },
     "The Family Business" : {
         id = 425,
-        item_class = "tf_weapon_shotgun",
+        item_class = "tf_weapon_shotgun_hwg",
         model_player = "models/workshop/weapons/c_models/c_russian_riot/c_russian_riot.mdl",
         item_slot = "secondary",
         item_name_english = "Family Business"

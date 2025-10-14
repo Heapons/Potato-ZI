@@ -774,32 +774,32 @@ PZI_Bots.PZI_BotBehavior <- class {
 	}
 
 
-	bot   = null
-	scope = null
-	team  = null
-	time  = null
+	bot   				= null
+	scope 				= null
+	team  				= null
+	time  				= null
 
-	bot_level  = null
-	locomotion = null
+	bot_level  			= null
+	locomotion 			= null
 
-	cur_pos     = null
-	cur_vel     = null
-	cur_speed   = null
-	cur_eye_pos = null
-	cur_eye_ang = null
-	cur_eye_fwd = null
-	cur_weapon  = null
-	cur_ammo    = null
-	cur_melee   = null
+	cur_pos     		= null
+	cur_vel     		= null
+	cur_speed   		= null
+	cur_eye_pos 		= null
+	cur_eye_ang 		= null
+	cur_eye_fwd 		= null
+	cur_weapon  		= null
+	cur_ammo    		= null
+	cur_melee   		= null
 
-	threat             = null
-	threat_dist        = null
-	threat_time        = null
-	threat_lost_time   = null
-	threat_aim_time    = null
-	threat_behind_time = null
-	threat_visible     = null
-	threat_pos         = null
+	threat              = null
+	threat_dist         = null
+	threat_time         = null
+	threat_lost_time    = null
+	threat_aim_time     = null
+	threat_behind_time  = null
+	threat_visible      = null
+	threat_pos          = null
 
 	path_points		    = null
 	path_index			= null
@@ -807,14 +807,14 @@ PZI_Bots.PZI_BotBehavior <- class {
 	path_goalpoint      = null
 	path_recompute_time	= null
 
-	fire_next_time  = null
-	aim_time        = null
-	random_aim_pos  = null
-	random_aim_time = null
+	fire_next_time  	= null
+	aim_time        	= null
+	random_aim_pos  	= null
+	random_aim_time 	= null
 
-	cosmetic = null
+	cosmetic 			= null
 
-	navdebug = null
+	navdebug 			= null
 }
 
 function PZI_Bots::PrepareNavmesh() {

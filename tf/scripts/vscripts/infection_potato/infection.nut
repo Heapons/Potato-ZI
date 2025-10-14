@@ -299,7 +299,7 @@ PZI_EVENT( "player_spawn", "Infection_PlayerSpawn", function( params ) {
     return
 }, EVENT_WRAPPER_MAIN )
 
-PZI_EVENT( "teamplay_round_start", "Infection_RoundStart", @( params ) PZI_Util.ScriptEntFireSafe( "player", "self.ForceRespawn()", 0.1 ) )
+// PZI_EVENT( "teamplay_round_start", "Infection_RoundStart", @( params ) PZI_Util.ScriptEntFireSafe( "player", "self.ForceRespawn()", 0.1 ) )
 
 PZI_EVENT( "teamplay_setup_finished", "Infection_SetupFinished", function( params ) {
 
