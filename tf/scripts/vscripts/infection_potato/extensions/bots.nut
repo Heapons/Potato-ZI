@@ -215,7 +215,7 @@ PZI_Bots.RandomLoadouts <- {
 			"The Fortified Compound",
 			"The Sydney Sleeper",
 			"The Machina",
-			"The Hitmans Heatmaker"
+			"The Hitman's Heatmaker"
 		],
 
 		[SLOT_SECONDARY] = [
