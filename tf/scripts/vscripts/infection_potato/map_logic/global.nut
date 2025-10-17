@@ -12,3 +12,4 @@ local function OpenAllDoors() {
 OpenAllDoors()
 
 PZI_EVENT( "teamplay_round_start", "PZI_MapStripper_RoundStart", function ( params ) { OpenAllDoors() })
+PZI_EVENT( "teamplay_setup_finished", "PZI_MapStripper_SetupFinished", function ( params ) { OpenAllDoors() })
