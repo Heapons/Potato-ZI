@@ -180,7 +180,7 @@ local function SetupRoundTimer() {
 
                     if ( player.GetTeam() == TEAM_SPECTATOR )
                         spectators++
-                    else
+                    else if ( !IsPlayerABot( player ) )
                         players[player.GetTeam() == TEAM_HUMAN ? 0 : 1]++
                 }
 
@@ -359,11 +359,11 @@ PZI_EVENT( "teamplay_round_start", "PZI_MapStripper_RoundStart", function ( para
 
         targetname = "__pzi_mapstripper_round_start_relay"
         spawnflags = 1
-        "OnSpawn#2" : "func_areaportal,Open,,0,-1"
-        "OnSpawn#3" : "__pzi_nav_interface,RecomputeBlockers,,0,-1"
-        "OnSpawn#4" : "team_control_point,SetLocked,1,0,-1"
-        "OnSpawn#5" : "team_control_point,HideModel,,0,-1"
-        "OnSpawn#6" : "team_control_point,Disable,,0,-1"
+        "OnSpawn#1" : "func_areaportal,Open,,0,-1"
+        "OnSpawn#2" : "__pzi_nav_interface,RecomputeBlockers,,0,-1"
+        "OnSpawn#3" : "team_control_point,SetLocked,1,0,-1"
+        "OnSpawn#4" : "team_control_point,HideModel,,0,-1"
+        "OnSpawn#5" : "team_control_point,Disable,,0,-1"
     })
 
 })
