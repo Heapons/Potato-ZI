@@ -312,7 +312,7 @@ PZI_EVENT( "teamplay_setup_finished", "Infection_SetupFinished", function( param
     // enable glow on RED//
     // ------------------//
 
-    EntFire( "player", "RunScriptCode", "if ( self.GetTeam() == TEAM_HUMAN ) SetPropBool( self, `m_bGlowEnabled`, true )" )
+    // EntFire( "player", "RunScriptCode", "if ( self.GetTeam() == TEAM_HUMAN ) SetPropBool( self, `m_bGlowEnabled`, true )" )
 
     // local _szZombieNetNames  =  ""
     local _zombieArr         =  GetRandomPlayers( _numStartingZombies, TEAM_HUMAN )

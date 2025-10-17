@@ -13,7 +13,6 @@ PZI_Nav.SafeNavAreas   <- {}
 PZI_Nav.WalkablePoints <- []
 PZI_Nav.NAV_DEBUG      <- false // draw nav areas
 PZI_Nav.MAX_AREAS_PER_TICK <- 150
-
 // function PZI_Nav::FindWalkablePoints() {
 
 // }

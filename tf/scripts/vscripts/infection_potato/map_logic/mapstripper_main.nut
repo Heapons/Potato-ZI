@@ -178,7 +178,7 @@ local function SetupRoundTimer() {
                     if (!player || !player.IsValid())
                         continue
 
-                    if ( player.GetTeam() == TEAM_SPECTATOR || IsPlayerABot(player) )
+                    if ( player.GetTeam() == TEAM_SPECTATOR )
                         spectators++
                     else
                         players[player.GetTeam() == TEAM_HUMAN ? 0 : 1]++
@@ -299,10 +299,30 @@ local gamemode_props = [
 foreach ( prop in gamemode_props )
     SetPropBool( PZI_Util.GameRules, prop, false )
 
-try { IncludeScript( "infection_potato/map_logic/global" ) } catch ( e ) {}
-try { IncludeScript( format( "infection_potato/map_logic/%s", MAPNAME ) ) } catch ( e ) {}
+try { IncludeScript( "infection_potato/map_logic/" + MAPNAME, ROOT ) } catch ( e ) { printl( e )}
 
-local ents_to_kill = [ "team_round_timer", "game_round_win" ]
+local ents_to_kill = [
+
+	"team_round_timer"
+    "game_round_win"
+    "tf_logic_*"
+    // "bot_hint_*"
+    // "func_nav_*"
+    // "func_tfbot_hint"
+    "item_*"
+    "env_sun"
+	"beam"
+    "env_beam"
+    "env_lightglow"
+    "env_sprite"
+    "func_capturezone"
+    "func_regenerate"
+    "move_rope"
+    "keyframe_rope"
+    "func_respawnroomvisualizer"
+    "trigger_capture_area"
+    "func_door*"
+]
 
 PZI_EVENT( "teamplay_round_start", "PZI_MapStripper_RoundStart", function ( params ) {
 
@@ -329,30 +349,40 @@ PZI_EVENT( "teamplay_round_start", "PZI_MapStripper_RoundStart", function ( para
         tcp_scope.Inputsetwinner <- @() false
         break
     }
+
     // disable control points
     EntFire( "team_control_point", "SetLocked", "1" )
     EntFire( "team_control_point", "HideModel" )
 	EntFire( "team_control_point", "Disable" )
 
+    SpawnEntityFromTable( "logic_relay", {
+
+        targetname = "__pzi_mapstripper_round_start_relay"
+        spawnflags = 1
+        "OnSpawn#2" : "func_areaportal,Open,,0,-1"
+        "OnSpawn#3" : "__pzi_nav_interface,RecomputeBlockers,,0,-1"
+        "OnSpawn#4" : "team_control_point,SetLocked,1,0,-1"
+        "OnSpawn#5" : "team_control_point,HideModel,,0,-1"
+        "OnSpawn#6" : "team_control_point,Disable,,0,-1"
+    })
+
 })
 
 PZI_EVENT( "teamplay_setup_finished", "PZI_MapStripper_SetupFinished", function ( params ) {
 
-    EntFire( "func_respawnroom", "Disable" )
-    EntFire( "func_respawnroom", "SetInactive" )
-    EntFire( "func_regenerate", "Kill" )
+    SpawnEntityFromTable( "logic_relay", {
 
-    // open all doors near respawn rooms
-    for ( local respawnroom; respawnroom = FindByClassname( respawnroom, "func_respawnroom*" ); ) {
+        targetname = "__pzi_mapstripper_setup_finished_relay"
+        spawnflags = 1
+        "OnSpawn #1" : "func_respawnroom,Disable,,0,-1"
+        "OnSpawn #2" : "func_respawnroom,SetInactive,,0,-1"
+        "OnSpawn #3" : "func_regenerate,Kill,,0,-1"
+        "OnSpawn #4" : "func_door,Kill,,0,-1"
+        "OnSpawn #5" : "func_areaportal,Open,,0,-1"
+        "OnSpawn #6" : "__pzi_nav_interface,RecomputeBlockers,,0,-1"
+    })
 
-        for ( local door; door = FindByClassnameWithin( door, "func_door*", respawnroom.GetCenter(), 1024 ); ) {
-
-            door.AcceptInput( "Open", null, null, null )
-            EntFireByHandle( door, "Kill", null, 0.1, null, null )
-        }
-    }
-
-} )
+})
 
 PZI_EVENT( "player_spawn", "PZI_MapStripper_PlayerSpawn", function ( params ) {
 
