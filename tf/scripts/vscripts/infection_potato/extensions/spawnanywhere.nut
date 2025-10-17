@@ -310,7 +310,7 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
     // TODO: this is a hack because the ghost mode solidity changes shown above are useless
     // the only way to make an individual non-solid player is to use TF_COND_GHOST_MODE
     // which has a ton of side-effects I'm not interested in dealing with right now
-    player.SetCollisionGroup( TFCOLLISION_GROUP_COMBATOBJECT )
+    // player.SetCollisionGroup( TFCOLLISION_GROUP_COMBATOBJECT )
 
     local scope = PZI_Util.GetEntScope( player )
 
