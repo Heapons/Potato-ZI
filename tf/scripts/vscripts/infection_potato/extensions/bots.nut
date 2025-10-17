@@ -990,7 +990,7 @@ function PZI_Bots::EngineerZombie( bot ) {
 	local red_buildings	= PZI_Bots.red_buildings.keys()
 
 	if ( red_buildings.len() )
-		b.SetThreat( red_buildings[ RandomInt( 0, red_buildings.len() - 1 ) ], false )
+		b.threat = red_buildings[ RandomInt( 0, red_buildings.len() - 1 ) ]
 
 	b.threat ? bot.SetBehaviorFlag( 511 ) : bot.ClearBehaviorFlag( 511 )
 
