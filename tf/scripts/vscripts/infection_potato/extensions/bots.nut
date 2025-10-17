@@ -923,7 +923,7 @@ function PZI_Bots::GenericZombie( bot, threat_type = "closest" ) {
 
 		// we haven't taken/dealt any damage in a while, just respawn us if we're too far away from a player
 			if ( m_fTimeLastHit + 25.0 < b.time && !b.IsThreatVisible( threat ) && b.GetThreatDistanceSqr( threat ) > 262144.0 )
-				bot.ForceRespawn()
+				m_fTimeLastHit = b.time, bot.ForceRespawn()
             // else
             //     b.LookAt( threat.EyePosition() - Vector( 0, 0, 20 ), 1500, 1500 )
         }
@@ -1005,7 +1005,7 @@ function PZI_Bots::EngineerZombie( bot ) {
 			return
 		}
 
-		b.SetThreat( red_buildings[ RandomInt( 0, red_buildings.len() - 1 ) ], false )
+		b.threat = red_buildings[ RandomInt( 0, red_buildings.len() - 1 ) ]
 
 		if ( !b.threat || !b.threat.IsValid() )
 			red_buildings = red_buildings.filter( @( k, v ) k != null )
