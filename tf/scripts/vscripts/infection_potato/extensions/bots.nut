@@ -1008,7 +1008,7 @@ function PZI_Bots::EngineerZombie( bot ) {
 		b.SetThreat( red_buildings[ RandomInt( 0, red_buildings.len() - 1 ) ], false )
 
 		if ( !b.threat || !b.threat.IsValid() )
-			red_buildings = red_buildings.filter( @( k, v ) k && k.IsValid() )
+			red_buildings = red_buildings.filter( @( k, v ) k != null )
 	}
 
 	PZI_Util.AddThink( bot, EngineerZombieThink )
@@ -1141,3 +1141,23 @@ PZI_EVENT( "player_builtobject", "PZI_Bots_PlayerBuildObject", function( params 
 	if ( !( building in PZI_Bots.red_buildings ) )
 		PZI_Bots.red_buildings[building] <- GetPlayerFromUserID( params.userid )
 })
+
+// PZI_EVENT( "player_hurt", "PZI_Bots_PlayerHurt", function( params ) {
+
+//     local player = GetPlayerFromUserID( params.userid )
+
+//     if ( !IsPlayerABot( player ) || player.GetHealth() - params.damageamount <= 0 )
+// 		return
+
+// 	local attacker = GetPlayerFromUserID( params.attacker )
+
+// 	if ( !attacker || !attacker.IsPlayer() )
+// 		return
+
+// 	local scope = player.GetScriptScope()
+
+// 	if ( scope && "PZI_BotBehavior" in scope ) {
+
+// 		local threat = scope.PZI_BotBehavior.threat
+// 	}
+// })

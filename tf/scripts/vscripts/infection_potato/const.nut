@@ -105,6 +105,7 @@ ZOMBIE_WEP_ATTRIBS <- [ ////////////////////////////////////////////////////////
 ["crit mod disabled hidden", 0, -1],            // No crits                                //
 ["zombiezombiezombiezombie", 1, -1],            // enable zombie cosmetic vo               //
 ["attach particle effect", 3105, -1],            // enable particle effect                 //
+["voice pitch scale", 0.7, -1],                       // Makes player voice funny          //
 ],                                              //                                         //
 [// attributes for scout zombie weapon --------------------------------------------------- //
 ["damage bonus", ZSCOUT_DMG_MULTI, -1 ],        // set class specific damage multi         //
@@ -182,7 +183,6 @@ ZOMBIE_PLAYER_ATTRIBS <- [ /////////////////////////////////////////////////////
     ["maxammo metal reduced", 0.0, -1],                   // Prevent picking up metal          //
     ["maxammo secondary reduced", 0.0, -1],               // Prevent picking up ammo           //
     ["maxammo primary reduced", 0.0, -1],                 // Prevent picking up ammo           //
-    ["voice pitch scale", 0.7, -1],                       // Makes player voice funny          //
     ["health from packs decreased", 0, -1],               // Cannot pick up health packs       //
 ],                                                        //                                   //
 [// attributes for scout zombie  --------------------------------------------------------- //
