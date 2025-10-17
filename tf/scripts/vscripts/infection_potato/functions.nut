@@ -33,7 +33,7 @@ function PrecacheResources() {
     return
 }
 
-function RoundUp ( _fValue ) {
+function RoundUp( _fValue ) {
 
     local _iPart = _fValue.tointeger()
 
@@ -45,12 +45,12 @@ function RoundUp ( _fValue ) {
     return _iPart
 }
 
-function GetPlayerUserID ( _hPlayer ) {
+function GetPlayerUserID( _hPlayer ) {
 
     return ( GetPropIntArray( TFPlayerManager, "m_iUserID", _hPlayer.entindex() ) )
 }
 
-function PlayerCount ( _team = -1 ) {
+function PlayerCount( _team = -1 ) {
 
     // local playerCount   = 0
     // local targetTeamCount = 0
@@ -63,7 +63,7 @@ function PlayerCount ( _team = -1 ) {
     return (PZI_Util.PlayerArray.filter(@(i, player) player.GetTeam() == _team || _team == -1)).len()
 }
 
-function PlayGlobalBell ( _bForce ) {
+function PlayGlobalBell( _bForce ) {
 
     if ( !_bForce && ( Time() - flTimeLastBell ) < 0.75 )
         return
@@ -79,7 +79,7 @@ function PlayGlobalBell ( _bForce ) {
 }
 
 // damage is multiplied by _flDmgMult for each player in range
-function DemomanExplosionPreCheck ( _vecLocation, _flDmg, _flDmgMult, _flRange, _hInflictor, _flForceMultiplier = 0.0, _flUpwardForce = 0.0, _iTeamnum = TEAM_ZOMBIE ) {
+function DemomanExplosionPreCheck( _vecLocation, _flDmg, _flDmgMult, _flRange, _hInflictor, _flForceMultiplier = 0.0, _flUpwardForce = 0.0, _iTeamnum = TEAM_ZOMBIE ) {
 
     local _finalDmg = _flDmg.tofloat() / _flDmgMult.tofloat(); // divide once first to effectively skip the first player
 
@@ -114,7 +114,7 @@ function DemomanExplosionPreCheck ( _vecLocation, _flDmg, _flDmgMult, _flRange, 
     return
 }
 
-function CreateExplosion ( _vecLocation, _flDmg, _flRange, _hInflictor, _flForceMultiplier = 0.0, _flUpwardForce = 0.0, _iTeamnum = TEAM_ZOMBIE ) {
+function CreateExplosion( _vecLocation, _flDmg, _flRange, _hInflictor, _flForceMultiplier = 0.0, _flUpwardForce = 0.0, _iTeamnum = TEAM_ZOMBIE ) {
 
     ScreenShake ( _vecLocation, 5000, 5000, 4, 350, 0, true )
 
@@ -130,6 +130,7 @@ function CreateExplosion ( _vecLocation, _flDmg, _flRange, _hInflictor, _flForce
         damage           = _flDmg.tostring(),
         radius           = _flRange.tostring(),
         friendlyfire     = "0",
+        vscripts     = " "
     } )
 
     local _hPfxEnt = SpawnEntityFromTable( "info_particle_system", {
@@ -138,14 +139,13 @@ function CreateExplosion ( _vecLocation, _flDmg, _flRange, _hInflictor, _flForce
         start_active = "0",
         targetname   = "ZombieDemo_Explosion_PFX_Ent",
         origin       = _vecLocation,
+        vscripts     = " "
     } )
 
-    _hPfxEnt.ValidateScriptScope()
     _hPfxEnt.GetScriptScope     ().m_flKillTime <- ( Time() + 2.0 ).tofloat()
 
     AddThinkToEnt( _hPfxEnt, "KillMeThink" )
 
-    _hBomb.ValidateScriptScope()
     _hBomb.GetScriptScope     ().m_flKillTime <- ( Time() + 0.1 ).tofloat()
     _hBomb.GetScriptScope     ().m_hOwner     <- _hInflictor
 
@@ -204,9 +204,11 @@ function GetRandomPlayers( _howMany = 1, team = null ) {
     return _selectedPlayers
 }
 
-function ChangeTeamSafe ( _hPlayer, _iTeamNum, _bForce = false ) {
+function ChangeTeamSafe( _hPlayer, _iTeamNum, _bForce = false ) {
 
-    if ( !_hPlayer || !_hPlayer.IsValid() || _iTeamNum < TEAM_SPECTATOR || _iTeamNum > TEAM_ZOMBIE || _hPlayer.GetTeam() == _iTeamNum )
+    if ( !_hPlayer || !_hPlayer.IsValid() || _iTeamNum < TEAM_SPECTATOR )
+        return
+    else if ( _iTeamNum > TEAM_ZOMBIE || _hPlayer.GetTeam() == _iTeamNum )
         return
 
     // m_bIsCoaching trick to change team even if player is in a duel ( source: vdc )
@@ -217,7 +219,7 @@ function ChangeTeamSafe ( _hPlayer, _iTeamNum, _bForce = false ) {
     return
 }
 
-function NetName ( _hPlayer ) {
+function NetName( _hPlayer ) {
 
     if ( !_hPlayer )
         return "[UNKNOWN/INVALID PLAYER]"
@@ -230,7 +232,7 @@ function NetName ( _hPlayer ) {
     return _szNetname
 }
 
-function PlayerIsValid ( _hPlayer ) {
+function PlayerIsValid( _hPlayer ) {
 
     if ( !_hPlayer )
         return false
@@ -238,7 +240,7 @@ function PlayerIsValid ( _hPlayer ) {
     return true
 }
 
-function ShouldZombiesWin ( _hPlayer ) {
+function ShouldZombiesWin( _hPlayer ) {
 
     local _iValidSurvivors = 0
     local _iValidPlayers   = 0
@@ -276,17 +278,8 @@ function ShouldZombiesWin ( _hPlayer ) {
     // check if zombies have killed enough survivors to win
     if ( _iValidSurvivors <= MAX_SURVIVORS_FOR_ZOMBIE_WIN ) {
 
-        local _hGameWin = SpawnEntityFromTable( "game_round_win", {
-
-            force_map_reset = true,
-            TeamNum         = TEAM_ZOMBIE, // TEAM_ZOMBIE
-            switch_teams    = false
-        } )
-
-        // the zombies have won the round.
-        ::bGameStarted <- false
-        SetValue( "mp_humans_must_join_team", "red" )
-        _hGameWin.AcceptInput( "RoundWin", null, null, null )
+       PZI_Util.RoundWin( TEAM_ZOMBIE )
+       return
     }
     else {
 
@@ -344,7 +337,7 @@ function CreateAmmoPack( _vecLocation, _szClassname ) {
     EntFireByHandle( _hDroppedPack, "Kill", null, 20.0, null, null )
 }
 
-function CreateSmallHealthKit ( _vecLocation ) {
+function CreateSmallHealthKit( _vecLocation ) {
 
     local _hDroppedHealthkit = SpawnEntityFromTable( "item_healthkit_small", {
 
@@ -363,7 +356,7 @@ function CreateSmallHealthKit ( _vecLocation ) {
     AddThinkToEnt( _hDroppedHealthkit, "KillMeThink" )
 }
 
-function CreateMediumHealthKit ( _vecLocation ) {
+function CreateMediumHealthKit( _vecLocation ) {
 
     local _hDroppedHealthkit = SpawnEntityFromTable( "item_healthkit_medium", {
 
@@ -382,7 +375,7 @@ function CreateMediumHealthKit ( _vecLocation ) {
     AddThinkToEnt( _hDroppedHealthkit, "KillMeThink" )
 }
 
-function PrintToChat ( _szMessage ) {
+function PrintToChat( _szMessage ) {
 
     if ( !_szMessage || _szMessage == "" || typeof _szMessage != "string" )
         return
@@ -391,7 +384,7 @@ function PrintToChat ( _szMessage ) {
     return
 }
 
-function SlayPlayerWithSpoofedIDX ( _hAttacker, _hVictim, _hAttackerWep, _vecDmgForce, _vecDmgPosition, _iIDX = ZOMBIE_SPOOF_WEAPON_IDX, _szKillicon = "" ) {
+function SlayPlayerWithSpoofedIDX( _hAttacker, _hVictim, _hAttackerWep, _vecDmgForce, _vecDmgPosition, _iIDX = ZOMBIE_SPOOF_WEAPON_IDX, _szKillicon = "" ) {
 
     if ( !_hAttacker || !_hVictim || !_hAttackerWep )
         return
@@ -452,7 +445,7 @@ function SlayPlayerWithSpoofedIDX ( _hAttacker, _hVictim, _hAttackerWep, _vecDmg
 // usage: _playerHandle.<functionName>( _args );                                           //
 // --------------------------------------------------------------------------------------- //
 
-function CTFPlayer_HasThisWeapon ( _WeaponIndentity, _bDeleteItemOnFind = false ) {
+function CTFPlayer_HasThisWeapon( _WeaponIndentity, _bDeleteItemOnFind = false ) {
 
     for ( local i = 0; i < TF_WEAPON_COUNT; i++ ) {
 
@@ -490,7 +483,7 @@ function CTFPlayer_HasThisWeapon ( _WeaponIndentity, _bDeleteItemOnFind = false 
 	return false
 }
 
-function CTFPlayer_HasThisWearable ( _WearableClassname ) {
+function CTFPlayer_HasThisWearable( _WearableClassname ) {
 
     local _wearable = null
     while ( _wearable = FindByClassname( _wearable, "tf_wearable*" ) ) {
@@ -507,7 +500,7 @@ function CTFPlayer_HasThisWearable ( _WearableClassname ) {
 	return false
 }
 
-function CTFPlayer_LockInPlace ( _bEnable = true ) {
+function CTFPlayer_LockInPlace( _bEnable = true ) {
 
     if ( _bEnable ) {
 
@@ -557,7 +550,7 @@ function CTFPlayer_SpawnEffect() {
 function CTFPlayer_GiveZombieCosmetics() {
 
     local wearable = PZI_Util.GiveWearableItem( this, arrZombieCosmeticIDX[ this.GetPlayerClass() ], arrZombieCosmeticModelStr[ this.GetPlayerClass() ] )
-    local _sc = this.GetScriptScope() || ( this.ValidateScriptScope(), this.GetScriptScope() )
+    local _sc = PZI_Util.GetEntScope( this )
 
     SetPropBool( this, "m_bForcedSkin", true )
     SetPropInt( this, "m_nForcedSkin", this.GetSkin() + 4 )
@@ -583,9 +576,7 @@ function CTFPlayer_GiveZombieCosmetics_OLD() {
 
     // this.SetCustomModelWithClassAnimations( szArrZombiePlayerModels[ _iClassnum ] )
 
-    local _sc = this.GetScriptScope() || ( this.ValidateScriptScope(), this.GetScriptScope() )
-
-	// if ( !_sc ) return
+    local _sc = PZI_Util.GetEntScope( this )
 
     if ( "m_hZombieWearable" in _sc && _sc.m_hZombieWearable && _sc.m_hZombieWearable.IsValid() )
     _sc.m_hZombieWearable.Destroy()
@@ -1002,7 +993,7 @@ function CTFPlayer_CheckIfLoser() {
     return false
 }
 
-function CTFPlayer_CanDoAct ( _iAct ) {
+function CTFPlayer_CanDoAct( _iAct ) {
 
     local _sc    =  this.GetScriptScope()
     local _temp  =  ACT_LOCKED
@@ -1061,7 +1052,7 @@ function CTFPlayer_CanDoAct ( _iAct ) {
     }
 }
 
-function CTFPlayer_ProcessEventQueue (  ) {
+function CTFPlayer_ProcessEventQueue(  ) {
 
     local _sc = this.GetScriptScope()
 
@@ -1184,7 +1175,7 @@ function CTFPlayer_ProcessEventQueue (  ) {
     return
 }
 
-function CTFPlayer_RemoveEventFomQueue ( _event ) {
+function CTFPlayer_RemoveEventFomQueue( _event ) {
 
     local _sc = this.GetScriptScope()
 
@@ -1206,7 +1197,7 @@ function CTFPlayer_RemoveEventFomQueue ( _event ) {
     return
 }
 
-function CTFPlayer_AddEventToQueue ( _event, _delay ) {
+function CTFPlayer_AddEventToQueue( _event, _delay ) {
 
     local _sc        =  this.GetScriptScope()
     local _fireTime  =  ( Time() + _delay )
@@ -1232,8 +1223,6 @@ function CTFPlayer_ResetInfectionVars() {
 	if ( !_sc ) return
 
     // AddThinkToEnt( this, null )
-    if ( "ThinkTable" in _sc )
-        _sc.ThinkTable.clear()
 
     if ( ( "m_iUserConfigFlags" in _sc ) ) {
 
@@ -1284,10 +1273,7 @@ function CTFPlayer_ResetInfectionVars() {
     _sc.m_iCurrentAbilityType   <- 0
     _sc.m_iAbilityState         <- 0
 
-    if ( !( "ThinkTable" in _sc ) )
-        _sc.ThinkTable <- {}
-
-    _sc.ThinkTable.PZI_PlayerThink <- ::PZI_PlayerThink
+    PZI_Util.AddThink( this, PZI_PlayerThink )
 
     return true
 }
@@ -1345,7 +1331,7 @@ function CTFPlayer_MakeHuman() {
     return
 }
 
-function CTFPlayer_HowLongUntilAct ( _iAct ) {
+function CTFPlayer_HowLongUntilAct( _iAct ) {
 
     local _sc = this.GetScriptScope()
 
@@ -1400,7 +1386,7 @@ function CTFPlayer_ClearProblematicConds() {
     return
 }
 
-function CTFPlayer_SetNextActTime ( _iAct, _fTime ) {
+function CTFPlayer_SetNextActTime( _iAct, _fTime ) {
 
     local _sc = this.GetScriptScope()
 
@@ -1503,7 +1489,7 @@ function CTFPlayer_GetLinkedSpitPoolEnt() {
     return null
 }
 
-function CTFPlayer_SetLinkedSpitPoolEnt ( _hSpitPool ) {
+function CTFPlayer_SetLinkedSpitPoolEnt( _hSpitPool ) {
 
     local _sc = this.GetScriptScope()
 
@@ -1532,7 +1518,7 @@ function CTFPlayer_ClearSpitStatus() {
     return
 }
 
-function CTFPlayer_GetWeaponHandle ( _szWeaponClassname ) {
+function CTFPlayer_GetWeaponHandle( _szWeaponClassname ) {
 
     for ( local i = 0; i < TF_WEAPON_COUNT; i++ ) {
 
@@ -1564,7 +1550,7 @@ foreach ( key, value in this ) {
     }
 }
 
-function KnockbackPlayer ( _hInflictor, _hVictim, _flForceMultiplier = 500.0, _flUpwardForce =  0.25, _vecDirOverride = Vector( 0, 0, 0 ), _bRemoveOnGround = false ) {
+function KnockbackPlayer( _hInflictor, _hVictim, _flForceMultiplier = 500.0, _flUpwardForce =  0.25, _vecDirOverride = Vector( 0, 0, 0 ), _bRemoveOnGround = false ) {
 
     if ( !_hInflictor || !_hVictim || !_hInflictor.IsValid() || !_hVictim.IsValid() )
          return
@@ -1606,7 +1592,7 @@ function KnockbackPlayer ( _hInflictor, _hVictim, _flForceMultiplier = 500.0, _f
     return
 }
 
-function KilliconInflictor ( _szKillIconName ) {
+function KilliconInflictor( _szKillIconName ) {
 
     local _hKillIcon = SpawnEntityFromTable( "point_template", {
         classname = _szKillIconName

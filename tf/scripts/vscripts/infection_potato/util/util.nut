@@ -76,9 +76,6 @@ PZI_Util.Slots   	 <- ["slot_primary", "slot_secondary", "slot_melee", "slot_uti
 
 PZI_Util.ConVars      <- {} // convar tracking to revert to original values
 PZI_Util.EntShredder  <- [] // entity shredder.  Fixed number of entities deleted per tick.
-PZI_Util.AllNavAreas  <- {} // gets filled by GetAllAreas at the end of this file
-PZI_Util.SafeNavAreas <- {} // gets filled by GetAllAreas at the end of this file
-PZI_Util.NAV_DEBUG    <- true // draw nav areas
 
 
 PZI_Util.ROBOT_ARM_PATHS <- [
@@ -209,7 +206,7 @@ PZI_Util.PROJECTILE_WEAPONS <- {
 
 // All entity classname prefixes listed here will have their think functions overwritten and throw a warning
 // Think functions will instead be added to a table with the value of the first element in the array
-// You should always use PopExtUtil.AddThink instead to handle these gracefully.
+// You should always use PZI_Util.AddThink instead to handle these gracefully.
 
 // e.g. calling AddThinkToEnt( player, "MyFunc") with the default config:
 // - Creates a table named "PlayerThinkTable" and a think function named "PlayerThinks" in player scope
@@ -296,12 +293,7 @@ function PZI_Util::ThinkTable::EntityManagerThink() {
 	return -1
 }
 
-function PZI_Util::GetEntScope( ent ) {
-
-	local scope = ent.GetScriptScope() || ( ent.ValidateScriptScope(), ent.GetScriptScope() )
-
-	return scope
-}
+function PZI_Util::GetEntScope( ent ) { return ent.GetScriptScope() || ( ent.ValidateScriptScope(), ent.GetScriptScope() ) }
 
 function PZI_Util::TouchCrashFix() { return activator && activator.IsValid() }
 
@@ -751,7 +743,7 @@ function PZI_Util::GiveWearableItem( player, item_id, model = null ) {
 	if (player.entindex() in PZI_Util.kill_on_spawn)
 		PZI_Util.kill_on_spawn[ player ].append( wearable )
 	else
-		PZI_Util.kill_on_spawn[ player ] <- wearable
+		PZI_Util.kill_on_spawn[ player ] <- [ wearable ]
 
 	return wearable
 }
@@ -787,7 +779,7 @@ function PZI_Util::CreateWearable( player, model, bonemerge = true, attachment =
 		if (player.entindex() in PZI_Util.kill_on_death)
 			PZI_Util.kill_on_death[ player ].append( wearable )
 		else
-			PZI_Util.kill_on_death[ player ] <- wearable
+			PZI_Util.kill_on_death[ player ] <- [ wearable ]
 
 	return wearable
 }
@@ -1857,12 +1849,11 @@ function PZI_Util::RoundWin( team = 2 ) {
 		force_map_reset = true
 		TeamNum         = team
 		switch_teams    = false
-	} )
+	})
 
     SetValue( "mp_humans_must_join_team", "red" )
 	round_win.AcceptInput( "RoundWin", null, null, null )
-
-	EntFireByHandle( round_win, "Kill", null, 3.0, null, null )
+	::bGameStarted = false
 }
 
 function PZI_Util::GetWeaponMaxAmmo( player, wep ) {
@@ -1917,7 +1908,7 @@ function PZI_Util::TeleportNearVictim( ent, victim, attempt, ignore_visibility =
 	local areas = {}
 	GetNavAreasInRadius( victim.GetOrigin(), surround_travel_range, areas )
 
-	local ambush_areas = areas.filter( @( name, area ) name in PZI_Util.SafeNavAreas && ( ignore_visibility || !area.IsPotentiallyVisibleToTeam( victim.GetTeam() ) ) ).values()
+	local ambush_areas = areas.filter( @( name, area ) name in PZI_Nav.SafeNavAreas && ( ignore_visibility || !area.IsPotentiallyVisibleToTeam( victim.GetTeam() ) ) ).values()
 
 	if ( !ambush_areas.len() )
 		return false
@@ -2156,7 +2147,7 @@ function PZI_Util::AddThink( ent, func ) {
 	if ( !ent || !ent.IsValid() )
 		return
 
-	foreach ( k, v in PZI_Util.ThinkTableSetup ) {
+	foreach ( k, v in ThinkTableSetup ) {
 
 		if ( typeof v != "array" )
 			continue
@@ -2192,7 +2183,7 @@ function PZI_Util::AddThink( ent, func ) {
 			scope[ func_name ] <- ROOT[ func_name ].bindenv( scope )
 		}
 
-		"_AddThinkToEnt" in ROOT ? _AddThinkToEnt( ent, func_name ) : AddThinkToEnt( ent, func_name )
+		AddThinkToEnt( ent, func_name )
 
 		return
 	}
@@ -2206,15 +2197,15 @@ function PZI_Util::AddThink( ent, func ) {
 	if ( !( thinktable_func in scope ) ) {
 
 		// scope[ thinktable_func ] <- function() {
-
-		// 	foreach ( name, _func in scope[ thinktable_name ] || {} )
-		// 		_func.call( scope )
+			
+		// 	printl( "aaaaa" )
+		// 	foreach ( name, _func in this[ thinktable_name ] )
+		// 		_func()
 
 		// 	return -1
 		// }
-
-		compilestring( format( "function %s() { foreach( _func in %s || {} ) _func(); return -1 }", thinktable_func, thinktable_name ) ).call( scope )
-		try { _AddThinkToEnt( ent, thinktable_func ) } catch ( e ) { AddThinkToEnt( ent, thinktable_func ) }
+		compilestring( format( "function %s() { foreach( name, _func in %s ) { _func() }; return -1 }", thinktable_func, thinktable_name ) ).call( scope )
+		AddThinkToEnt( ent, thinktable_func )
 	}
 	// only initialize blank think setup for empty string
 	if ( func == "" )
@@ -2226,7 +2217,6 @@ function PZI_Util::AddThink( ent, func ) {
 		if ( endswith( typeof func, "function" ) ) {
 
 			scope[ thinktable_name ][ func.getinfos().name || format( "__%s_ANONYMOUS_THINK", ent.GetName() ) ] <- func
-			return
 		}
 
 		else if (
@@ -2236,18 +2226,13 @@ function PZI_Util::AddThink( ent, func ) {
 		) {
 
 			scope[ thinktable_name ][ func ] <- func in this ? this[ func ].bindenv( scope ) : ROOT[ func ].bindenv( scope )
-			return
 		}
 	}
 	else {
 
 		scope[ thinktable_name ].clear()
-		return
 	}
-
 }
-
-PZI_Util.AddThinkToEnt <- PZI_Util.AddThink
 
 function PZI_Util::RemoveThink( ent, func = null ) {
 
@@ -2533,9 +2518,10 @@ PZI_EVENT( "teamplay_round_start", "UtilRoundStart", function ( params ) {
 	PZI_Util.ResetConvars()
 
 	foreach( table in ["kill_on_spawn", "kill_on_death"] )
-		foreach ( wearable in PZI_Util[ table ].values() )
+		foreach ( player, wearables in PZI_Util[ table ] )
+			foreach ( wearable in wearables )
 				if ( wearable && wearable.IsValid() )
-					wearable.Kill()
+					EntFireByHandle( wearable, "Kill", "", -1, null, null )
 
 	PZI_Util.kill_on_spawn.clear()
 	PZI_Util.kill_on_death.clear()
@@ -2628,9 +2614,10 @@ PZI_EVENT( "post_inventory_application", "UtilPostInventoryApplication", functio
 	if ( !player || !player.IsValid() || player.IsEFlagSet( EFL_IS_BEING_LIFTED_BY_BARNACLE ) )
 		return
 
-	if ( player in PZI_Util.kill_on_death )
-		foreach ( wearable in PZI_Util.kill_on_death[ player ] )
-			EntFireByHandle( wearable, "Kill", "", -1, null, null )
+	if ( player in PZI_Util.kill_on_spawn )
+		foreach ( wearable in PZI_Util.kill_on_spawn[ player ] )
+			if ( wearable && wearable.IsValid() )
+				EntFireByHandle( wearable, "Kill", "", -1, null, null )
 
 	local human_table  = PZI_Util.HumanTable
 	local zombie_table = PZI_Util.ZombieTable
@@ -2685,96 +2672,5 @@ PZI_EVENT( "post_inventory_application", "UtilPostInventoryApplication", functio
 	PZI_Util.ValidatePlayerTables()
 
 }, EVENT_WRAPPER_UTIL )
-
-GetAllAreas( PZI_Util.AllNavAreas )
-
-// pre-collect safe nav areas on load
-function PZI_Util::GetSafeNavAreas() {
-
-	if ( !AllNavAreas.len() )
-		return
-
-	ScriptEntFireSafe( self, "print( `\\n\\n Collecting nav areas, performance warnings will go away shortly...\\n\\n`)", 0.1 )
-
-	local i = 0
-	local color_valid  = [   0, 180,  20, 50  ]
-	local color_small  = [   0,  20, 180, 50  ]
-	local color_edge   = [   0, 180, 180, 50  ]
-	local color_warn   = [ 180, 180,  20,  50 ]
-	local color_danger = [ 180,   0,  20,  50 ]
-
-	local color = color_valid
-	local trace = {}
-
-	// filter out areas that are too small or inside a trigger_hurt
-	foreach( name, area in AllNavAreas ) {
-
-		color = color_valid
-
-		if ( area.GetSizeX() < 50 )
-			color = color_small
-
-		else if ( area.GetSizeY() < 50 )
-			color = color_small
-
-		else if ( IsPointInTrigger( area.GetCenter(), "trigger_hurt" ) )
-			color = color_danger
-
-		else {
-
-			// this is too broken atm
-			// for ( local i = 0; i < NUM_DIRECTIONS; i++ )
-				// if ( !area.GetAdjacentArea(i, 1) ) {
-// 
-					// color = color_edge
-					// break
-				// }
-
-			if ( color != color_edge ) {
-	
-				trace.clear()
-				trace.start <- area.GetCenter()
-				trace.end 	<- area.GetCenter() + Vector( 0, 0, INT_MAX )
-				trace.mask  <- CONTENTS_SOLID
-				trace.hullmin <- area.GetCorner( NORTH_WEST )
-				trace.hullmax <- area.GetCorner( SOUTH_EAST )
-	
-				TraceHull( trace )
-	
-				if ( trace.hit && trace.enthit && trace.enthit.GetClassname() == "trigger_hurt" )
-					color = color_warn
-
-			}
-		}
-
-		if ( color == color_valid )
-			SafeNavAreas[name] <- area
-
-		if ( NAV_DEBUG )
-			area.DebugDrawFilled( color[0], color[1], color[2], color[3], 15.0, true, 0.0 )
-
-		i++
-
-		if ( !(i % 150) ) // process this many nav areas per tick
-			yield SafeNavAreas.len()
-	}
-
-	print("\n\nSafe nav areas collected\n\n")
-	EntFire( "__pzi_util", "CallScriptFunction", "collectgarbage" )
-}
-
-local gen = PZI_Util.GetSafeNavAreas()
-resume gen // do one step right away before thinking
-
-function PZI_Util::ThinkTable::PopulateSafeNav() {
-
-	if ( gen.getstatus() == "dead" ) {
-
-		delete PZI_Util.ThinkTable.PopulateSafeNav
-		return 1
-	}
-	local result = resume gen || SafeNavAreas.len()
-	printf("Safe Areas: %s / %s\n", result.tostring(), AllNavAreas.len().tostring() )
-}
 
 PZI_Util.ForEachEnt( null, null, null, null, true )

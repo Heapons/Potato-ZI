@@ -197,19 +197,7 @@ PZI_EVENT( "player_spawn", "Infection_PlayerSpawn", function( params ) {
 
     local _iRoundState = GetPropInt( GameRules, "m_iRoundState" )
 
-    _sc <- _hPlayer.GetScriptScope() || (_hPlayer.ValidateScriptScope(), _hPlayer.GetScriptScope())
-
-    _sc.ThinkTable <- {}
-
-    function _sc::PlayerThinks() {
-
-        foreach( name, func in ThinkTable )
-            func.call( this )
-        return -1
-    }
-
-    AddThinkToEnt( _hPlayer, "PlayerThinks" )
-
+    _sc <- PZI_Util.GetEntScope( _hPlayer )
     // we use the script overlay material for zombie ability hud
     // so let's make sure it's cleared whenever a player has respawned
     _hPlayer.SetScriptOverlayMaterial( "" )
@@ -283,7 +271,7 @@ PZI_EVENT( "player_spawn", "Infection_PlayerSpawn", function( params ) {
         // _hPlayer.GiveZombieEyeParticles()
         // _hPlayer.GiveZombieFXWearable()
 
-        _hPlayer.SetEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
+        _hPlayer.AddEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
         SendGlobalGameEvent( "post_inventory_application", { userid = GetPlayerUserID( _hPlayer ) } )
         _hPlayer.RemoveEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
 
@@ -299,7 +287,7 @@ PZI_EVENT( "player_spawn", "Infection_PlayerSpawn", function( params ) {
     return
 }, EVENT_WRAPPER_MAIN )
 
-// PZI_EVENT( "teamplay_round_start", "Infection_RoundStart", @( params ) PZI_Util.ScriptEntFireSafe( "player", "self.ForceRespawn()", 0.1 ) )
+PZI_EVENT( "teamplay_round_start", "Infection_RoundStart", @( params ) PZI_Util.ScriptEntFireSafe( "player", "self.Regenerate( true )", 0.1 ) )
 
 PZI_EVENT( "teamplay_setup_finished", "Infection_SetupFinished", function( params ) {
 
@@ -316,16 +304,7 @@ PZI_EVENT( "teamplay_setup_finished", "Infection_SetupFinished", function( param
 
     if ( ( _iPlayerCountRed <= 1 ) && ( DEBUG_MODE < 1 ) ) {
 
-        local _hGameWin = SpawnEntityFromTable( "game_round_win", {
-
-            force_map_reset = true
-            TeamNum         = TEAM_HUMAN
-            switch_teams    = false
-        } )
-        
-        SetValue( "mp_humans_must_join_team", "red" )
-        _hGameWin.AcceptInput( "RoundWin", null, null, null )
-        ::bGameStarted <- false
+        PZI_Util.RoundWin( TEAM_HUMAN )
         return
     }
 
@@ -382,6 +361,7 @@ PZI_EVENT( "teamplay_setup_finished", "Infection_SetupFinished", function( param
 
                 PZI_Util.ScriptEntFireSafe(_nextPlayer1, "self.TakeDamage( INT_MAX, DMG_GENERIC, null ); self.ForceRespawn()", 0.1)
                 yield _nextPlayer1
+                // continue
             }
 
             // remove all of the player's existing items
@@ -392,7 +372,7 @@ PZI_EVENT( "teamplay_setup_finished", "Infection_SetupFinished", function( param
 
             _nextPlayer1.GiveZombieEyeParticles()
 
-            _nextPlayer1.SetEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
+            _nextPlayer1.AddEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
             SendGlobalGameEvent( "post_inventory_application", { userid = GetPlayerUserID( _nextPlayer1 ) } )
             _nextPlayer1.RemoveEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
 
@@ -511,24 +491,23 @@ PZI_EVENT( "player_death", "Infection_PlayerDeath", function( params ) {
 
     if ( ::bGameStarted && _hPlayerTeam == TEAM_ZOMBIE ) { // zombie has died
 
-        if ( _iClassNum ==  TF_CLASS_MEDIC ) {
-
-            if ( "m_hMedicDispenser" in _sc && _sc.m_hMedicDispenser.IsValid() )
+        if ( _iClassNum == TF_CLASS_MEDIC )
+            if ( "m_hMedicDispenser" in _sc && _sc.m_hMedicDispenser && _sc.m_hMedicDispenser.IsValid() )
                 _sc.m_hMedicDispenser.Destroy()
-        }
 
         // zombie engie with unused emp grenade drops a small ammo kit
         // so just use the one valve spawned for us
         if ( !_bIsEngineerWithEMP ) {
 
             // if the player isn't an engineer, we want to cull the kit instead
-            local _hDroppedAmmo = null
-            while ( _hDroppedAmmo = FindByClassname( _hDroppedAmmo, "tf_ammo_pack" ) ) {
+            // local _hDroppedAmmo = null
+            // while ( _hDroppedAmmo = FindByClassname( _hDroppedAmmo, "tf_ammo_pack" ) ) {
 
-                if ( _hDroppedAmmo.GetOwner() == _hPlayer )
-                    _hDroppedAmmo.Destroy()
+            //     if ( _hDroppedAmmo.GetOwner() == _hPlayer )
+            //         _hDroppedAmmo.Destroy()
 
-            }
+            // }
+            EntFire( "tf_ammo_pack", "Kill" )
         }
 
         if ( _hPlayer.GetPlayerClass() == TF_CLASS_SNIPER ) {
@@ -628,7 +607,7 @@ PZI_EVENT( "player_death", "Infection_PlayerDeath", function( params ) {
 
         try { _sc.m_hZombieWearable.Destroy() } catch ( e ) {}
 
-        _hPlayer.SetEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
+        _hPlayer.AddEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
         SendGlobalGameEvent( "post_inventory_application", { userid = GetPlayerUserID( _hPlayer ) } )
         _hPlayer.RemoveEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
 

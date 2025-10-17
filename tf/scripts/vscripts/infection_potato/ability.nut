@@ -432,6 +432,7 @@ class CSniperSpitball extends CZombieAbility {
         _sc.m_hOwner        <-   this.m_hAbilityOwner
         _sc.m_iState        <-   SPIT_STATE_IN_TRANSIT
         _sc.m_hPfx          <-   _hPfxEnt
+        _sc.m_arrSpitFx     <-   array( 5 ) // 5 splat effects
         _sc.m_bDealtPopDmg  <-   false
         _sc.m_bHasHitSolid  <-   false
 

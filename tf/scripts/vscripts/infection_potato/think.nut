@@ -674,6 +674,9 @@ function PZI_PlayerThink() {
 
 function SniperSpitThink() {
 
+    if ( !m_hOwner || !m_hOwner.IsValid() )
+        return 1
+
     // flying through the air
     if ( m_iState == SPIT_STATE_IN_TRANSIT ) {
 
@@ -811,6 +814,9 @@ function SniperSpitThink() {
             m_vecSpitZone    <- _tblTraceLine.pos
             m_vecSpitZone.z += 3; // add some z height so the splat isnt in the ground
 
+            m_tblNavAreas <- {}
+            GetNavAreasInRadius( m_vecSpitZone, SPIT_ZONE_RADIUS, m_tblNavAreas )
+
             if ( DEBUG_MODE ) {
 
                 DebugDrawBox( _tblTraceLine.pos, Vector( -5, -5, -5 ), Vector( 5, 5, 5 ), 0, 0, 255, 0, 5.0 )
@@ -883,22 +889,37 @@ function SniperSpitThink() {
         // if the percent of hits that came back empty is lower than the failure threshold
         if ( ( ( _iTimesHitEmpty.tofloat() / _iNumChecks ) * 100.0 ) <= SNIPER_SPIT_MIN_SURFACE_PERCENT ) {
 
+            local _szBaseName = "__pzi_spit_impact_" + m_hOwner.entindex() + "_"
+
+            function SpitPoolFXThink() {
+
+                self.AcceptInput( "Start", null, null, null )
+                EntFireByHandle( self, "Stop", null, 0.2, null, null )
+                return 0.22
+            }
+
+            foreach ( area in m_tblNavAreas )
+                area.MarkAsBlocked( TEAM_ZOMBIE )
+
             foreach ( i, vector in [ Vector(), Vector( 40, 40, 0 ), Vector( -40, 40, 0 ), Vector( 40, -40, 0 ), Vector( -40, -40, 0 ) ] )  {
 
-                foreach ( effect in [ FX_SPIT_SPLAT /*, FX_SPIT_IMPACT */ ] )  {
+                local _hSpitPoolFx = SpawnEntityFromTable( "info_particle_system", {
 
-                    SpawnEntityFromTable( "info_particle_system", {
+                    targetname   = _szBaseName + i
+                    effect_name  = FX_SPIT_SPLAT
+                    start_active = 1
+                    origin       = m_vecSpitZone + vector
+                    vscripts     = " "
+                })
 
-                        targetname   = format( "__pzi_spit_impact_%d_%d", m_hOwner.entindex(), i )
-                        effect_name  = effect
-                        start_active = 1
-                        origin       = m_vecSpitZone + vector
-                    } )
-                }
+                _hSpitPoolFx.GetScriptScope().SpitPoolFXThink <- SpitPoolFXThink
+                AddThinkToEnt( _hSpitPoolFx, "SpitPoolFXThink" )
+
+                m_arrSpitFx[i] = _hSpitPoolFx
             }
 
             // long delay to avoid weird flipping bug
-            EntFire( format( "__pzi_spit_impact_%d_*", m_hOwner.entindex() ), "Kill", "", 15 )
+            EntFire( _szBaseName + "*", "Kill", null, SPIT_ZONE_LIFETIME )
 
             if ( FX_SPIT_IMPACT )
                 PZI_Util.DispatchEffect( m_vecSpitZone, FX_SPIT_IMPACT )
@@ -919,6 +940,9 @@ function SniperSpitThink() {
 
         // if the spit zone has expired
         if ( Time() >= ( m_fTimeStart + SPIT_ZONE_LIFETIME ) ) {
+
+            foreach ( area in m_tblNavAreas )
+                area.UnblockArea()
 
             self.Destroy()
             return
@@ -1296,16 +1320,7 @@ function GameStateThink() {
         if ( !_iNumBluPlayers ) return
 
         // no zombies, humans win
-        local _hGameWin = SpawnEntityFromTable( "game_round_win", {
-
-            force_map_reset = true,
-            TeamNum         = TEAM_HUMAN, // TEAM_HUMAN
-            switch_teams    = false
-        } )
-
-        SetValue( "mp_humans_must_join_team", "red" )
-        _hGameWin.AcceptInput( "RoundWin", null, null, null )
-        ::bGameStarted <- false
+        PZI_Util.RoundWin( TEAM_HUMAN )
         return FLT_MAX
     }
 

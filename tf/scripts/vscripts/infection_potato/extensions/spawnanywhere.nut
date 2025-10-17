@@ -19,7 +19,7 @@ const SUMMON_RADIUS = 512
 
 const PLAYER_HULL_HEIGHT = 82
 
-local USE_NAV_FOR_SPAWN = PZI_Util.AllNavAreas.len()
+local USE_NAV_FOR_SPAWN = PZI_Nav.AllNavAreas.len()
 
 CONST.HIDEHUD_GHOST <- ( HIDEHUD_CROSSHAIR|HIDEHUD_HEALTH|HIDEHUD_WEAPONSELECTION|HIDEHUD_METAL|HIDEHUD_BUILDING_STATUS|HIDEHUD_CLOAK_AND_FEIGN|HIDEHUD_PIPES_AND_CHARGE )
 CONST.TRACEMASK <- ( CONTENTS_SOLID|CONTENTS_MOVEABLE|CONTENTS_PLAYERCLIP|CONTENTS_WINDOW|CONTENTS_MONSTER|CONTENTS_GRATE )
@@ -70,7 +70,7 @@ function PZI_SpawnAnywhere::SetGhostMode( player ) {
 
 function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
 
-    local scope = player.GetScriptScope() || ( player.ValidateScriptScope(), player.GetScriptScope() )
+    local scope = PZI_Util.GetEntScope( player )
 
     if ( "GhostThink" in scope.ThinkTable )
         delete scope.ThinkTable.GhostThink
@@ -102,8 +102,7 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
     dummy_skeleton.SetAbsAngles( QAngle( 0, player.EyeAngles().y, 0 ) )
 
     ::DispatchSpawn( dummy_skeleton )
-    dummy_skeleton.ValidateScriptScope()
-    local dummy_scope = dummy_skeleton.GetScriptScope()
+    local dummy_scope = PZI_Util.GetEntScope( dummy_skeleton )
 
     SetPropInt( dummy_skeleton, "m_nRenderMode", kRenderTransColor )
     SetPropInt( dummy_skeleton, "m_clrRender", 0 )
@@ -154,7 +153,7 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
         }
     }
 
-    scope.ThinkTable.SummonPreSpawn <- SummonPreSpawn
+    PZI_Util.AddThink( player, SummonPreSpawn )
 
     //max health attrib is always last
     local attrib = ZOMBIE_PLAYER_ATTRIBS[playercls]
@@ -194,12 +193,14 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
             for ( local child = player.FirstMoveChild(); child; child = child.NextMovePeer() )
                 child.EnableDraw()
 
+            scope.m_iFlags = scope.m_iFlags & ~ZBIT_PENDING_ZOMBIE
+
             if ( player.GetPlayerClass() == TF_CLASS_PYRO )
                 scope.m_iFlags = scope.m_iFlags & ~ZBIT_PYRO_DONT_EXPLODE
 
             SetPropInt( player, "m_afButtonDisabled", 0 )
             player.GiveZombieCosmetics()
-            player.GiveZombieEyeParticles()
+            player.GiveZombieEyeParticles() // TODO: doesn't work
             // PZI_Util.ScriptEntFireSafe( player, "self.GiveZombieCosmetics(); self.GiveZombieEyeParticles()" )
 
             EntFireByHandle( self, "Kill", "", -1, null, null )
@@ -311,7 +312,7 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
     // which has a ton of side-effects I'm not interested in dealing with right now
     player.SetCollisionGroup( TFCOLLISION_GROUP_COMBATOBJECT )
 
-    local scope = player.GetScriptScope() || ( player.ValidateScriptScope(), player.GetScriptScope() )
+    local scope = PZI_Util.GetEntScope( player )
 
     if ( GetPropInt( player, "m_nRenderMode" ) == kRenderTransColor ) {
 
@@ -322,7 +323,7 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
     // BLU LOGIC BEYOND THIS POINT
     if ( player.GetTeam() != TEAM_ZOMBIE ) return
 
-    else if ( GetRoundState() != GR_STATE_RND_RUNNING ) return
+    else if ( !bGameStarted ) return
 
     scope.spawn_nests <- []
     scope.tracepos    <- Vector()
@@ -344,6 +345,8 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
             PZI_SpawnAnywhere.BeginSummonSequence( self, self.GetOrigin() )
 
         ", RandomFloat( 0.1, 1.2 ) ) // random delay to avoid predictable spawn waves
+
+        return
     }
 
     local players = GetRandomPlayers( 1, TEAM_HUMAN )
@@ -429,17 +432,8 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
             return
 
         // check if we can fit here
-        local hull_trace = {
-
-            start   = nav_trace.pos
-            end     = nav_trace.pos
-            hullmin = Vector( -24, -24, 20 ) // hardcode a generic hull size instead of fetching player hull.  We never change these anyway
-            hullmax = Vector( 24, 24, 84 ) // yes I know scout/engi are slightly smaller, just assume the larger hull size to be safe
-            mask    = CONST.TRACEMASK
-            ignore  = player
-        }
-
-        TraceHull( hull_trace )
+        else if ( !PZI_Util.IsSpaceToSpawnHere( spawnpos + Vector( 0, 0, 20 ), player.GetBoundingMins(), player.GetBoundingMaxs() ) )
+            return DebugDrawBox( spawnpos + Vector( 0, 0, 20 ), player.GetBoundingMins(), player.GetBoundingMaxs(), 255, 0, 0, 255, 0.1 )
 
         spawn_hint.KeyValueFromVector( "origin", spawnpos + Vector( 0, 0, 20 ) )
 
@@ -474,7 +468,7 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
             }
         }
     }
-    scope.ThinkTable.GhostThink <- GhostThink
+    PZI_Util.AddThink( player, GhostThink )
 } )
 
 PZI_EVENT( "player_death", "SpawnAnywhere_PlayerDeath", function( params ) {
@@ -485,8 +479,7 @@ PZI_EVENT( "player_death", "SpawnAnywhere_PlayerDeath", function( params ) {
 
         player.RemoveFlag( FL_ATCONTROLS|FL_DUCKING|FL_DONTTOUCH|FL_NOTARGET )
         player.AcceptInput( "DispatchEffect", "ParticleEffectStop", null, null )
-        AddThinkToEnt( player, null )
-        PZI_Util.ScriptEntFireSafe( player, "self.ForceRespawn()", 0.1 )
+        player.ForceRespawn()
     }
 } )
 

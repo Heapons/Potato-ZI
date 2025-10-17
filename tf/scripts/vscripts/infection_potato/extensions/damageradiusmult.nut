@@ -51,8 +51,8 @@ PZI_EVENT( "player_spawn", "DamageRadiusMult_OnPlayerSpawn", function( params ) 
 
         cooldown_time = Time() + UPDATE_INTERVAL
     }
-    scope.ThinkTable.DamageRadiusMult <- DamageRadiusMult
-} )
+    PZI_Util.AddThink( player, DamageRadiusMult )
+})
 
 PZI_EVENT( "OnTakeDamage", "DamageRadiusMult_OnTakeDamage", function( params ) {
 
@@ -62,4 +62,18 @@ PZI_EVENT( "OnTakeDamage", "DamageRadiusMult_OnTakeDamage", function( params ) {
     if ( victim.IsPlayer() && victim.GetTeam() == TEAM_HUMAN && "DmgMult" in victim_scope )
         params.damage *= victim_scope.DmgMult
 
-} )
+})
+
+PZI_EVENT( "player_say", "DamageRadiusMult_PlayerSay", function( params ) {
+
+    if ( params.text != ".dmg_mult" ) return
+
+    local player = GetPlayerFromUserID( params.userid )
+
+    if ( player.GetTeam() != TEAM_HUMAN ) return
+
+    local scope = player.GetScriptScope()
+
+    if ( "DmgMult" in scope )
+        ClientPrint( player, HUD_PRINTCENTER, "Damage multiplier: " + scope.DmgMult )
+})

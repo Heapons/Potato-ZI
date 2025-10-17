@@ -465,7 +465,8 @@ PZI_EVENT( "post_inventory_application", "PZI_PostInventoryApplication", functio
 
 	local player = GetPlayerFromUserID( params.userid )
 
-	if ( player.IsEFlagSet( EFL_IS_BEING_LIFTED_BY_BARNACLE ) ) return
+	if ( player.IsEFlagSet( EFL_IS_BEING_LIFTED_BY_BARNACLE ) ) 
+		return
 
 	player.ValidateScriptScope()
 	local scope = player.GetScriptScope()

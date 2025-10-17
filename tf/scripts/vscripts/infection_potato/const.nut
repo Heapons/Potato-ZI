@@ -105,7 +105,6 @@ ZOMBIE_WEP_ATTRIBS <- [ ////////////////////////////////////////////////////////
 ["crit mod disabled hidden", 0, -1],            // No crits                                //
 ["zombiezombiezombiezombie", 1, -1],            // enable zombie cosmetic vo               //
 ["attach particle effect", 3105, -1],            // enable particle effect                 //
-["voice pitch scale",       0.6, -1],            // enable particle effect                 //
 ],                                              //                                         //
 [// attributes for scout zombie weapon --------------------------------------------------- //
 ["damage bonus", ZSCOUT_DMG_MULTI, -1 ],        // set class specific damage multi         //

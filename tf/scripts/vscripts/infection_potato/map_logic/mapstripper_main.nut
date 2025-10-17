@@ -28,7 +28,7 @@ LocalTime(LOCALTIME)
 	region					  = ""
 	password 				  = ""
 	classes					  = ""
-	domain 					  = GetStr("sv_downloadurl").slice( 7, GetStr( "sv_downloadurl" ).find( "/gameassets" ) )
+    domain 					  = ""
 	campaign_name 			  = "Other Gamemodes"
 	status 					  = "Eating your brains..."
 	// in_protected_match		  = false
@@ -56,6 +56,9 @@ PZI_Util.ScriptEntFireSafe("__pzi_util", @"
     SERVER_DATA.server_tags = GetStr(`sv_tags`)
 	SERVER_DATA.server_key	= GetServerKey( server_name )
 	SERVER_DATA.region		= GetServerRegion( server_name )
+
+    if ( GetStr(`sv_downloadurl`) != `` )
+        SERVER_DATA.domain 	    = GetStr(`sv_downloadurl`).slice( 7, GetStr( `sv_downloadurl` ).find( `/gameassets` ) )
 
 	if ( SERVER_DATA.domain == `ustx.potato.tf` )
 		SERVER_DATA.domain += `:22443`
@@ -265,7 +268,7 @@ local gamemode_funcs = {
         PZI_EVENT( "player_death", "PZI_MapStripper_PlayerDeath", function ( params ) {
 
             EntFire( "item_teamflag", "Kill" )
-        } )
+        })
     }
 }
 gamemode_funcs.RD  <- gamemode_funcs.PD
