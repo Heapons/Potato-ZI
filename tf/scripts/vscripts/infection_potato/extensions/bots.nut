@@ -1062,7 +1062,8 @@ PZI_EVENT( "post_inventory_application", "PZI_Bots_PostInventoryApplication", fu
 
 	else if ( bot.GetTeam() == TEAM_HUMAN ) {
 
-		bot.SetMission( cls == TF_CLASS_ENGINEER ? MISSION_ENGINEER : RandomInt( MISSION_SNIPER, MISSION_SPY ), true )
+		local sniper_roll = RandomInt( 0, 10 )
+		bot.SetMission( cls == TF_CLASS_ENGINEER ? MISSION_ENGINEER : !sniper_roll ? MISSION_SNIPER : MISSION_SPY, true )
 		scope.PZI_BotBehavior.GiveRandomLoadout()
 	}
 
