@@ -923,7 +923,7 @@ function PZI_Bots::GenericZombie( bot, threat_type = "closest" ) {
 
 		// we haven't taken/dealt any damage in a while, just respawn us if we're too far away from a player
 			if ( m_fTimeLastHit + 25.0 < b.time && !b.IsThreatVisible( threat ) && b.GetThreatDistanceSqr( threat ) > 262144.0 )
-				PZI_Util.KillPlayer( bot )
+				bot.ForceRespawn()
             // else
             //     b.LookAt( threat.EyePosition() - Vector( 0, 0, 20 ), 1500, 1500 )
         }
