@@ -140,7 +140,7 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
     player.RemoveFlag( FL_NOTARGET|FL_DONTTOUCH )
     player.SetSolid( SOLID_BBOX )
     player.SetSolidFlags( FSOLID_NOT_STANDABLE )
-    player.SetCollisionGroup( TFCOLLISION_GROUP_COMBATOBJECT )
+    player.SetCollisionGroup( COLLISION_GROUP_PLAYER )
 
     PZI_Util.ScriptEntFireSafe( player, "self.AddCond( TF_COND_HALLOWEEN_QUICK_HEAL )", SUMMON_HEAL_DELAY )
 
