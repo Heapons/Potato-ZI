@@ -346,7 +346,7 @@ PZI_EVENT( "teamplay_round_start", "PZI_MapStripper_RoundStart", function ( para
     foreach( e in doors )
         for ( local ent; ent = FindByClassname( ent, e ); )
             foreach( c in cls )
-                EntFireByHandle( FindByClassnameNearest( cls, ent.GetCenter(), 256 ), "Kill", null, -1, null, null )
+                EntFireByHandle( FindByClassnameNearest( c, ent.GetCenter(), 256 ), "Kill", null, -1, null, null )
 
     foreach ( tokill in ents_to_kill )
         for ( local ent; ent = FindByClassname( ent, tokill ); )
