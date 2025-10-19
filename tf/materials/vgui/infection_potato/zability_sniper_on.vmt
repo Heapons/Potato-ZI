@@ -1,0 +1,24 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui/infection_potato/zability_sniper_on"
+	"$translucent" 1
+	"$ignorez" 1
+	"%keywords" "tf"
+	
+	"$basetexturetransform" "center 0.97 0.945 scale 2 4.5 rotate 0 translate 0 0"
+}
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+

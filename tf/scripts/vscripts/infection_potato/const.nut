@@ -323,16 +323,16 @@ arrHUDTextClassYOffsets <-
 
 szArrZombieAbilityUI <-
 [
-    "vgui/infection/zability_scout_",
-    "vgui/infection/zability_scout_",
-    "vgui/infection/zability_sniper_",
-    "vgui/infection/zability_soldier_",
-    "vgui/infection/zability_demo_",
-    "vgui/infection/zability_medic_",
-    "vgui/infection/zability_heavy_",
-    "vgui/infection/zability_pyro_",
-    "vgui/infection/zability_spy_",
-    "vgui/infection/zability_engineer_",
+    "vgui/infection_potato/zability_scout_",
+    "vgui/infection_potato/zability_scout_",
+    "vgui/infection_potato/zability_sniper_",
+    "vgui/infection_potato/zability_soldier_",
+    "vgui/infection_potato/zability_demo_",
+    "vgui/infection_potato/zability_medic_",
+    "vgui/infection_potato/zability_heavy_",
+    "vgui/infection_potato/zability_pyro_",
+    "vgui/infection_potato/zability_spy_",
+    "vgui/infection_potato/zability_engineer_",
 ]
 
 idxArrZombiePlayerModels <-
@@ -367,15 +367,15 @@ szEyeParticles <- [
     "eye_powerup_red_lvl_2"
 ]
 
-const MDL_ZOMBIE_VIEW_MODEL_SCOUT          = "models/player/infection/v_models/v_infected_scout.mdl"
-const MDL_ZOMBIE_VIEW_MODEL_SNIPER         = "models/player/infection/v_models/v_infected_sniper.mdl"
-const MDL_ZOMBIE_VIEW_MODEL_SOLDIER        = "models/player/infection/v_models/v_infected_soldier.mdl"
-const MDL_ZOMBIE_VIEW_MODEL_DEMOMAN        = "models/player/infection/v_models/v_infected_demo.mdl"
-const MDL_ZOMBIE_VIEW_MODEL_MEDIC          = "models/player/infection/v_models/v_infected_medic.mdl"
-const MDL_ZOMBIE_VIEW_MODEL_HEAVY          = "models/player/infection/v_models/v_infected_heavy.mdl"
-const MDL_ZOMBIE_VIEW_MODEL_PYRO           = "models/player/infection/v_models/v_infected_pyro.mdl"
-const MDL_ZOMBIE_VIEW_MODEL_SPY            = "models/player/infection/v_models/v_infected_spy.mdl"
-const MDL_ZOMBIE_VIEW_MODEL_ENGINEER       = "models/player/infection/v_models/v_infected_engineer.mdl"
+const MDL_ZOMBIE_VIEW_MODEL_SCOUT          = "models/player/infection_potato/v_models/v_infected_scout.mdl"
+const MDL_ZOMBIE_VIEW_MODEL_SNIPER         = "models/player/infection_potato/v_models/v_infected_sniper.mdl"
+const MDL_ZOMBIE_VIEW_MODEL_SOLDIER        = "models/player/infection_potato/v_models/v_infected_soldier.mdl"
+const MDL_ZOMBIE_VIEW_MODEL_DEMOMAN        = "models/player/infection_potato/v_models/v_infected_demo.mdl"
+const MDL_ZOMBIE_VIEW_MODEL_MEDIC          = "models/player/infection_potato/v_models/v_infected_medic.mdl"
+const MDL_ZOMBIE_VIEW_MODEL_HEAVY          = "models/player/infection_potato/v_models/v_infected_heavy.mdl"
+const MDL_ZOMBIE_VIEW_MODEL_PYRO           = "models/player/infection_potato/v_models/v_infected_pyro.mdl"
+const MDL_ZOMBIE_VIEW_MODEL_SPY            = "models/player/infection_potato/v_models/v_infected_spy.mdl"
+const MDL_ZOMBIE_VIEW_MODEL_ENGINEER       = "models/player/infection_potato/v_models/v_infected_engineer.mdl"
 const MDL_ZOMBIE_PLAYER_MODEL_SCOUT        = "models/player/items/scout/scout_zombie.mdl"
 const MDL_ZOMBIE_PLAYER_MODEL_SNIPER       = "models/player/items/sniper/sniper_zombie.mdl"
 const MDL_ZOMBIE_PLAYER_MODEL_SOLDIER      = "models/player/items/soldier/soldier_zombie.mdl"
@@ -385,16 +385,16 @@ const MDL_ZOMBIE_PLAYER_MODEL_HEAVY        = "models/player/items/heavy/heavy_zo
 const MDL_ZOMBIE_PLAYER_MODEL_PYRO         = "models/player/items/pyro/pyro_zombie.mdl"
 const MDL_ZOMBIE_PLAYER_MODEL_SPY          = "models/player/items/spy/spy_zombie.mdl"
 const MDL_ZOMBIE_PLAYER_MODEL_ENGINEER     = "models/player/items/engineer/engineer_zombie.mdl"
-const MDL_FX_WEARABLE_SCOUT                = "models/player/infection/scout_zombie_wearable.mdl"
-const MDL_FX_WEARABLE_SNIPER               = "models/player/infection/sniper_zombie_wearable.mdl"
-const MDL_FX_WEARABLE_SOLDIER              = "models/player/infection/soldier_zombie_wearable.mdl"
-const MDL_FX_WEARABLE_DEMOMAN              = "models/player/infection/demo_zombie_wearable.mdl"
-const MDL_FX_WEARABLE_MEDIC                = "models/player/infection/medic_zombie_wearable.mdl"
-const MDL_FX_WEARABLE_HEAVY                = "models/player/infection/heavy_zombie_wearable.mdl"
-const MDL_FX_WEARABLE_PYRO                 = "models/player/infection/pyro_zombie_wearable.mdl"
-const MDL_FX_WEARABLE_SPY                  = "models/player/infection/spy_zombie_wearable.mdl"
-const MDL_FX_WEARABLE_ENGINEER             = "models/player/infection/engineer_zombie_wearable.mdl"
-const MDL_WORLD_MODEL_ENGIE_NADE           = "models/player/infection/w_grenade_emp.mdl"
+const MDL_FX_WEARABLE_SCOUT                = "models/player/infection_potato/scout_zombie_wearable.mdl"
+const MDL_FX_WEARABLE_SNIPER               = "models/player/infection_potato/sniper_zombie_wearable.mdl"
+const MDL_FX_WEARABLE_SOLDIER              = "models/player/infection_potato/soldier_zombie_wearable.mdl"
+const MDL_FX_WEARABLE_DEMOMAN              = "models/player/infection_potato/demo_zombie_wearable.mdl"
+const MDL_FX_WEARABLE_MEDIC                = "models/player/infection_potato/medic_zombie_wearable.mdl"
+const MDL_FX_WEARABLE_HEAVY                = "models/player/infection_potato/heavy_zombie_wearable.mdl"
+const MDL_FX_WEARABLE_PYRO                 = "models/player/infection_potato/pyro_zombie_wearable.mdl"
+const MDL_FX_WEARABLE_SPY                  = "models/player/infection_potato/spy_zombie_wearable.mdl"
+const MDL_FX_WEARABLE_ENGINEER             = "models/player/infection_potato/engineer_zombie_wearable.mdl"
+const MDL_WORLD_MODEL_ENGIE_NADE           = "models/player/infection_potato/w_grenade_emp.mdl"
 const MDL_GUNSLINGER_PATH                  = "models/weapons/c_models/c_engineer_gunslinger.mdl"
 
 //https://wiki.teamfortress.com/w/images/thumb/3/31/Unusual_Charged_Arcane.png/600px-Unusual_Charged_Arcane.png
@@ -510,7 +510,7 @@ const KILLICON_SPY_MELEE        = "unarmed_combat"
 //const KILLICON_SNIPER_SPIT      = "hot_hand"
 //const KILLICON_SPY_MELEE        = "unarmed_combat"
 
-const MAT_SPIT_OVERLAY  = "effects/imcookin_green"
+const MAT_SPIT_OVERLAY  = "effects/imcookin_green_potato"
 
 const STRING_NETPROP_ITEMDEF  = "m_AttributeManager.m_Item.m_iItemDefinitionIndex"
 

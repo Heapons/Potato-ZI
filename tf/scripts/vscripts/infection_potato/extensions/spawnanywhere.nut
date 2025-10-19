@@ -435,7 +435,8 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
         else if ( !PZI_Util.IsSpaceToSpawnHere( spawnpos + Vector( 0, 0, 20 ), player.GetBoundingMins(), player.GetBoundingMaxs() ) )
             return DebugDrawBox( spawnpos + Vector( 0, 0, 20 ), player.GetBoundingMins(), player.GetBoundingMaxs(), 255, 0, 0, 255, 0.1 )
 
-        spawn_hint.KeyValueFromVector( "origin", spawnpos + Vector( 0, 0, 20 ) )
+        if ( spawn_hint && spawn_hint.IsValid() )
+            spawn_hint.KeyValueFromVector( "origin", spawnpos + Vector( 0, 0, 20 ) )
 
         // DebugDrawBox( nav_area.GetCenter(), hull_trace.hullmin, hull_trace.hullmax, spawnpos ? 0 : 255, spawnpos ? 255 : 0, 0, 255, 0.1 )
 

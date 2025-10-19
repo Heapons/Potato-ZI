@@ -1,0 +1,6 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models/player/infection_potato/zombie_invis"
+	"$translucent" "1"
+	"$alphatest" "1"
+}
