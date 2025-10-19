@@ -886,7 +886,7 @@ function PZI_Bots::GenericZombie( bot, threat_type = "closest" ) {
         if ( !bot.IsAlive() || bot.GetTeam() != TEAM_ZOMBIE ) 
             return
 
-		else if ( bot.GetFlags() & FL_FROZEN || ( bot.GetActionPoint() && bot.GetActionPoint().IsValid() ) )
+		else if ( bot.GetFlags() & FL_ATCONTROLS || ( bot.GetActionPoint() && bot.GetActionPoint().IsValid() ) )
 			return
 
 		local b = PZI_Util.GetEntScope( bot ).PZI_BotBehavior
