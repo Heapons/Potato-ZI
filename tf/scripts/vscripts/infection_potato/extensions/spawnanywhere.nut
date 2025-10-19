@@ -120,7 +120,7 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
 
     dummy_player.SetModel( format( "models/player/%s.mdl", PZI_Util.Classes[playercls] ) )
     dummy_player.SetAbsOrigin( origin )
-    dummy_player.SetSkin( player.GetSkin() + player.GetPlayerClass() == TF_CLASS_SPY ? 22 : 4 )
+    dummy_player.SetSkin( player.GetSkin() + (player.GetPlayerClass() == TF_CLASS_SPY ? 22 : 4) )
     dummy_player.AcceptInput( "SetParent", "!activator", dummy_skeleton, dummy_skeleton )
     SetPropInt( dummy_player, "m_fEffects", EF_BONEMERGE|EF_BONEMERGE_FASTCULL )
     ::DispatchSpawn( dummy_player )
