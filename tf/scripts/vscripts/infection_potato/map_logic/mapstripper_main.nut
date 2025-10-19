@@ -327,9 +327,29 @@ PZI_EVENT( "teamplay_round_start", "PZI_MapStripper_RoundStart", function ( para
 
     if ( GAMEMODE in gamemode_funcs )
         gamemode_funcs[ GAMEMODE ]()
+    
+    // Open the map
+    foreach( door_ents in [ "func_door*", "func_areaportal*"]) {
 
-    for ( local door; door = FindByClassname( door, "func_door" ); )
-        FindByClassnameNearest( "prop_dynamic", self.GetCenter(), 128 ).Kill()
+        for ( local ent; ent = FindByClassname( ent, door_ents ); ) {
+
+            ent.AcceptInput( "Open", null, null, null )
+
+            // Stay open
+            ent.ValidateScriptScope()
+            local scope = ent.GetScriptScope() || ( ent.ValidateScriptScope() || ent.GetScriptScope() )
+            scope.InputClose <- @() false
+            scope.Inputclose <- @() false
+            
+            EntFireByHandle( FindByClassnameNearest( "prop_dynamic", self.GetCenter(), 128 ), "Kill", null, -1, null, null )
+        }
+    }
+
+	for ( local ent = null; ent = FindByClassname( ent, "func_respawnroom" ); ) {
+
+		ent.AcceptInput( "Disable", "", null, null )
+		ent.AcceptInput( "SetInactive", "", null, null )
+	}
 
     foreach ( tokill in ents_to_kill )
         for ( local ent; ent = FindByClassname( ent, tokill ); )
