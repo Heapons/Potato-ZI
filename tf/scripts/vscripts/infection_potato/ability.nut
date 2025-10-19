@@ -92,24 +92,24 @@ class CZombieAbility {
     m_arrAttribs         =   [ ]
     m_arrTFConds         =   [ ]
 
-    function GetAbilityType     ()  { return this.m_iAbilityType; }
-    function GetAbilityOwner    ()  { return this.m_hAbilityOwner; }
-    function GetAbilityCooldown ()  { return this.m_fAbilityCooldown; }
-    function GetAbilityName     ()  { return this.m_szAbilityName; }
+    function GetAbilityType     ()  { return m_iAbilityType; }
+    function GetAbilityOwner    ()  { return m_hAbilityOwner; }
+    function GetAbilityCooldown ()  { return m_fAbilityCooldown; }
+    function GetAbilityName     ()  { return m_szAbilityName; }
 
     function LockAbility() {
 
-        this.m_hAbilityOwner.SetNextActTime( ZOMBIE_ABILITY_CAST, ACT_LOCKED )
+        m_hAbilityOwner.SetNextActTime( ZOMBIE_ABILITY_CAST, ACT_LOCKED )
     }
 
     function UnlockAbility() {
 
-        this.m_hAbilityOwner.SetNextActTime( ZOMBIE_ABILITY_CAST, 0.01 )
+        m_hAbilityOwner.SetNextActTime( ZOMBIE_ABILITY_CAST, 0.01 )
     }
 
     function PutAbilityOnCooldown() {
 
-        this.m_hAbilityOwner.SetNextActTime( ZOMBIE_ABILITY_CAST, this.m_fAbilityCooldown )
+        m_hAbilityOwner.SetNextActTime( ZOMBIE_ABILITY_CAST, m_fAbilityCooldown )
     }
 
 }
@@ -120,28 +120,28 @@ class CSpyReveal extends CZombieAbility {
 
     constructor( hAbilityOwner ) {
 
-        this.m_hAbilityOwner     =  hAbilityOwner
-        this.m_iAbilityType      =  ZABILITY_EMITTER
-        this.m_fAbilityCooldown  =  MIN_TIME_BETWEEN_SPY_REVEAL
-        this.m_szAbilityName     =  SPY_REVEAL_NAME
+        m_hAbilityOwner     =  hAbilityOwner
+        m_iAbilityType      =  ZABILITY_EMITTER
+        m_fAbilityCooldown  =  MIN_TIME_BETWEEN_SPY_REVEAL
+        m_szAbilityName     =  SPY_REVEAL_NAME
     }
 
     function AbilityCast() {
 
-        if ( !this.m_hAbilityOwner )
+        if ( !m_hAbilityOwner )
             return
 
-        local _d = this.m_hAbilityOwner.GetScriptScope()
+        local _d = m_hAbilityOwner.GetScriptScope()
 
         _d.m_hTempEntity <- SpawnEntityFromTable( "info_particle_system", {
 
             effect_name   =  FX_EMITTER_FX,
             start_active  =  "0",
             targetname    =  "ZombieSpy_Revealer_pfx",
-            origin        =  this.m_hAbilityOwner.GetOrigin(),
+            origin        =  m_hAbilityOwner.GetOrigin(),
         } )
 
-        this.m_hAbilityOwner.SetForcedTauntCam  ( 1 )
+        m_hAbilityOwner.SetForcedTauntCam  ( 1 )
 
         if ( _d.m_hZombieFXWearable && _d.m_hZombieFXWearable.IsValid() )
             _d.m_hZombieFXWearable.Destroy()
@@ -149,25 +149,25 @@ class CSpyReveal extends CZombieAbility {
         if ( _d.m_hZombieWearable && _d.m_hZombieWearable.IsValid() )
             _d.m_hZombieWearable.Destroy()
 
-        // this.m_hAbilityOwner.GiveZombieFXWearable()
-        this.m_hAbilityOwner.GiveZombieCosmetics()
+        // m_hAbilityOwner.GiveZombieFXWearable()
+        m_hAbilityOwner.GiveZombieCosmetics()
 
-        this.m_hAbilityOwner.AddCond            ( TF_COND_TAUNTING )
-        this.m_hAbilityOwner.AddEventToQueue    ( EVENT_KILL_TEMP_ENTITY, 2 ); // todo - const
-        this.m_hAbilityOwner.AddEventToQueue    ( EVENT_PUT_ABILITY_ON_CD, INSTANT )
+        m_hAbilityOwner.AddCond            ( TF_COND_TAUNTING )
+        m_hAbilityOwner.AddEventToQueue    ( EVENT_KILL_TEMP_ENTITY, 2 ); // todo - const
+        m_hAbilityOwner.AddEventToQueue    ( EVENT_PUT_ABILITY_ON_CD, INSTANT )
 
         EmitSoundOn        ( "WeaponMedigun.HealingWorld", _d.m_hTempEntity )
         EntFireByHandle    ( _d.m_hTempEntity, "Start", "", 0, null, null )
-        ScreenShake        ( this.m_hAbilityOwner.GetOrigin(), 15.0, 150.0, 1.0, 500, 0, false )
-        EntFireByHandle    ( _d.m_hTempEntity, "SetParent", "!activator", 0, this.m_hAbilityOwner, this.m_hAbilityOwner )
+        ScreenShake        ( m_hAbilityOwner.GetOrigin(), 15.0, 150.0, 1.0, 500, 0, false )
+        EntFireByHandle    ( _d.m_hTempEntity, "SetParent", "!activator", 0, m_hAbilityOwner, m_hAbilityOwner )
 
-        EmitAmbientSoundOn ( SFX_SPY_REVEAL_ONCAST, 899,  1, 100, this.m_hAbilityOwner )
+        EmitAmbientSoundOn ( SFX_SPY_REVEAL_ONCAST, 899,  1, 100, m_hAbilityOwner )
 
         local _hPlayer            = null
         local _arrPlayersInRange  = []
 
         // get all of the players in range
-        while ( _hPlayer = FindByClassnameWithin( _hPlayer, "player", this.m_hAbilityOwner.GetOrigin(), ( SPY_REVEAL_RANGE ) ) ) {
+        while ( _hPlayer = FindByClassnameWithin( _hPlayer, "player", m_hAbilityOwner.GetOrigin(), ( SPY_REVEAL_RANGE ) ) ) {
 
             // red ( survivor ) team only
             if ( _hPlayer && _hPlayer.GetTeam() != TEAM_ZOMBIE ) {
@@ -185,7 +185,7 @@ class CSpyReveal extends CZombieAbility {
 
             local _hNextPlayer = _arrPlayersInRange[ i ]
 
-            if ( !_hNextPlayer || _hNextPlayer == this.m_hAbilityOwner )
+            if ( !_hNextPlayer || _hNextPlayer == m_hAbilityOwner )
                 break
 
             _hNextPlayer.RemoveCond(  TF_COND_DISGUISED   )
@@ -212,40 +212,40 @@ class CSoldierJump extends CZombieAbility {
 
     constructor( hAbilityOwner ) {
 
-        this.m_hAbilityOwner     =  hAbilityOwner
-        this.m_iAbilityType      =  ZABILITY_THROWABLE
-        this.m_fAbilityCooldown  =  MIN_TIME_BETWEEN_SOLDIER_POUNCE
-        this.m_szAbilityName     =  SOLDIER_POUNCE_NAME
+        m_hAbilityOwner     =  hAbilityOwner
+        m_iAbilityType      =  ZABILITY_THROWABLE
+        m_fAbilityCooldown  =  MIN_TIME_BETWEEN_SOLDIER_POUNCE
+        m_szAbilityName     =  SOLDIER_POUNCE_NAME
     }
 
     function AbilityCast() {
 
-        if ( !this.m_hAbilityOwner )
+        if ( !m_hAbilityOwner )
             return
 
-        local _sc = this.m_hAbilityOwner.GetScriptScope()
+        local _sc = m_hAbilityOwner.GetScriptScope()
 
-        EmitAmbientSoundOn( "Infection.SoldierPounce", 9, 1, 100, this.m_hAbilityOwner )
+        EmitAmbientSoundOn( "Infection.SoldierPounce", 9, 1, 100, m_hAbilityOwner )
 
-        local _hPlayerVM    =   GetPropEntity( this.m_hAbilityOwner, "m_hViewModel" )
+        local _hPlayerVM    =   GetPropEntity( m_hAbilityOwner, "m_hViewModel" )
         local _iSpecialSeq  =  _hPlayerVM.LookupSequence( "special" )
 
-        SetPropEntity( this.m_hAbilityOwner, "m_hGroundEntity", null )
+        SetPropEntity( m_hAbilityOwner, "m_hGroundEntity", null )
 
         _hPlayerVM.ResetSequence        ( _iSpecialSeq )
-        this.m_hAbilityOwner.AddCond    ( TF_COND_BLASTJUMPING )
-        this.m_hAbilityOwner.RemoveFlag ( FL_ONGROUND )
+        m_hAbilityOwner.AddCond    ( TF_COND_BLASTJUMPING )
+        m_hAbilityOwner.RemoveFlag ( FL_ONGROUND )
 
         _sc.m_iFlags <- ( _sc.m_iFlags | ZBIT_SOLDIER_IN_POUNCE )
 
-        local _vecVelocity = this.m_hAbilityOwner.GetAbsVelocity()
+        local _vecVelocity = m_hAbilityOwner.GetAbsVelocity()
 
-        SetPropEntity( this.m_hAbilityOwner, "m_hGroundEntity", null )
+        SetPropEntity( m_hAbilityOwner, "m_hGroundEntity", null )
 
-        this.m_hAbilityOwner.ApplyAbsVelocityImpulse( this.m_hAbilityOwner.EyeAngles().Forward() +
+        m_hAbilityOwner.ApplyAbsVelocityImpulse( m_hAbilityOwner.EyeAngles().Forward() +
                                                       _vecVelocity + Vector( 0, 0, 850 ) ); // todo - const
 
-        this.m_hAbilityOwner.AddEventToQueue ( EVENT_PUT_ABILITY_ON_CD, INSTANT )
+        m_hAbilityOwner.AddEventToQueue ( EVENT_PUT_ABILITY_ON_CD, INSTANT )
         return
     }
 }
@@ -256,25 +256,25 @@ class CMedicHeal extends CZombieAbility {
 
     constructor( hAbilityOwner ) {
 
-        this.m_hAbilityOwner     =  hAbilityOwner
-        this.m_iAbilityType      =  ZABILITY_EMITTER
-        this.m_fAbilityCooldown  =  MIN_TIME_BETWEEN_MEDIC_HEAL
-        this.m_szAbilityName     =  MEDIC_HEAL_NAME
+        m_hAbilityOwner     =  hAbilityOwner
+        m_iAbilityType      =  ZABILITY_EMITTER
+        m_fAbilityCooldown  =  MIN_TIME_BETWEEN_MEDIC_HEAL
+        m_szAbilityName     =  MEDIC_HEAL_NAME
     }
 
     function AbilityCast() {
 
-        if ( !this.m_hAbilityOwner )
+        if ( !m_hAbilityOwner )
             return
 
-        local _d = this.m_hAbilityOwner.GetScriptScope()
+        local _d = m_hAbilityOwner.GetScriptScope()
 
         _d.m_hTempEntity <- SpawnEntityFromTable( "info_particle_system", {
 
             effect_name   =  FX_MEDIC_HEAL,
             start_active  =  "0",
             targetname    =  "ZombieSpy_Revealer_pfx",
-            origin        =  this.m_hAbilityOwner.GetOrigin(),
+            origin        =  m_hAbilityOwner.GetOrigin(),
         } )
 
         if ( _d.m_hZombieFXWearable && _d.m_hZombieFXWearable.IsValid() )
@@ -283,29 +283,29 @@ class CMedicHeal extends CZombieAbility {
         if ( _d.m_hZombieWearable && _d.m_hZombieWearable.IsValid() )
             _d.m_hZombieWearable.Destroy()
 
-        // this.m_hAbilityOwner.GiveZombieFXWearable()
-        this.m_hAbilityOwner.GiveZombieCosmetics()
+        // m_hAbilityOwner.GiveZombieFXWearable()
+        m_hAbilityOwner.GiveZombieCosmetics()
 
-        this.m_hAbilityOwner.SetForcedTauntCam  ( 1 )
-        this.m_hAbilityOwner.AddCustomAttribute ( "no_attack", 1, -1 )
-        this.m_hAbilityOwner.AddEventToQueue    ( EVENT_KILL_TEMP_ENTITY, 2 ); // todo - const
-        this.m_hAbilityOwner.AddEventToQueue    ( EVENT_PUT_ABILITY_ON_CD, INSTANT )
-        this.m_hAbilityOwner.AddCondEx          ( TF_COND_INVULNERABLE_USER_BUFF, 1, this.m_hAbilityOwner )
-        this.m_hAbilityOwner.AddCondEx          ( TF_COND_HALLOWEEN_QUICK_HEAL, 2, this.m_hAbilityOwner  )
-        EmitSoundOn                             ( SFX_ZMEDIC_HEAL, this.m_hAbilityOwner )
+        m_hAbilityOwner.SetForcedTauntCam  ( 1 )
+        m_hAbilityOwner.AddCustomAttribute ( "no_attack", 1, -1 )
+        m_hAbilityOwner.AddEventToQueue    ( EVENT_KILL_TEMP_ENTITY, 2 ); // todo - const
+        m_hAbilityOwner.AddEventToQueue    ( EVENT_PUT_ABILITY_ON_CD, INSTANT )
+        m_hAbilityOwner.AddCondEx          ( TF_COND_INVULNERABLE_USER_BUFF, 1, m_hAbilityOwner )
+        m_hAbilityOwner.AddCondEx          ( TF_COND_HALLOWEEN_QUICK_HEAL, 2, m_hAbilityOwner  )
+        EmitSoundOn                             ( SFX_ZMEDIC_HEAL, m_hAbilityOwner )
 
-        EntFireByHandle    ( _d.m_hTempEntity, "SetParent", "!activator", 0, this.m_hAbilityOwner, this.m_hAbilityOwner )
+        EntFireByHandle    ( _d.m_hTempEntity, "SetParent", "!activator", 0, m_hAbilityOwner, m_hAbilityOwner )
         EntFireByHandle    ( _d.m_hTempEntity, "Start", "", 0.2, null, null )
-       // EmitSoundOnClient  ( "WeaponMedigun.HealingWorld", this.m_hAbilityOwner )
+       // EmitSoundOnClient  ( "WeaponMedigun.HealingWorld", m_hAbilityOwner )
 
         local _hPlayer            = null
         local _arrPlayersInRange  = []
 
         // get all of the players in range
-        while ( _hPlayer = FindByClassnameWithin( _hPlayer, "player", this.m_hAbilityOwner.GetOrigin(), MEDIC_HEAL_RANGE ) ) {
+        while ( _hPlayer = FindByClassnameWithin( _hPlayer, "player", m_hAbilityOwner.GetOrigin(), MEDIC_HEAL_RANGE ) ) {
 
             // blue ( zombie ) team only
-            if ( _hPlayer && _hPlayer.GetTeam() == TEAM_ZOMBIE && _hPlayer != this.m_hAbilityOwner ) {
+            if ( _hPlayer && _hPlayer.GetTeam() == TEAM_ZOMBIE && _hPlayer != m_hAbilityOwner ) {
 
                 _arrPlayersInRange.append( _hPlayer )
             }
@@ -322,15 +322,15 @@ class CMedicHeal extends CZombieAbility {
             local _angPlayer     =  _hNextPlayer.GetLocalAngles()
             local _vecAngPlayer  =  Vector( _angPlayer.x, _angPlayer.y, _angPlayer.z )
 
-            if ( !_hNextPlayer || _hNextPlayer == this.m_hAbilityOwner )
+            if ( !_hNextPlayer || _hNextPlayer == m_hAbilityOwner )
                 break
 
             local _scNext = _hNextPlayer.GetScriptScope()
 
             _hNextPlayer.SpawnEffect()
 
-            _hNextPlayer.AddCondEx ( TF_COND_INVULNERABLE_USER_BUFF, 1, this.m_hAbilityOwner )
-            _hNextPlayer.AddCondEx ( TF_COND_HALLOWEEN_QUICK_HEAL,   2, this.m_hAbilityOwner )
+            _hNextPlayer.AddCondEx ( TF_COND_INVULNERABLE_USER_BUFF, 1, m_hAbilityOwner )
+            _hNextPlayer.AddCondEx ( TF_COND_HALLOWEEN_QUICK_HEAL,   2, m_hAbilityOwner )
         }
 
         return
@@ -344,25 +344,25 @@ class CSniperSpitball extends CZombieAbility {
 
     constructor( hAbilityOwner ) {
 
-        this.m_hAbilityOwner     =  hAbilityOwner
-        this.m_iAbilityType      =  ZABILITY_PROJECTILE
-        this.m_fAbilityCooldown  =  MIN_TIME_BETWEEN_ENGIE_EMP_THROW
-        this.m_szAbilityName     =  SNIPER_SPIT_NAME
+        m_hAbilityOwner    =  hAbilityOwner
+        m_iAbilityType     =  ZABILITY_PROJECTILE
+        m_fAbilityCooldown =  MIN_TIME_BETWEEN_ENGIE_EMP_THROW
+        m_szAbilityName    =  SNIPER_SPIT_NAME
     }
 
     function AbilityCast() {
 
-        if ( !this.m_hAbilityOwner )
+        if ( !m_hAbilityOwner )
             return
 
-        local _d = this.m_hAbilityOwner.GetScriptScope()
+        local _d = m_hAbilityOwner.GetScriptScope()
 
         if ( ( _d.m_iFlags & ZBIT_SNIPER_CHARGING_SPIT ) )
             return
 
-        local _hPlayerVM = GetPropEntity( this.m_hAbilityOwner, "m_hViewModel" )
+        local _hPlayerVM = GetPropEntity( m_hAbilityOwner, "m_hViewModel" )
 
-        this.m_hAbilityOwner.AddEventToQueue( EVENT_SNIPER_SPITBALL, MIN_TIME_BETWEEN_SPIT_START_END )
+        m_hAbilityOwner.AddEventToQueue( EVENT_SNIPER_SPITBALL, MIN_TIME_BETWEEN_SPIT_START_END )
         local _specialSequence = _hPlayerVM.LookupSequence ( "special" )
         _hPlayerVM.ResetSequence  ( _specialSequence )
 
@@ -371,26 +371,26 @@ class CSniperSpitball extends CZombieAbility {
         _d.m_iFlags = ( _d.m_iFlags | ZBIT_SNIPER_CHARGING_SPIT )
         EmitSoundOn   ( SFX_ZOMBIE_SPIT_START, m_hAbilityOwner )
 
-        this.m_hAbilityOwner.GetActiveWeapon().AddAttribute( "move speed penalty", 0.5, -1 )
+        m_hAbilityOwner.GetActiveWeapon().AddAttribute( "move speed penalty", 0.5, -1 )
         return
     }
 
     function CreateSpitball( _bPlayerDead = false ) {
 
-        if ( !this.m_hAbilityOwner )
+        if ( !m_hAbilityOwner )
             return
 
-        local _d = this.m_hAbilityOwner.GetScriptScope()
+        local _d = m_hAbilityOwner.GetScriptScope()
 
         // if the player is dead when the spitball is thrown, drop straight down
         local _iThrowForce   =  SNIPER_SPIT_THROW_FORCE
         local _iDist         =  SNIPER_SPIT_THROW_DIST
-        local _vecPlayerVel  =  GetPropVector( this.m_hAbilityOwner, "m_vecVelocity" )
+        local _vecPlayerVel  =  GetPropVector( m_hAbilityOwner, "m_vecVelocity" )
 
-        local _vecFwd    =  this.m_hAbilityOwner.EyeAngles().Forward()
+        local _vecFwd    =  m_hAbilityOwner.EyeAngles().Forward()
         local _vecThrow  =  ( ( _vecFwd * _iThrowForce ) + _vecPlayerVel )
 
-        local _angPos    =  ( this.m_hAbilityOwner.EyePosition() + ( _vecFwd * _iDist ) )
+        local _angPos    =  ( m_hAbilityOwner.EyePosition() + ( _vecFwd * _iDist ) )
         local _spitEnt   =  CreateByClassname( "prop_physics_override" )
 
         if ( _bPlayerDead ) {
@@ -429,7 +429,7 @@ class CSniperSpitball extends CZombieAbility {
 
         local _sc = _spitEnt.GetScriptScope()
 
-        _sc.m_hOwner        <-   this.m_hAbilityOwner
+        _sc.m_hOwner        <-   m_hAbilityOwner
         _sc.m_iState        <-   SPIT_STATE_IN_TRANSIT
         _sc.m_hPfx          <-   _hPfxEnt
         _sc.m_arrSpitFx     <-   array( 5 ) // 5 splat effects
@@ -443,13 +443,13 @@ class CSniperSpitball extends CZombieAbility {
         _sc.m_vecHitPosition     <- Vector( 0, 0, 0 )
         _sc.m_vecPlaneNormal     <- Vector( 0, 0, 0 )
 
-        this.m_hAbilityOwner.GetActiveWeapon().RemoveAttribute( "move speed penalty" )
+        m_hAbilityOwner.GetActiveWeapon().RemoveAttribute( "move speed penalty" )
 
         EmitSoundOn( SFX_ZOMBIE_SPIT_END, m_hAbilityOwner )
 
         _d.m_iFlags = ( _d.m_iFlags & ~ZBIT_SNIPER_CHARGING_SPIT )
 
-        this.PutAbilityOnCooldown()
+        PutAbilityOnCooldown()
 
         AddThinkToEnt( _spitEnt, "SniperSpitThink" )
         return
@@ -463,42 +463,42 @@ class CEngineerSapperNade extends CZombieAbility {
 
     constructor( hAbilityOwner ) {
 
-        this.m_hAbilityOwner     =  hAbilityOwner
-        this.m_iAbilityType      =  ZABILITY_THROWABLE
-        this.m_fAbilityCooldown  =  MIN_TIME_BETWEEN_ENGIE_EMP_THROW
-        this.m_szAbilityName     =  ENGIE_EMP_NAME
+        m_hAbilityOwner     =  hAbilityOwner
+        m_iAbilityType      =  ZABILITY_THROWABLE
+        m_fAbilityCooldown  =  MIN_TIME_BETWEEN_ENGIE_EMP_THROW
+        m_szAbilityName     =  ENGIE_EMP_NAME
     }
 
     function AbilityCast() {
 
-        if ( !this.m_hAbilityOwner )
+        if ( !m_hAbilityOwner )
             return
 
-        local _d = this.m_hAbilityOwner.GetScriptScope()
+        local _d = m_hAbilityOwner.GetScriptScope()
 
         SetPropFloat ( _d.m_hZombieWep, "m_flNextPrimaryAttack",   FLT_MAX )
         SetPropFloat ( _d.m_hZombieWep, "m_flNextSecondaryAttack", FLT_MAX )
 
-        this.m_hAbilityOwner.GetActiveWeapon().AddAttribute( "move speed penalty", 0.5, -1 )
+        m_hAbilityOwner.GetActiveWeapon().AddAttribute( "move speed penalty", 0.5, -1 )
 
         EmitSoundOnClient ( "Weapon_GrenadeLauncher.DrumStop", m_hAbilityOwner )
 
-        this.m_hAbilityOwner.AddEventToQueue ( EVENT_ENGIE_THROW_NADE, INSTANT )
-        this.m_hAbilityOwner.AddEventToQueue ( EVENT_ENGIE_EXIT_MINIROOT, ENGIE_EMP_MINIROOT_LEN )
+        m_hAbilityOwner.AddEventToQueue ( EVENT_ENGIE_THROW_NADE, INSTANT )
+        m_hAbilityOwner.AddEventToQueue ( EVENT_ENGIE_EXIT_MINIROOT, ENGIE_EMP_MINIROOT_LEN )
         return
     }
 
     function ThrowNadeProjectile() {
 
-        if ( !this.m_hAbilityOwner )
+        if ( !m_hAbilityOwner )
             return
 
-        local _d = this.m_hAbilityOwner.GetScriptScope()
+        local _d = m_hAbilityOwner.GetScriptScope()
 
         PrecacheScriptSound  ( "Infection.EngineerEMP" )
-        EmitAmbientSoundOn   ( "Infection.EngineerEMP", 9, 1, 100, this.m_hAbilityOwner )
+        EmitAmbientSoundOn   ( "Infection.EngineerEMP", 9, 1, 100, m_hAbilityOwner )
 
-        local _hPlayerVM     =  GetPropEntity( this.m_hAbilityOwner, "m_hViewModel" )
+        local _hPlayerVM     =  GetPropEntity( m_hAbilityOwner, "m_hViewModel" )
 
         // random numbers for angles so the nade spins
         local _fPitch        =  RandomFloat( -360, 360 )
@@ -557,26 +557,26 @@ class CEngineerSapperNade extends CZombieAbility {
         _sc.m_bStuckToSurface  <-  false
 
         _sc.m_fFlashRate   <-  ENGIE_EMP_INITIAL_FLASH_RATE
-        _sc.m_hOwner       <-  this.m_hAbilityOwner
+        _sc.m_hOwner       <-  m_hAbilityOwner
         _sc.m_hPfx         <-  _hPfxEnt
         _sc.m_bHasHitSolid <-  false
         _sc.m_bMustFizzle  <-  false
 
-        this.m_hAbilityOwner.ViewPunch( QAngle( -3, 0, 0 ) ); // todo - const
+        m_hAbilityOwner.ViewPunch( QAngle( -3, 0, 0 ) ); // todo - const
 
         local _iSpecialSeq = _hPlayerVM.LookupSequence( "special" )
         _hPlayerVM.ResetSequence ( _iSpecialSeq )
 
 
-        this.m_hAbilityOwner.AddEventToQueue ( EVENT_PUT_ABILITY_ON_CD, 2 )
+        m_hAbilityOwner.AddEventToQueue ( EVENT_PUT_ABILITY_ON_CD, 2 )
         AddThinkToEnt                        ( _nadeEnt, "EngieEMPThink" )
         return
     }
 
     function ExitRoot() {
 
-        this.m_hAbilityOwner.GetActiveWeapon().RemoveAttribute( "move speed penalty" )
-        this.PutAbilityOnCooldown()
+        m_hAbilityOwner.GetActiveWeapon().RemoveAttribute( "move speed penalty" )
+        PutAbilityOnCooldown()
         return
     }
 }
@@ -591,20 +591,20 @@ class CDemoCharge extends CZombieAbility {
 
     constructor( hAbilityOwner ) {
 
-        this.m_hAbilityOwner     =  hAbilityOwner
-        this.m_iAbilityType      =  ZABILITY_THROWABLE
-        this.m_fAbilityCooldown  =  MIN_TIME_BETWEEN_DEMO_CHARGE
-        this.m_szAbilityName     =  DEMO_CHARGE_NAME
+        m_hAbilityOwner     =  hAbilityOwner
+        m_iAbilityType      =  ZABILITY_THROWABLE
+        m_fAbilityCooldown  =  MIN_TIME_BETWEEN_DEMO_CHARGE
+        m_szAbilityName     =  DEMO_CHARGE_NAME
     }
 
     function AbilityCast() {
 
-        if ( !this.m_hAbilityOwner )
+        if ( !m_hAbilityOwner )
             return
 
-        local _d = this.m_hAbilityOwner.GetScriptScope()
+        local _d = m_hAbilityOwner.GetScriptScope()
 
-        this.m_hAbilityOwner.SetForcedTauntCam( 1 )
+        m_hAbilityOwner.SetForcedTauntCam( 1 )
 
         SetPropFloat ( _d.m_hZombieWep, "m_flNextPrimaryAttack",   FLT_MAX )
         SetPropFloat ( _d.m_hZombieWep, "m_flNextSecondaryAttack", FLT_MAX )
@@ -616,26 +616,26 @@ class CDemoCharge extends CZombieAbility {
             _d.m_hZombieWearable.Destroy()
 
         // create new ones now that the player can see themselves
-        // this.m_hAbilityOwner.GiveZombieFXWearable()
-        this.m_hAbilityOwner.GiveZombieCosmetics()
+        // m_hAbilityOwner.GiveZombieFXWearable()
+        m_hAbilityOwner.GiveZombieCosmetics()
 
-        EmitSoundOn( SFX_DEMO_CHARGE_RAMP, this.m_hAbilityOwner )
+        EmitSoundOn( SFX_DEMO_CHARGE_RAMP, m_hAbilityOwner )
 
         // todo - array
-        this.m_hAbilityOwner.AddCond   ( TF_COND_CRITBOOSTED_PUMPKIN )
-        this.m_hAbilityOwner.AddCond   ( TF_COND_TAUNTING )
-        // this.m_hAbilityOwner.AddCondEx ( TF_COND_INVULNERABLE_USER_BUFF, 1.76, this.m_hAbilityOwner )
-        this.m_hAbilityOwner.AddCondEx ( TF_COND_INVULNERABLE_USER_BUFF, DEMOMAN_CHARGE_INVULN_TIME, this.m_hAbilityOwner )
-        this.m_hAbilityOwner.AddCond   ( TF_COND_RADIUSHEAL ); // just the heal ring
+        m_hAbilityOwner.AddCond   ( TF_COND_CRITBOOSTED_PUMPKIN )
+        m_hAbilityOwner.AddCond   ( TF_COND_TAUNTING )
+        // m_hAbilityOwner.AddCondEx ( TF_COND_INVULNERABLE_USER_BUFF, 1.76, m_hAbilityOwner )
+        m_hAbilityOwner.AddCondEx ( TF_COND_INVULNERABLE_USER_BUFF, DEMOMAN_CHARGE_INVULN_TIME, m_hAbilityOwner )
+        m_hAbilityOwner.AddCond   ( TF_COND_RADIUSHEAL ); // just the heal ring
 
-        this.m_hAbilityOwner.RemoveOutOfCombat ( true )
+        m_hAbilityOwner.RemoveOutOfCombat ( true )
 
-        this.m_hAbilityOwner.AddCustomAttribute ( "no_jump", 1, -1 )
-        this.m_hAbilityOwner.AddCustomAttribute ( "no_duck", 1, -1 )
-        this.m_hAbilityOwner.AddCustomAttribute ( "no_attack", 1, -1 )
-        this.m_hAbilityOwner.AddCustomAttribute ( "move speed penalty", 0.001, -1 )
+        m_hAbilityOwner.AddCustomAttribute ( "no_jump", 1, -1 )
+        m_hAbilityOwner.AddCustomAttribute ( "no_duck", 1, -1 )
+        m_hAbilityOwner.AddCustomAttribute ( "no_attack", 1, -1 )
+        m_hAbilityOwner.AddCustomAttribute ( "move speed penalty", 0.001, -1 )
 
-        this.m_hAbilityOwner.AddEventToQueue   ( EVENT_DEMO_CHARGE_START, 1.75 )
+        m_hAbilityOwner.AddEventToQueue   ( EVENT_DEMO_CHARGE_START, 1.75 )
 
         _d.m_iFlags <- ( _d.m_iFlags | ZBIT_DEMOCHARGE )
 
@@ -644,53 +644,53 @@ class CDemoCharge extends CZombieAbility {
 
     function StartDemoCharge() {
 
-        if ( !this.m_hAbilityOwner )
+        if ( !m_hAbilityOwner )
             return
 
-        local _sc = this.m_hAbilityOwner.GetScriptScope()
+        local _sc = m_hAbilityOwner.GetScriptScope()
 
-        EmitAmbientSoundOn ( "Infection.DemoCharge", 10, 1, 100, this.m_hAbilityOwner )
+        EmitAmbientSoundOn ( "Infection.DemoCharge", 10, 1, 100, m_hAbilityOwner )
 
         _sc.m_iFlags  <- ( _sc.m_iFlags | ZBIT_MUST_EXPLODE )
 
-        this.m_hAbilityOwner.AddCond    ( TF_COND_SHIELD_CHARGE )
-        this.m_hAbilityOwner.RemoveCond ( TF_COND_RADIUSHEAL )
-        // this.m_hAbilityOwner.AddCondEx  ( TF_COND_INVULNERABLE_USER_BUFF, 0.298, this.m_hAbilityOwner )
-        this.m_hAbilityOwner.AddEventToQueue   ( EVENT_DEMO_CHARGE_EXIT, 1.5 )
+        m_hAbilityOwner.AddCond    ( TF_COND_SHIELD_CHARGE )
+        m_hAbilityOwner.RemoveCond ( TF_COND_RADIUSHEAL )
+        // m_hAbilityOwner.AddCondEx  ( TF_COND_INVULNERABLE_USER_BUFF, 0.298, m_hAbilityOwner )
+        m_hAbilityOwner.AddEventToQueue   ( EVENT_DEMO_CHARGE_EXIT, 1.5 )
 
-        this.m_hAbilityOwner.RemoveCustomAttribute ( "no_jump" )
-        this.m_hAbilityOwner.RemoveCustomAttribute ( "no_duck" )
-        this.m_hAbilityOwner.RemoveCustomAttribute ( "no_attack" )
-        this.m_hAbilityOwner.RemoveCustomAttribute ( "move speed penalty" )
+        m_hAbilityOwner.RemoveCustomAttribute ( "no_jump" )
+        m_hAbilityOwner.RemoveCustomAttribute ( "no_duck" )
+        m_hAbilityOwner.RemoveCustomAttribute ( "no_attack" )
+        m_hAbilityOwner.RemoveCustomAttribute ( "move speed penalty" )
         return
     }
 
     function ExitDemoCharge() {
 
-        if ( !this.m_hAbilityOwner )
+        if ( !m_hAbilityOwner )
             return
 
-        local _d = this.m_hAbilityOwner.GetScriptScope()
+        local _d = m_hAbilityOwner.GetScriptScope()
 
-        this.m_hAbilityOwner.RemoveCond  ( TF_COND_SHIELD_CHARGE )
-        this.m_hAbilityOwner.RemoveCond  ( TF_COND_INVULNERABLE_USER_BUFF )
-        this.m_hAbilityOwner.RemoveCond  ( TF_COND_TAUNTING )
+        m_hAbilityOwner.RemoveCond  ( TF_COND_SHIELD_CHARGE )
+        m_hAbilityOwner.RemoveCond  ( TF_COND_INVULNERABLE_USER_BUFF )
+        m_hAbilityOwner.RemoveCond  ( TF_COND_TAUNTING )
 
-        this.PutAbilityOnCooldown()
+        PutAbilityOnCooldown()
 
         _d.m_iFlags            <- ( _d.m_iFlags & ~ZBIT_MUST_EXPLODE )
         _d.m_iFlags            <- ( _d.m_iFlags & ~ZBIT_DEMOCHARGE )
         _d.m_tblEventQueue     <- { }
 
-        DemomanExplosionPreCheck( this.m_hAbilityOwner.GetOrigin(),
+        DemomanExplosionPreCheck( m_hAbilityOwner.GetOrigin(),
                                   DEMOMAN_CHARGE_BASE_DAMAGE,
                                   DEMOMAN_CHARGE_DAMAGE_PER_PLAYER_MULT,
                                   DEMOMAN_CHARGE_RADIUS,
-                                  this.m_hAbilityOwner,
+                                  m_hAbilityOwner,
                                   DEMOMAN_CHARGE_FORCE,
                                   DEMOMAN_CHARGE_FORCE_UPWARD_MULT )
 
-        this.m_hAbilityOwner.AddEventToQueue( EVENT_DEMO_CHARGE_RESET, 0.1 )
+        m_hAbilityOwner.AddEventToQueue( EVENT_DEMO_CHARGE_RESET, 0.1 )
         return
     }
 }
@@ -721,12 +721,12 @@ class CPyroPassive extends CPassiveAbility {
 
     constructor( hAbilityOwner ) {
 
-        this.m_hAbilityOwner     =  hAbilityOwner
-        this.m_iAbilityType      =  ZABILITY_PASSIVE
-        this.m_fAbilityCooldown  =  ACT_LOCKED
-        this.m_szAbilityName     =  PYRO_BLAST_NAME
-     // this.m_arrAttribs        =  PYRO_PASSIVE_ATTRIBUTES
-     // this.m_arrTFConds        =  PYRO_PASSIVE_CONDS
+        m_hAbilityOwner     =  hAbilityOwner
+        m_iAbilityType      =  ZABILITY_PASSIVE
+        m_fAbilityCooldown  =  ACT_LOCKED
+        m_szAbilityName     =  PYRO_BLAST_NAME
+     // m_arrAttribs        =  PYRO_PASSIVE_ATTRIBUTES
+     // m_arrTFConds        =  PYRO_PASSIVE_CONDS
     }
 }
 
@@ -734,12 +734,12 @@ class CHeavyPassive extends CPassiveAbility {
 
     constructor( hAbilityOwner ) {
 
-        this.m_hAbilityOwner     =  hAbilityOwner
-        this.m_iAbilityType      =  ZABILITY_PASSIVE
-        this.m_fAbilityCooldown  =  ACT_LOCKED
-        this.m_szAbilityName     =  HEAVY_PASSIVE_NAME
-     // this.m_arrAttribs        =  HEAVY_PASSIVE_ATTRIBUTES
-     // this.m_arrTFConds        =  HEAVY_PASSIVE_CONDS
+        m_hAbilityOwner     =  hAbilityOwner
+        m_iAbilityType      =  ZABILITY_PASSIVE
+        m_fAbilityCooldown  =  ACT_LOCKED
+        m_szAbilityName     =  HEAVY_PASSIVE_NAME
+     // m_arrAttribs        =  HEAVY_PASSIVE_ATTRIBUTES
+     // m_arrTFConds        =  HEAVY_PASSIVE_CONDS
     }
 }
 
@@ -747,12 +747,12 @@ class CScoutPassive extends CPassiveAbility {
 
     constructor( hAbilityOwner ) {
 
-        this.m_hAbilityOwner     =  hAbilityOwner
-        this.m_iAbilityType      =  ZABILITY_PASSIVE
-        this.m_fAbilityCooldown  =  ACT_LOCKED
-        this.m_szAbilityName     =  SCOUT_PASSIVE_NAME
-     // this.m_arrAttribs        =  SCOUT_PASSIVE_ATTRIBUTES
-     // this.m_arrTFConds        =  SCOUT_PASSIVE_CONDS
+        m_hAbilityOwner     =  hAbilityOwner
+        m_iAbilityType      =  ZABILITY_PASSIVE
+        m_fAbilityCooldown  =  ACT_LOCKED
+        m_szAbilityName     =  SCOUT_PASSIVE_NAME
+     // m_arrAttribs        =  SCOUT_PASSIVE_ATTRIBUTES
+     // m_arrTFConds        =  SCOUT_PASSIVE_CONDS
     }
 }
 
@@ -760,12 +760,12 @@ class CMedicPassive extends CPassiveAbility {
 
     constructor( hAbilityOwner ) {
 
-        this.m_hAbilityOwner     =  hAbilityOwner
-        this.m_iAbilityType      =  ZABILITY_PASSIVE
-        this.m_fAbilityCooldown  =  ACT_LOCKED
-        this.m_szAbilityName     =  MEDIC_PASSIVE_NAME
-     // this.m_arrAttribs        =  SCOUT_PASSIVE_ATTRIBUTES
-     // this.m_arrTFConds        =  SCOUT_PASSIVE_CONDS
+        m_hAbilityOwner     =  hAbilityOwner
+        m_iAbilityType      =  ZABILITY_PASSIVE
+        m_fAbilityCooldown  =  ACT_LOCKED
+        m_szAbilityName     =  MEDIC_PASSIVE_NAME
+     // m_arrAttribs        =  SCOUT_PASSIVE_ATTRIBUTES
+     // m_arrTFConds        =  SCOUT_PASSIVE_CONDS
     }
 }
 
@@ -774,34 +774,34 @@ class CPyroBlast extends CZombieAbility {
 
     constructor( hAbilityOwner ) {
 
-        this.m_hAbilityOwner     =  hAbilityOwner
-        this.m_iAbilityType      =  ZABILITY_THROWABLE
-        this.m_fAbilityCooldown  =  MIN_TIME_BETWEEN_PYRO_BLAST
-        this.m_szAbilityName     =  PYRO_BLAST_NAME
+        m_hAbilityOwner     =  hAbilityOwner
+        m_iAbilityType      =  ZABILITY_THROWABLE
+        m_fAbilityCooldown  =  MIN_TIME_BETWEEN_PYRO_BLAST
+        m_szAbilityName     =  PYRO_BLAST_NAME
     }
 
     function AbilityCast() {
 
-        if ( !this.m_hAbilityOwner )
+        if ( !m_hAbilityOwner )
             return
 
-        local _sc = this.m_hAbilityOwner.GetScriptScope()
+        local _sc = m_hAbilityOwner.GetScriptScope()
 
-        local _vecAngFwd    = this.m_hAbilityOwner.EyeAngles().Forward()*975
-        local _vecAngOrigin = this.m_hAbilityOwner.EyePosition()+this.m_hAbilityOwner.EyeAngles().Forward()*32
-        local _vecAngEye    = this.m_hAbilityOwner.EyeAngles()
+        local _vecAngFwd    = m_hAbilityOwner.EyeAngles().Forward()*975
+        local _vecAngOrigin = m_hAbilityOwner.EyePosition()+m_hAbilityOwner.EyeAngles().Forward()*32
+        local _vecAngEye    = m_hAbilityOwner.EyeAngles()
 
         // spawn the dragon's fury projectile
         local _BallOfFlames = SpawnEntityFromTable( "tf_projectile_BallOfFire", {
 
             basevelocity = _vecAngFwd,
-            teamnum      = this.m_hAbilityOwner.GetTeam(),
+            teamnum      = m_hAbilityOwner.GetTeam(),
             origin       = _vecAngOrigin,
             angles       = _vecAngEye
         } )
 
         AddThinkToEnt          ( _BallOfFlames, "PyroFireballThink" )
-        _BallOfFlames.SetOwner ( this.m_hAbilityOwner )
+        _BallOfFlames.SetOwner ( m_hAbilityOwner )
 
         local _dummyFlamer = CreateByClassname( "tf_weapon_flamethrower" )
 
@@ -811,18 +811,18 @@ class CPyroBlast extends CZombieAbility {
 
         ::DispatchSpawn( _dummyFlamer )
 
-        this.m_hAbilityOwner.Weapon_Equip( _dummyFlamer )
+        m_hAbilityOwner.Weapon_Equip( _dummyFlamer )
 
-        SetPropIntArray( this.m_hAbilityOwner, STRING_NETPROP_AMMO, 99, 1 )
+        SetPropIntArray( m_hAbilityOwner, STRING_NETPROP_AMMO, 99, 1 )
 
         _dummyFlamer.SecondaryAttack()
 
-        this.m_hAbilityOwner.DestroyAllWeapons()
-        this.m_hAbilityOwner.GiveZombieWeapon()
-        this.m_hAbilityOwner.RemoveAmmo()
+        m_hAbilityOwner.DestroyAllWeapons()
+        m_hAbilityOwner.GiveZombieWeapon()
+        m_hAbilityOwner.RemoveAmmo()
 
-        this.m_hAbilityOwner.AddEventToQueue ( EVENT_PUT_ABILITY_ON_CD, INSTANT )
-        this.m_hAbilityOwner.AddEventToQueue ( EVENT_RESET_ZOMBIE_WEP,   0.01 )
+        m_hAbilityOwner.AddEventToQueue ( EVENT_PUT_ABILITY_ON_CD, INSTANT )
+        m_hAbilityOwner.AddEventToQueue ( EVENT_RESET_ZOMBIE_WEP,   0.01 )
 
         return
     }

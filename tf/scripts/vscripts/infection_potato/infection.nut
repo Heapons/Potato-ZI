@@ -593,11 +593,11 @@ PZI_EVENT( "player_death", "Infection_PlayerDeath", function( params ) {
             // to become the explosion origin           //
             // ---------------------------------------- //
 
-            DemomanExplosionPreCheck( this.m_hAbilityOwner.GetOrigin(),
+            DemomanExplosionPreCheck( m_hAbilityOwner.GetOrigin(),
                                     DEMOMAN_CHARGE_BASE_DAMAGE,
                                     DEMOMAN_CHARGE_DAMAGE_PER_PLAYER_MULT,
                                     DEMOMAN_CHARGE_RADIUS,
-                                    this.m_hAbilityOwner,
+                                    m_hAbilityOwner,
                                     DEMOMAN_CHARGE_FORCE,
                                     DEMOMAN_CHARGE_FORCE_UPWARD_MULT )
         }

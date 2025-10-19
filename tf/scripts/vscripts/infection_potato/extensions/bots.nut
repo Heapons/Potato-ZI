@@ -1075,7 +1075,7 @@ PZI_EVENT( "post_inventory_application", "PZI_Bots_PostInventoryApplication", fu
 
 	function BotThink() {
 
-		if ( !bot.IsAlive() )
+		if ( !bot || !bot.IsValid() || !bot.IsAlive() )
 			return
 
 		b.OnUpdate()
