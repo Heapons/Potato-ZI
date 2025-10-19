@@ -321,7 +321,7 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
     }
 
     // teleport to a random nav square on spawn
-    player.SetAbsOrigin( PZI_Nav.SafeNavAreas.values()[ RandomInt( 0, PZI_Nav.SafeNavAreas.len() - 1 ) ])
+    player.SetAbsOrigin( PZI_Nav.SafeNavAreas.values()[ RandomInt( 0, PZI_Nav.SafeNavAreas.len() - 1 ) ].GetCenter() )
 
     // BLU LOGIC BEYOND THIS POINT
     if ( player.GetTeam() != TEAM_ZOMBIE ) return
