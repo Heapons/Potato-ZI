@@ -309,7 +309,6 @@ local ents_to_kill = [
     // "bot_hint_*"
     // "func_nav_*"
     // "func_tfbot_hint"
-    "item_*"
     "env_sun"
 	"beam"
     "env_beam"
