@@ -296,6 +296,9 @@ PZI_EVENT( "teamplay_setup_finished", "Infection_SetupFinished", function( param
     local _iPlayerCountRed    = PlayerCount( TEAM_HUMAN )
     local _numStartingZombies = ( _iPlayerCountRed / STARTING_ZOMBIE_FAC ) || 1
 
+    if ( _numStartingZombies > 6 )
+        _numStartingZombies = 6
+
     // -------------------------------------------------- //
     // select players to become zombies                   //
     // -------------------------------------------------- //
