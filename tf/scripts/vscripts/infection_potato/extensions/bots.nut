@@ -340,6 +340,8 @@ PZI_Bots.PZI_BotBehavior <- class {
 			}
 		}
 
+		PZI_Util.SwitchWeaponSlot( bot, SLOT_PRIMARY )
+
 		bot.RemoveEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
 	}
 	function IsLookingTowards( target, cos_tolerance ) {
