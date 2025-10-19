@@ -372,6 +372,9 @@ function PZI_PlayerThink() {
 
                         if ( m_fTimeNextClientPrint <= Time() ) {
 
+                            if ( !m_hHUDText || !m_hHUDText.IsValid() )
+                                return
+
                             m_hHUDText.KeyValueFromString ( "message", m_szCurrentHUDString )
                             self.SetNextActTime           ( ZOMBIE_CAN_CLIENTPRINT, 0.1 )
 
