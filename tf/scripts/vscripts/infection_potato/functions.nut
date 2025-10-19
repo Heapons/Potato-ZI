@@ -553,7 +553,7 @@ function CTFPlayer_GiveZombieCosmetics() {
     local _sc = PZI_Util.GetEntScope( this )
 
     SetPropBool( this, "m_bForcedSkin", true )
-    SetPropInt( this, "m_nForcedSkin", this.GetSkin() + 4 )
+    SetPropInt( this, "m_nForcedSkin", this.GetSkin() + this.GetPlayerClass() == TF_CLASS_SPY ? 22 : 4 )
     SetPropInt( this, "m_iPlayerSkinOverride", 1 )
     PZI_Util.SetTargetname( wearable, format( "__pzi_zombie_cosmetic_%d", this.entindex() ) )
     this.GetScriptScope().m_hZombieWearable <- wearable
