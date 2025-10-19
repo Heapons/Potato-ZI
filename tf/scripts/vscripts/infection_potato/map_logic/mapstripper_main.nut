@@ -128,13 +128,13 @@ local function SetupRoundTimer() {
         targetname          = "__pzi_timer"
         vscripts            = " "
         auto_countdown      = 1
-        max_length          = 300
+        max_length          = 180
         reset_time          = 1
         setup_length        = 45
         show_in_hud         = 1
         show_time_remaining = 1
         start_paused        = 0
-        timer_length        = 240
+        timer_length        = 120
         StartDisabled       = 0
         "OnFinished#1"      : "__pzi_util,CallScriptFunction,RoundWin,0,-1"
         "OnSetupFinished#1" : "self,RunScriptCode,base_timestamp = Time() + 240,1,-1"
