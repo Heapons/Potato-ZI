@@ -1094,7 +1094,7 @@ PZI_EVENT( "post_inventory_application", "PZI_Bots_PostInventoryApplication", fu
 				GetNavAreasInRadius( bot.GetOrigin(), 192.0, areas )
 
 				if ( areas.len() )
-					area = areas.values()[ RandomInt( 0, areas.len() - 1 ).GetCenter() ]
+					area = areas.values()[ RandomInt( 0, areas.len() - 1 ) ]
 			}
 
 			// still no nearby nav, just kill and respawn

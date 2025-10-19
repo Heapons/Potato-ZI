@@ -327,29 +327,26 @@ PZI_EVENT( "teamplay_round_start", "PZI_MapStripper_RoundStart", function ( para
 
     if ( GAMEMODE in gamemode_funcs )
         gamemode_funcs[ GAMEMODE ]()
-    
-    // Open the map
-    foreach( door_ents in [ "func_door*", "func_areaportal*"]) {
 
-        for ( local ent; ent = FindByClassname( ent, door_ents ); ) {
+    SpawnEntityFromTable( "logic_relay", {
 
-            ent.AcceptInput( "Open", null, null, null )
+        targetname = "__pzi_mapstripper_round_start_relay"
+        spawnflags = 1
+        "OnSpawn#1" : "func_areaportal,Open,,0,-1"
+        "OnSpawn#2" : "__pzi_nav_interface,RecomputeBlockers,,0,-1"
+        "OnSpawn#3" : "team_control_point,SetLocked,1,0,-1"
+        "OnSpawn#4" : "team_control_point,HideModel,,0,-1"
+        "OnSpawn#5" : "team_control_point,Disable,,0,-1"
+        "OnSpawn#6" : "func_door*,AddOutput,OnFullyOpened func_door*:Kill::0:-1,0,-1"
+        "OnSpawn#7" : "func_door*,Open"
+    })
 
-            // Stay open
-            ent.ValidateScriptScope()
-            local scope = ent.GetScriptScope() || ( ent.ValidateScriptScope() || ent.GetScriptScope() )
-            scope.InputClose <- @() false
-            scope.Inputclose <- @() false
-            
-            EntFireByHandle( FindByClassnameNearest( "prop_dynamic", self.GetCenter(), 128 ), "Kill", null, -1, null, null )
-        }
-    }
-
-	for ( local ent = null; ent = FindByClassname( ent, "func_respawnroom" ); ) {
-
-		ent.AcceptInput( "Disable", "", null, null )
-		ent.AcceptInput( "SetInactive", "", null, null )
-	}
+    local doors = ["func_door*", "func_areaportal*"]
+    local cls   = ["prop_dynamic", "func_brush"]
+    foreach( e in doors )
+        for ( local ent; ent = FindByClassname( ent, e ); )
+            foreach( c in cls )
+                EntFireByHandle( FindByClassnameNearest( cls, ent.GetCenter(), 256 ), "Kill", null, -1, null, null )
 
     foreach ( tokill in ents_to_kill )
         for ( local ent; ent = FindByClassname( ent, tokill ); )
@@ -372,22 +369,6 @@ PZI_EVENT( "teamplay_round_start", "PZI_MapStripper_RoundStart", function ( para
         break
     }
 
-    // disable control points
-    EntFire( "team_control_point", "SetLocked", "1" )
-    EntFire( "team_control_point", "HideModel" )
-	EntFire( "team_control_point", "Disable" )
-
-    SpawnEntityFromTable( "logic_relay", {
-
-        targetname = "__pzi_mapstripper_round_start_relay"
-        spawnflags = 1
-        "OnSpawn#1" : "func_areaportal,Open,,0,-1"
-        "OnSpawn#2" : "__pzi_nav_interface,RecomputeBlockers,,0,-1"
-        "OnSpawn#3" : "team_control_point,SetLocked,1,0,-1"
-        "OnSpawn#4" : "team_control_point,HideModel,,0,-1"
-        "OnSpawn#5" : "team_control_point,Disable,,0,-1"
-    })
-
 })
 
 PZI_EVENT( "teamplay_setup_finished", "PZI_MapStripper_SetupFinished", function ( params ) {
@@ -396,14 +377,14 @@ PZI_EVENT( "teamplay_setup_finished", "PZI_MapStripper_SetupFinished", function 
 
         targetname = "__pzi_mapstripper_setup_finished_relay"
         spawnflags = 1
-        "OnSpawn #1" : "func_respawnroom,Disable,,0,-1"
-        "OnSpawn #2" : "func_respawnroom,SetInactive,,0,-1"
-        "OnSpawn #3" : "func_regenerate,Kill,,0,-1"
-        "OnSpawn #4" : "func_door,Kill,,0,-1"
-        "OnSpawn #5" : "func_areaportal,Open,,0,-1"
-        "OnSpawn #6" : "__pzi_nav_interface,RecomputeBlockers,,0,-1"
+        "OnSpawn#1" : "func_respawnroom,Disable,,0,-1"
+        "OnSpawn#2" : "func_respawnroom,SetInactive,,0,-1"
+        "OnSpawn#3" : "func_regenerate,Kill,,0,-1"
+        "OnSpawn#4" : "func_door*,AddOutput,OnFullyOpened func_door*:Kill::0:-1,0,-1"
+        "OnSpawn#5" : "func_door*,Open"
+        "OnSpawn#6" : "func_areaportal,Open,,0,-1"
+        "OnSpawn#7" : "__pzi_nav_interface,RecomputeBlockers,,0,-1"
     })
-
 })
 
 PZI_EVENT( "player_spawn", "PZI_MapStripper_PlayerSpawn", function ( params ) {
