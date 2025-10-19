@@ -1269,13 +1269,9 @@ function PZI_Util::GetItemInSlot( player, slot ) {
 
 function PZI_Util::SwitchToFirstValidWeapon( player ) {
 
-	for ( local i = 0; i < SLOT_COUNT; i++ ) {
-		local wep = GetPropEntityArray( player, STRING_NETPROP_MYWEAPONS, i )
-		if ( !wep ) continue
-
-		player.Weapon_Switch( wep )
-		return wep
-	}
+	for ( local i = 0, wep; i < SLOT_COUNT; i++ )
+		if ( wep = GetPropEntityArray( player, STRING_NETPROP_MYWEAPONS, i ) )
+			return player.Weapon_Switch( wep ), wep
 }
 
 function PZI_Util::PlayerBonemergeModel( player, model ) {

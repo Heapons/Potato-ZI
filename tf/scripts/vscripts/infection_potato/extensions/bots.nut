@@ -340,7 +340,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 			}
 		}
 
-		PZI_Util.SwitchWeaponSlot( bot, SLOT_PRIMARY )
+		PZI_Util.SwitchToFirstValidWeapon( bot )
 
 		bot.RemoveEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
 	}
@@ -1143,6 +1143,17 @@ PZI_EVENT( "player_builtobject", "PZI_Bots_PlayerBuildObject", function( params 
 
 	if ( !( building in PZI_Bots.red_buildings ) )
 		PZI_Bots.red_buildings[building] <- GetPlayerFromUserID( params.userid )
+})
+
+PZI_EVENT( "player_death", "PZI_Bots_PlayerDeath", function( params ) {
+
+	local bot = GetPlayerFromUserID( params.userid )
+	local scope = bot.GetScriptScope()
+	if ( !IsPlayerABot( bot ) || !scope || !("PZI_BotBehavior" in scope) )
+		return
+
+	scope.PZI_BotBehavior.threat = null
+
 })
 
 // PZI_EVENT( "player_hurt", "PZI_Bots_PlayerHurt", function( params ) {

@@ -328,6 +328,9 @@ PZI_EVENT( "teamplay_round_start", "PZI_MapStripper_RoundStart", function ( para
     if ( GAMEMODE in gamemode_funcs )
         gamemode_funcs[ GAMEMODE ]()
 
+    for ( local door; door = FindByClassname( door, "func_door" ); )
+        FindByClassnameNearest( "prop_dynamic", self.GetCenter(), 128 ).Kill()
+
     foreach ( tokill in ents_to_kill )
         for ( local ent; ent = FindByClassname( ent, tokill ); )
             EntFireByHandle( ent, "Kill", null, -1, null, null )
