@@ -1039,12 +1039,12 @@ function PZI_Bots::ThinkTable::BotQuotaManager() {
 	}
 
 	// not enough bots, add another
-	else if ( cmp && generator ) {
+	else if ( cmp && generator && generator.IsValid() ) {
 		
 		// local node = CreateByClassname( "point_commentary_node" )
 		// DispatchSpawn( node )
 		// EntFire( "point_commentary_node", "Kill", null, 1.1 )
-		EntFireByHandle( generator, "SpawnBot", null, -1, null, null )
+		generator.AcceptInput( "SpawnBot", null, null, null )
 	}
 }
 
