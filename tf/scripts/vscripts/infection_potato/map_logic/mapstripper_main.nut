@@ -408,7 +408,8 @@ PZI_EVENT( "player_spawn", "PZI_MapStripper_PlayerSpawn", function ( params ) {
 
     local player = GetPlayerFromUserID( params.userid )
     EntFire( "__pzi_respawnoverride", "SetRespawnTime", ""+BASE_RESPAWN_TIME, -1 )
-    EntFire( "__pzi_respawnoverride", "StartTouch", null, -1, player )
+    EntFire( "__pzi_respawnoverride", "StartTouch", "!activator", -1, player )
+    PZI_Util.RespawnOverride.SetSize( Vector( -9999, -9999. -9999 ), Vector( 9999, 9999, 9999 ) )
 
     // random spawn points
     // EntFire( "__pzi_respawnoverride", "SetRespawnName", spawns[ RandomInt( 0, spawns_len - 1 ) ], -1, player )
