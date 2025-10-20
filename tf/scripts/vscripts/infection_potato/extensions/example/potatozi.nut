@@ -134,7 +134,6 @@ function PZI_PotatoZI::HandleMapSpawn() {
 	Convars.SetValue( "mp_scrambleteams_auto", 0 )
 	Convars.SetValue( "mp_teams_unbalance_limit", 0 )
 	Convars.SetValue( "mp_tournament", 0 )
-	// Convars.SetValue( "mp_disable_respawn_times", 1 )
 
 	local gmprops = [
 		"m_bIsInTraining", "m_bIsWaitingForTrainingContinue", "m_bIsTrainingHUDVisible",

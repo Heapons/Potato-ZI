@@ -19,6 +19,24 @@ PZI_Nav.MAX_AREAS_PER_TICK <- 150
 
 GetAllAreas( PZI_Nav.AllNavAreas )
 
+// we don't support maps with no nav for now
+if ( !PZI_Nav.AllNavAreas.len() ) {
+
+	local msg = "NO NAVMESH FOUND FOR" + MAPNAME + "! SWITCHING TO NEXT MAP\n"
+
+	local fmt = format( "\n%s%s%s\n", msg, msg, msg )
+
+	ClientPrint( null, 3, "\x07FF0000" + msg )
+	ClientPrint( null, 3, "\x07FF0000" + msg )
+	ClientPrint( null, 3, "\x07FF0000" + msg )
+
+	EntFire( "__pzi_eventwrapper", "Kill" )
+	EntFire( "player", "TerminateScriptScope" )
+	EntFire( "__pzi_util", "CallScriptFunction", "ChangeLevel", 3 )
+
+	return Assert( false, msg.slice( 0, -1 ) )
+}
+
 // pre-collect safe nav areas on load
 function PZI_Nav::GetSafeNavAreas() {
 
@@ -91,7 +109,6 @@ function PZI_Nav::GetSafeNavAreas() {
 	}
 
 	print("\n\nSafe nav areas collected\n\n")
-	EntFire( "__pzi_util", "CallScriptFunction", "collectgarbage" )
 }
 
 local gen = PZI_Nav.GetSafeNavAreas()
@@ -107,6 +124,8 @@ function PZI_Nav::ThinkTable::PopulateSafeNav() {
 	local result = resume gen || SafeNavAreas.len()
 	printf("Safe Areas: %s / %s\n", result.tostring(), AllNavAreas.len().tostring() )
 }
+
+function PZI_Nav::GetRandomSafeArea() { return SafeNavAreas.values()[RandomInt(0, SafeNavAreas.len() - 1)] }
 
 function PZI_Nav::NavGenerate( only_this_arena = null ) {
 

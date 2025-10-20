@@ -211,7 +211,7 @@ function PZI_GameStrings::PurgeAllStrings() {
 
     EntFire( "*", "RunScriptCode", "PZI_GameStrings.StringTable[self.GetScriptId()] <- null" )
     EntFire( "*", "RunScriptCode", "SetPropBool( self, STRING_NETPROP_PURGESTRINGS, true )" )
-    PZI_GameStrings.StringTable["PZI_GameStrings.StringTable[self.GetScriptId()] <- null"] <- "SetPropBool( self, STRING_NETPROP_PURGESTRINGS, true )"
+    StringTable["PZI_GameStrings.StringTable[self.GetScriptId()] <- null"] <- "SetPropBool( self, STRING_NETPROP_PURGESTRINGS, true )"
 }
 
 foreach ( event in [ "teamplay_round_start", "teamplay_setup_finished" ] )

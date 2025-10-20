@@ -85,6 +85,7 @@ function PZI_CREATE_SCOPE( name = "", namespace = null, entity_ref = null, think
 		ent = CreateByClassname( classname || "logic_autosave" )
 		SetPropString( ent, STRING_NETPROP_NAME, name )
 		ent.ValidateScriptScope()
+		::DispatchSpawn( ent )
 	}
 
 	SetPropBool( ent, STRING_NETPROP_PURGESTRINGS, true )
@@ -171,14 +172,6 @@ function PZI_CREATE_SCOPE( name = "", namespace = null, entity_ref = null, think
 		ent_scope.ThinkTable <- {}
 
 		compilestring( format( "function %s() { foreach( func in ThinkTable ) func(); return -1 }", think_func ) ).call( ent_scope )
-
-        // ent_scope[ think_func ] <- function() {
-
-        //     foreach( func in ThinkTable )
-        //         func()
-
-        //     return -1
-        // }
 
 		AddThinkToEnt( ent, think_func )
 	}

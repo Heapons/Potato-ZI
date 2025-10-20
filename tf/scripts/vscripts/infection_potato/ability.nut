@@ -143,11 +143,8 @@ class CSpyReveal extends CZombieAbility {
 
         m_hAbilityOwner.SetForcedTauntCam  ( 1 )
 
-        if ( _d.m_hZombieFXWearable && _d.m_hZombieFXWearable.IsValid() )
-            _d.m_hZombieFXWearable.Destroy()
-
-        if ( _d.m_hZombieWearable && _d.m_hZombieWearable.IsValid() )
-            _d.m_hZombieWearable.Destroy()
+        m_hAbilityOwner.ClearZombieEntity( "m_hZombieFXWearable" )
+        m_hAbilityOwner.ClearZombieEntity( "m_hZombieWearable" )
 
         // m_hAbilityOwner.GiveZombieFXWearable()
         m_hAbilityOwner.GiveZombieCosmetics()
@@ -273,15 +270,12 @@ class CMedicHeal extends CZombieAbility {
 
             effect_name   =  FX_MEDIC_HEAL,
             start_active  =  "0",
-            targetname    =  "ZombieSpy_Revealer_pfx",
+            targetname    =  "__pzi_zspy_revealer" + m_hAbilityOwner.entindex(),
             origin        =  m_hAbilityOwner.GetOrigin(),
         } )
 
-        if ( _d.m_hZombieFXWearable && _d.m_hZombieFXWearable.IsValid() )
-            _d.m_hZombieFXWearable.Destroy()
-
-        if ( _d.m_hZombieWearable && _d.m_hZombieWearable.IsValid() )
-            _d.m_hZombieWearable.Destroy()
+        m_hAbilityOwner.ClearZombieEntity( "m_hZombieFXWearable" )
+        m_hAbilityOwner.ClearZombieEntity( "m_hZombieWearable" )
 
         // m_hAbilityOwner.GiveZombieFXWearable()
         m_hAbilityOwner.GiveZombieCosmetics()
@@ -609,11 +603,8 @@ class CDemoCharge extends CZombieAbility {
         SetPropFloat ( _d.m_hZombieWep, "m_flNextPrimaryAttack",   FLT_MAX )
         SetPropFloat ( _d.m_hZombieWep, "m_flNextSecondaryAttack", FLT_MAX )
 
-        if ( _d.m_hZombieFXWearable && _d.m_hZombieFXWearable.IsValid() )
-            _d.m_hZombieFXWearable.Destroy()
-
-        if ( _d.m_hZombieWearable && _d.m_hZombieWearable.IsValid() )
-            _d.m_hZombieWearable.Destroy()
+        m_hAbilityOwner.ClearZombieEntity( "m_hZombieFXWearable" )
+        m_hAbilityOwner.ClearZombieEntity( "m_hZombieWearable" )
 
         // create new ones now that the player can see themselves
         // m_hAbilityOwner.GiveZombieFXWearable()

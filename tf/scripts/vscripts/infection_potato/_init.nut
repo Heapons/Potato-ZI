@@ -29,13 +29,13 @@ if ( "InfectionLoaded" in getroottable() )
 ::bZombiesDontSwitchInPlace     <- true
 
 const GAMEMODE_NAME =  "Potato Zombie Infection"
-const PZI_VERSION   =  "10.02.2025.1"
+const PZI_VERSION   =  "10.20.2025.1"
 
 ::INFECTION_CONVARS <- {
 
     "mp_autoteambalance"                   : 0,
     "mp_teams_unbalance_limit"             : 0,
-    "mp_disable_respawn_times"             : 1,
+    "mp_disable_respawn_times"             : 0,
     "tf_classlimit"                        : 0,
     "mp_forcecamera"                       : 0,
     "sv_alltalk"                           : 1,

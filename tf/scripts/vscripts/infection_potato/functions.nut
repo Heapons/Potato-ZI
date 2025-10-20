@@ -45,10 +45,7 @@ function RoundUp( _fValue ) {
     return _iPart
 }
 
-function GetPlayerUserID( _hPlayer ) {
-
-    return ( GetPropIntArray( TFPlayerManager, "m_iUserID", _hPlayer.entindex() ) )
-}
+function GetPlayerUserID( _hPlayer ) { return GetPropIntArray( TFPlayerManager, "m_iUserID", _hPlayer.entindex() ) }
 
 function PlayerCount( _team = -1 ) {
 
@@ -60,12 +57,14 @@ function PlayerCount( _team = -1 ) {
     //         playerCount++
 
     // return playerCount
-    return (PZI_Util.PlayerArray.filter(@(i, player) player.GetTeam() == _team || _team == -1)).len()
+
+    PZI_Util.ValidatePlayerTables()
+    return (PZI_Util.PlayerArray.filter( @(i, player) _team == -1 || player.GetTeam() == _team ) ).len()
 }
 
-function PlayGlobalBell( _bForce ) {
+function PlayGlobalBell( _bForce = false ) {
 
-    if ( !_bForce && ( Time() - flTimeLastBell ) < 0.75 )
+    if ( !_bForce && flTimeLastBell + GLOBAL_BELL_DELAY > Time() )
         return
 
     local _tblSfxEvent = {
@@ -75,7 +74,7 @@ function PlayGlobalBell( _bForce ) {
     }
 
     SendGlobalGameEvent ( "teamplay_broadcast_audio", _tblSfxEvent )
-    flTimeLastBell <- Time()
+    flTimeLastBell = Time()
 }
 
 // damage is multiplied by _flDmgMult for each player in range
@@ -192,14 +191,21 @@ function GetAllPlayers( team = null ) {
 
 function GetRandomPlayers( _howMany = 1, team = null ) {
 
-    local _playerArr =  PZI_Util.PlayerArray.filter( @(i, player) team == null || player.GetTeam() == team )
+    local u = PZI_Util
+    local _playerArr =  u.PlayerArray
 
-    _howMany = ( _howMany - 1 in _playerArr ) ? _howMany : _playerArr.len()
+    if ( team != null && team > TEAM_SPECTATOR )
+        _playerArr = u[ u.PLAYER_TABLES[ team == TEAM_HUMAN ? TEAM_HUMAN : TEAM_ZOMBIE ] ].keys()
+
+    local _arrLen = _playerArr.len()
+
+    if ( _howMany >= _arrLen )
+        _howMany = _arrLen - 1
 
     local _selectedPlayers = array( _howMany )
 
     for ( local i = 0; i < _howMany; i++ )
-        _selectedPlayers[i] = _playerArr[RandomInt( 0, _playerArr.len() - 1 )]
+        _selectedPlayers[i] = _playerArr[RandomInt( 0, _arrLen - 1 )]
 
     return _selectedPlayers
 }
@@ -522,9 +528,7 @@ function CTFPlayer_GiveZombieAbility() {
 
     local _sc = this.GetScriptScope()
 
-    _sc.m_hZombieAbility <- null
     _sc.m_fTimeNextCast  <- 0.0
-
     _sc.m_hZombieAbility <- CZombieAbility.m_arrClassAbilities[ this.GetPlayerClass() ]( this )
 
     _sc.m_iCurrentAbilityType <- _sc.m_hZombieAbility.GetAbilityType()
@@ -578,8 +582,7 @@ function CTFPlayer_GiveZombieCosmetics_OLD() {
 
     local _sc = PZI_Util.GetEntScope( this )
 
-    if ( "m_hZombieWearable" in _sc && _sc.m_hZombieWearable && _sc.m_hZombieWearable.IsValid() )
-    _sc.m_hZombieWearable.Destroy()
+    m_hAbilityOwner.ClearZombieEntity( "m_hZombieWearable" )
 
     local _zombieCosmetic  =  CreateByClassname( "tf_wearable" )
     local _soulIDX         =  arrZombieCosmeticIDX[ this.GetPlayerClass() ]
@@ -614,8 +617,7 @@ function CTFPlayer_GiveZombieFXWearable() {
 
     if ( !_sc ) return
 
-    if ( _sc.m_hZombieFXWearable && _sc.m_hZombieFXWearable.IsValid() )
-        _sc.m_hZombieFXWearable.Destroy()
+    m_hAbilityOwner.ClearZombieEntity( "m_hZombieFXWearable" )
 
     local _zombieFXWearable = CreateByClassname( "tf_wearable" )
 
@@ -696,11 +698,8 @@ function CTFPlayer_GiveZombieWeapon() {
 
 	// if ( !_sc ) return
 
-    if ( _sc.m_hZombieWep && _sc.m_hZombieWep.IsValid() )
-        _sc.m_hZombieWep.Destroy()
-
-    if ( _sc.m_hZombieArms && _sc.m_hZombieArms.IsValid() )
-        _sc.m_hZombieArms.Destroy()
+    this.ClearZombieEntity( "m_hZombieFXWearable" )
+    this.ClearZombieEntity( "m_hZombieWearable" )
 
     local _playerClass  =  this.GetPlayerClass()
     local _hPlayerVM    =  GetPropEntity( this, "m_hViewModel" )
@@ -926,20 +925,19 @@ function CTFPlayer_InitializeZombieHUD() {
 
     local _sc = this.GetScriptScope()
 
-    if ( "m_hHUDText" in _sc && _sc.m_hHUDText )
-        EntFireByHandle( _sc.m_hHUDText, "Kill", "", -1, this, this )
+    this.ClearZombieEntity( "m_hHUDText" )
+    this.ClearZombieEntity( "m_hHUDTextAbilityName" )
 
-    if ( "m_hHUDTextAbilityName" in _sc && _sc.m_hHUDTextAbilityName )
-        EntFireByHandle( _sc.m_hHUDTextAbilityName, "Kill", "", -1, this, this )
+    local userid = GetPlayerUserID( this )
 
     // previous checks apparently don't work, just kill by targetname
-    for (local txt; txt = FindByClassname( txt, "game_text"); )
-        if ( endswith(txt.GetName(), this.entindex().tostring()) )
+    for ( local ent = worldspawn, name ; ent = FindByClassname( ent, "game_text"); )
+        if ( ( name = ent.GetName() ), startswith( name, "__pzi" ) && endswith( name, userid.tostring() ) )
             EntFireByHandle( txt, "Kill", "", -1, null, null )
 
     local _hAbilityHUDText = SpawnEntityFromTable( "game_text", {
 
-        targetname = "__pzi_hud_text_value" + this.entindex()
+        targetname = "__pzi_hud_text_abilityvalue" + userid
         x          =  ZHUD_X_POS
         y          =  0.895
         effect     =  0
@@ -956,7 +954,7 @@ function CTFPlayer_InitializeZombieHUD() {
 
     local _hAbilityNameHUDText = SpawnEntityFromTable( "game_text", {
 
-        targetname = "__pzi_hud_text_name" + this.entindex()
+        targetname = "__pzi_hud_text_abilityname" + userid
         x          =  ZHUD_X_POS
         y          =  0.80
         effect     =  0
@@ -1137,11 +1135,8 @@ function CTFPlayer_ProcessEventQueue(  ) {
 
             case EVENT_DEMO_CHARGE_RESET:
 
-                if ( _sc.m_hZombieFXWearable && _sc.m_hZombieFXWearable.IsValid() )
-                    _sc.m_hZombieFXWearable.Destroy()
-
-                if ( _sc.m_hZombieWearable && _sc.m_hZombieWearable.IsValid() )
-                    _sc.m_hZombieWearable.Destroy()
+                this.ClearZombieEntity( "m_hZombieWearable" )
+                this.ClearZombieEntity( "m_hZombieFXWearable" )
 
                 // this.GiveZombieFXWearable()
                 this.GiveZombieCosmetics()
@@ -1443,23 +1438,24 @@ function CTFPlayer_DestroyAllWeapons() {
     return
 }
 
+function CTFPlayer_ClearZombieEntity( ent ) {
+
+    local _sc = this.GetScriptScope()
+
+    if ( ent in _sc && _sc[ent] && _sc[ent].IsValid() )
+        _sc[ent].Destroy()
+}
+
 function CTFPlayer_ClearZombieEntities() {
 
     local _sc = this.GetScriptScope()
 
-	// if ( !_sc ) return
+    local _ents = [ "m_hHUDText", "m_hHUDTextAbilityName", "m_hZombieWep", "m_hZombieFXWearable", "m_hZombieWearable" ]
 
-    if ( "m_hZombieWep" in _sc && _sc.m_hZombieWep && _sc.m_hZombieWep.IsValid() )
-        _sc.m_hZombieWep.Destroy()
-
-    if ( "m_hZombieFXWearable" in _sc && _sc.m_hZombieFXWearable && _sc.m_hZombieFXWearable.IsValid() )
-        _sc.m_hZombieFXWearable.Destroy()
-
-    if ( "m_hZombieWearable" in _sc && _sc.m_hZombieWearable && _sc.m_hZombieWearable.IsValid() )
-        _sc.m_hZombieWearable.Destroy()
-
-    if ( "m_hZombieWearable" in _sc && _sc.m_hZombieWearable && _sc.m_hZombieWearable.IsValid() )
-        _sc.m_hZombieWearable.Destroy()
+    local _ent
+    foreach( m in _ents )
+        if ( m in _sc && (_ent = _sc[m]) && _ent.IsValid() )
+            _ent.Destroy()
 
     return
 }

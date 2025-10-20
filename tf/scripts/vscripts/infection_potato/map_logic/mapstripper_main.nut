@@ -5,6 +5,7 @@ Convars.SetValue( "mp_teams_unbalance_limit", 0 )
 Convars.SetValue( "mp_tournament", 0 )
 Convars.SetValue( "mp_respawnwavetime", 2 )
 
+local BASE_RESPAWN_TIME = 3.0
 ::LOCALTIME <- {}
 LocalTime(LOCALTIME)
 
@@ -45,9 +46,14 @@ LocalTime(LOCALTIME)
 	// }
 }
 
+
 function PZI_Util::GetServerKey( hostname = SERVER_DATA.server_name ) { return strip( hostname.slice( hostname.find("#") + 1, hostname.find(" [") ) ) }
 function PZI_Util::GetServerRegion( hostname = SERVER_DATA.server_name ) { return strip( hostname.slice( hostname.find("[") + 1, hostname.find("]") ) ) }
 
+if ( !PZI_Util.IsLinux ) {
+    function PZI_Util::GetServerKey( ... ) { return "-1" }
+    function PZI_Util::GetServerRegion( ... ) { return "US" }
+}
 PZI_Util.ScriptEntFireSafe("__pzi_util", @"
 
 	local server_name  = GetStr(`hostname`)
@@ -103,7 +109,7 @@ local function GetGamemode() {
     while ( ent = FindByClassname( ent, "team_train_watcher" ) )
         return "PL"
 
-    while ( ent = FindByClassname( ent, "func_passtime*" ) )
+    while ( ent = FindByClassname( ent, "passtime_logic" ) )
         return "PASS"
 
     while ( ent = FindByClassname( ent, "item_teamflag" ) ) {
@@ -146,7 +152,7 @@ local function SetupRoundTimer() {
     local scope = timer.GetScriptScope()
     scope.base_timestamp <- GetPropFloat(timer, "m_flTimeRemaining")
 
-    if ("VPI" in ROOT)
+    if ( "VPI" in ROOT )
     {
         function TimerThink()
         {
@@ -228,9 +234,9 @@ local GAMEMODE = GetGamemode()
 
 local gamemode_funcs = {
 
+    // delete payload cart and tracks
     function PL() {
 
-        // delete payload cart and tracks
         EntFire( "mapobj_cart_dispenser", "Kill" )
         local shredder = PZI_Util.EntShredder
         for ( local watcher; watcher = FindByClassname( watcher, "team_train_watcher" ); ) {
@@ -255,6 +261,7 @@ local gamemode_funcs = {
         }
     }
 
+    // delete mvm entities
     function MvM() {
 
         foreach( ent in [ "func_capturezone", "item_teamflag", "info_populator", "tf_logic_mann_vs_machine" ] )
@@ -303,12 +310,15 @@ try { IncludeScript( "infection_potato/map_logic/" + MAPNAME, ROOT ) } catch ( e
 
 local ents_to_kill = [
 
-	"team_round_timer"
-    "game_round_win"
     "tf_logic_*"
     // "bot_hint_*"
     // "func_nav_*"
     // "func_tfbot_hint"
+    "passtime*"
+    "func_passtime*"
+    "info_passtime*"
+    "trigger_passtime*"
+    "tf_robot*"
     "env_sun"
 	"beam"
     "env_beam"
@@ -320,26 +330,12 @@ local ents_to_kill = [
     "keyframe_rope"
     "func_respawnroomvisualizer"
     "trigger_capture_area"
-    "func_door*"
 ]
 
 PZI_EVENT( "teamplay_round_start", "PZI_MapStripper_RoundStart", function ( params ) {
 
     if ( GAMEMODE in gamemode_funcs )
         gamemode_funcs[ GAMEMODE ]()
-
-    SpawnEntityFromTable( "logic_relay", {
-
-        targetname = "__pzi_mapstripper_round_start_relay"
-        spawnflags = 1
-        "OnSpawn#1" : "func_areaportal,Open,,0,-1"
-        "OnSpawn#2" : "__pzi_nav_interface,RecomputeBlockers,,0,-1"
-        "OnSpawn#3" : "team_control_point,SetLocked,1,0,-1"
-        "OnSpawn#4" : "team_control_point,HideModel,,0,-1"
-        "OnSpawn#5" : "team_control_point,Disable,,0,-1"
-        "OnSpawn#6" : "func_door*,AddOutput,OnFullyOpened func_door*:Kill::0:-1,0,-1"
-        "OnSpawn#7" : "func_door*,Open"
-    })
 
     local doors = ["func_door*", "func_areaportal*"]
     local cls   = ["prop_dynamic", "func_brush"]
@@ -348,9 +344,30 @@ PZI_EVENT( "teamplay_round_start", "PZI_MapStripper_RoundStart", function ( para
             foreach( c in cls )
                 EntFireByHandle( FindByClassnameNearest( c, ent.GetCenter(), 256 ), "Kill", null, -1, null, null )
 
-    foreach ( tokill in ents_to_kill )
-        for ( local ent; ent = FindByClassname( ent, tokill ); )
-            EntFireByHandle( ent, "Kill", null, -1, null, null )
+    // kill these immediately
+    for ( local ent; ent = FindByClassname( ent, "team_round_timer" ); )
+        EntFireByHandle( ent, "Kill", null, -1, null, null )
+
+    for ( local ent; ent = FindByClassname( ent, "game_round_win" ); )
+        EntFireByHandle( ent, "Kill", null, -1, null, null )
+
+    local _relay = SpawnEntityFromTable( "logic_relay", {
+
+        targetname = "__pzi_mapstripper_round_start_relay"
+        spawnflags = 1
+        "OnTrigger#1" : "func_areaportal*,Open,,0,-1"
+        "OnTrigger#2" : "__pzi_nav_interface,RecomputeBlockers,,0,-1"
+        "OnTrigger#3" : "team_control_point,SetLocked,1,0,-1"
+        "OnTrigger#4" : "team_control_point,HideModel,,0,-1"
+        "OnTrigger#5" : "team_control_point,Disable,,0,-1"
+        "OnTrigger#6" : "func_door*,AddOutput,OnFullyOpened func_door*:Kill::0:-1,0,-1"
+        "OnTrigger#7" : "func_door*,Open"
+    })
+
+    foreach( name in ents_to_kill )
+        AddOutput( _relay, "OnTrigger", name, "Kill", null, 0, -1 )
+
+    _relay.AcceptInput( "Trigger", null, null, null )
 
     timer = SetupRoundTimer()
 
@@ -390,8 +407,10 @@ PZI_EVENT( "teamplay_setup_finished", "PZI_MapStripper_SetupFinished", function 
 PZI_EVENT( "player_spawn", "PZI_MapStripper_PlayerSpawn", function ( params ) {
 
     local player = GetPlayerFromUserID( params.userid )
+    EntFire( "__pzi_respawnoverride", "SetRespawnTime", ""+BASE_RESPAWN_TIME, -1 )
     EntFire( "__pzi_respawnoverride", "StartTouch", null, -1, player )
 
     // random spawn points
-    EntFire( "__pzi_respawnoverride", "SetRespawnName", spawns[ RandomInt( 0, spawns_len - 1 ) ], -1, player )
-} )
+    // EntFire( "__pzi_respawnoverride", "SetRespawnName", spawns[ RandomInt( 0, spawns_len - 1 ) ], -1, player )
+    EntFire( "tf_weapon_passtime_gun", "Kill", null, 0.05 )
+})

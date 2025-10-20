@@ -892,7 +892,7 @@ function SniperSpitThink() {
         // if the percent of hits that came back empty is lower than the failure threshold
         if ( ( ( _iTimesHitEmpty.tofloat() / _iNumChecks ) * 100.0 ) <= SNIPER_SPIT_MIN_SURFACE_PERCENT ) {
 
-            local _szBaseName = "__pzi_spit_impact_" + m_hOwner.entindex() + "_"
+            local _szBaseName = "__pzi_spit_impact_" + PZI_Util.PlayerTable[ m_hOwner ] + "_"
 
             function SpitPoolFXThink() {
 
@@ -921,7 +921,6 @@ function SniperSpitThink() {
                 m_arrSpitFx[i] = _hSpitPoolFx
             }
 
-            // long delay to avoid weird flipping bug
             EntFire( _szBaseName + "*", "Kill", null, SPIT_ZONE_LIFETIME )
 
             if ( FX_SPIT_IMPACT )

@@ -127,6 +127,7 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
     dummy_scope.dummy_player <- dummy_player
     // CTFPlayer.GiveZombieEyeParticles.call( dummy_player )
 
+    // attach the zombie cosmetics to a dummy prop
     local fakewearable = CreateByClassname( "prop_dynamic_ornament" )
     fakewearable.SetModel( arrZombieCosmeticModelStr[playercls] )
     fakewearable.SetSkin( 1 )
@@ -163,7 +164,7 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
 
     function SpawnPlayer() {
 
-        if ( !player || !player.IsValid() || !player.IsAlive() ) {
+        if ( !bGameStarted || !player || !player.IsValid() || !player.IsAlive() ) {
 
             if ( fakewearable && fakewearable.IsValid() )
                 fakewearable.Kill()
@@ -223,7 +224,7 @@ function PZI_SpawnAnywhere::CreateNest( player, origin = null ) {
     nest.KeyValueFromInt( "health", NEST_EXPLODE_HEALTH )
     nest.KeyValueFromFloat( "damage", NEST_EXPLODE_DAMAGE )
     nest.KeyValueFromFloat( "radius", NEST_EXPLODE_RADIUS )
-    nest.KeyValueFromString( "targetname", format( "__pzi_spawn_nest_%d", player.entindex() ) )
+    nest.KeyValueFromString( "targetname", "__pzi_spawn_nest_" + PZI_Util.PlayerTable[ player ] )
     nest.KeyValueFromString( "explode_particle", NEST_EXPLODE_PARTICLE )
     nest.KeyValueFromString( "sound", NEST_EXPLODE_SOUND )
     SetPropBool( nest, STRING_NETPROP_PURGESTRINGS, true )
@@ -321,12 +322,30 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
     }
 
     // teleport to a random nav square on spawn
-    player.SetAbsOrigin( PZI_Nav.SafeNavAreas.values()[ RandomInt( 0, PZI_Nav.SafeNavAreas.len() - 1 ) ].GetCenter() )
+    if ( USE_NAV_FOR_SPAWN ) {
 
+        local _random_pos = @() PZI_Nav.GetRandomSafeArea().GetCenter() + Vector( 0, 0, 20 )
+        local random_pos = _random_pos()
+
+        local mins = player.GetBoundingMaxs()
+        local maxs = player.GetBoundingMaxs()
+
+        // make sure we can fit here, find another if we can't
+        while ( !PZI_Util.IsSpaceToSpawnHere( random_pos, mins, maxs ) )
+            random_pos = _random_pos()
+
+        player.SetAbsOrigin( random_pos )
+    }
     // BLU LOGIC BEYOND THIS POINT
-    if ( player.GetTeam() != TEAM_ZOMBIE ) return
+    if ( player.GetTeam() != TEAM_ZOMBIE ) {
+        
+        PZI_Util.RemoveThink( player, "GhostThink" )
+        player.ResetInfectionVars()
+        return
+    }
 
-    else if ( !bGameStarted ) return
+    else if ( !bGameStarted )
+        return
 
     scope.spawn_nests <- []
     scope.tracepos    <- Vector()
@@ -450,10 +469,16 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
             // NORMAL GROUND SPAWN
             // snap the spawn point to the nav area center
             if ( buttons & IN_ATTACK && !( buttons & IN_ATTACK2 ) ) {
+                
+                foreach ( cls in ["player", "obj_*"] )
+                    for ( local ent; ent = FindByClassnameWithin( ent, cls, tracepos, SUMMON_RADIUS ); )
+                        if ( ent.GetTeam() == TEAM_HUMAN ) {
 
-                for ( local survivor; survivor = FindByClassnameWithin( survivor, "player", tracepos, SUMMON_RADIUS ); )
-                    if ( survivor.GetTeam() == TEAM_HUMAN )
-                        return ClientPrint( player, HUD_PRINTCENTER, "Too close to a survivor!" )
+                            ClientPrint( player, HUD_PRINTCENTER, "Too close to a " + ( cls == "player" ? "survivor!" : "building!" ) )
+                            local mdl = PZI_Util.ShowModelToPlayer( player, [ent.GetModelName(), ent.GetSkin()], ent.GetOrigin(), ent.GetAbsAngles(), SINGLE_TICK )
+                            mdl.SetTeam( ent.GetTeam() )
+                            SetPropBool( mdl, "m_bGlowEnabled", true )
+                        }
 
                 PZI_SpawnAnywhere.BeginSummonSequence( player, spawnpos )
             }
@@ -483,9 +508,14 @@ PZI_EVENT( "player_death", "SpawnAnywhere_PlayerDeath", function( params ) {
 
         player.RemoveFlag( FL_ATCONTROLS|FL_DUCKING|FL_DONTTOUCH|FL_NOTARGET )
         player.AcceptInput( "DispatchEffect", "ParticleEffectStop", null, null )
-        player.ForceRespawn()
+        // player.ForceRespawn()
+
+        // both engi and sniper drop a projectile on death, kill this if we die in ghost/summon mode
+        for ( local spitball, scope; spitball = FindByClassnameWithin( spitball, "prop_physics_override", player.GetOrigin(), 128 ); )
+            if ( scope = spitball.GetScriptScope() && "m_hOwner" in scope && scope.m_hOwner == player )
+                EntFireByHandle( spitball, "Kill", null, -1, null, null )
     }
-} )
+})
 
 
 

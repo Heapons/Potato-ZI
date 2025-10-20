@@ -291,7 +291,7 @@ PZI_EVENT( "teamplay_round_start", "Infection_RoundStart", @( params ) PZI_Util.
 
 PZI_EVENT( "teamplay_setup_finished", "Infection_SetupFinished", function( params ) {
 
-    ::bGameStarted <- true
+    bGameStarted = true
 
     local _iPlayerCountRed    = PlayerCount( TEAM_HUMAN )
     local _numStartingZombies = ( _iPlayerCountRed / STARTING_ZOMBIE_FAC ) || 1
@@ -355,17 +355,18 @@ PZI_EVENT( "teamplay_setup_finished", "Infection_SetupFinished", function( param
             // reset all gamemode specific variables
             _nextPlayer1.ResetInfectionVars()
 
-            ChangeTeamSafe( _nextPlayer1, TEAM_ZOMBIE, false )
-
             if ( bZombiesDontSwitchInPlace ) {
 
                 if ( _nextPlayer1.GetPlayerClass() == TF_CLASS_PYRO )
                     _sc.m_iFlags = _sc.m_iFlags | ZBIT_PYRO_DONT_EXPLODE
 
-                PZI_Util.ScriptEntFireSafe(_nextPlayer1, "self.TakeDamage( INT_MAX, DMG_GENERIC, null ); self.ForceRespawn()", 0.1)
+                PZI_Util.ScriptEntFireSafe( _nextPlayer1, "self.TakeDamage( INT_MAX, DMG_GENERIC, null )", 0.1 )
+                PZI_Util.ScriptEntFireSafe( _nextPlayer1, "self.ForceRespawn()", 0.2 )
                 yield _nextPlayer1
                 // continue
             }
+            else
+                ChangeTeamSafe( _nextPlayer1, TEAM_ZOMBIE, false )
 
             // remove all of the player's existing items
             _nextPlayer1.RemovePlayerWearables()
@@ -411,10 +412,9 @@ PZI_EVENT( "teamplay_setup_finished", "Infection_SetupFinished", function( param
             yield _nextPlayer1
         }
 
-        PlayGlobalBell( false )
+        PlayGlobalBell()
 
         // show the first infected announce message to all players
-        // PrintToChat( _szZombieNetNames + ( _zombieArr_len > 1 ? STRING_UI_CHAT_FIRST_WAVE_MSG_PLURAL : STRING_UI_CHAT_FIRST_WAVE_MSG ) )
         return
     }
 
@@ -447,7 +447,7 @@ PZI_EVENT( "teamplay_broadcast_audio", "Infection_BroadcastAudio", function( par
 
 PZI_EVENT( "teamplay_restart_round", "Infection_RestartRound", function( params ) {
 
-    ::bGameStarted <- false
+    bGameStarted = false
 
     local _hNextPlayer = null
 
@@ -492,137 +492,10 @@ PZI_EVENT( "player_death", "Infection_PlayerDeath", function( params ) {
 
     SetPropIntArray( _hPlayer, STRING_NETPROP_MDLINDEX_OVERRIDES, 0, 3 )
 
-    if ( ::bGameStarted && _hPlayerTeam == TEAM_ZOMBIE ) { // zombie has died
+    // player was survivor
+    if ( _hPlayerTeam == TEAM_HUMAN ) {
 
-        if ( _iClassNum == TF_CLASS_MEDIC )
-            if ( "m_hMedicDispenser" in _sc && _sc.m_hMedicDispenser && _sc.m_hMedicDispenser.IsValid() )
-                _sc.m_hMedicDispenser.Destroy()
-
-        // zombie engie with unused emp grenade drops a small ammo kit
-        // so just use the one valve spawned for us
-        if ( !_bIsEngineerWithEMP ) {
-
-            // if the player isn't an engineer, we want to cull the kit instead
-            // local _hDroppedAmmo = null
-            // while ( _hDroppedAmmo = FindByClassname( _hDroppedAmmo, "tf_ammo_pack" ) ) {
-
-            //     if ( _hDroppedAmmo.GetOwner() == _hPlayer )
-            //         _hDroppedAmmo.Destroy()
-
-            // }
-            EntFire( "tf_ammo_pack", "Kill" )
-        }
-
-        if ( _hPlayer.GetPlayerClass() == TF_CLASS_SNIPER ) {
-
-            if ( _sc.m_hZombieAbility )
-                _sc.m_hZombieAbility.CreateSpitball( true )
-        }
-
-        if ( _hPlayer.GetPlayerClass() == TF_CLASS_PYRO ) {
-
-            local _hNextPlayer
-            local _hKillicon = KilliconInflictor( KILLICON_PYRO_BREATH )
-
-            // CreateMediumHealthKit( _hPlayer.GetOrigin() )
-            CreateAmmoPack( _hPlayer.GetOrigin(), "item_ammopack_small" )
-
-            if ( !::bNoPyroExplosionMod && !( _sc.m_iFlags & ZBIT_PYRO_DONT_EXPLODE ) ) {
-
-                while ( _hNextPlayer = FindByClassnameWithin( _hNextPlayer, "player", _hPlayer.GetOrigin(), 125 ) ) {
-
-                    if ( _hNextPlayer && _hNextPlayer.GetTeam() == TEAM_HUMAN && _hNextPlayer != _hPlayer ) {
-
-                        KnockbackPlayer           ( _hPlayer, _hNextPlayer, 210, 0.85, true )
-                        _hNextPlayer.TakeDamageEx ( _hKillicon, _hPlayer, _hPlayer.GetActiveWeapon(), Vector(), _hPlayer.GetOrigin(), 10, ( DMG_CLUB | DMG_PREVENT_PHYSICS_FORCE ) )
-                    }
-                }
-
-                _hKillicon.Destroy()
-
-                EmitSoundOn            ( SFX_PYRO_FIREBOMB, _hPlayer )
-                PZI_Util.DispatchEffect ( _hPlayer, "fireSmokeExplosion_track" )
-            }
-
-        }
-
-        else {
-
-            local _szKitType = "item_ammopack_" + ( _hPlayer.GetPlayerClass() == TF_CLASS_HEAVYWEAPONS ? "medium" : "small" )
-            CreateAmmoPack( _hPlayer.GetOrigin(), _szKitType )
-        }
-
-        // ------------------------------------- //
-        // remove zombie "vgui"                  //
-        // ------------------------------------- //
-        // we use the script overlay material for zombie ability hud
-        // so let's make sure it's cleared whenever a player has respawned
-        _hPlayer.SetScriptOverlayMaterial( "" )
-
-        // same thing for the HUD text channels
-        if ( _sc.m_hHUDText ) {
-
-            _sc.m_hHUDText.KeyValueFromString( "message", "" )
-            EntFireByHandle( _sc.m_hHUDText,  "Display", "", -1, _hPlayer, _hPlayer )
-        }
-
-        if ( _sc.m_hHUDTextAbilityName ) {
-
-            _sc.m_hHUDTextAbilityName.KeyValueFromString( "message", "" )
-            EntFireByHandle( _sc.m_hHUDTextAbilityName,  "Display", "", -1, _hPlayer, _hPlayer )
-        }
-
-        // ------------------------------------- //
-        // Zombie Gib Hack                       //
-        // ------------------------------------- //
-        // when a player has the zombie skin override, they are hard coded to never gib
-        // if we remove this skin here it creates gibs for the player
-        SetPropInt ( _hPlayer, "m_iPlayerSkinOverride", 0 )
-
-        // we set custom model on the player afterwards because otherwise the gibs come out red
-        _hPlayer.SetCustomModelWithClassAnimations( arrTFClassPlayerModels[ _iClassNum ] )
-
-        // ------------------------------------- //
-        // Check if Need Demoman Explosion       //
-        // ------------------------------------- //
-
-        if ( ( _sc.m_iFlags & ZBIT_MUST_EXPLODE ) ) {
-
-            _sc.m_iFlags <- ( _sc.m_iFlags & ~ZBIT_MUST_EXPLODE )
-            _sc.m_tblEventQueue <- { }
-
-            // ---------------------------------------- //
-            // check for buildings and find the nearest //
-            // to become the explosion origin           //
-            // ---------------------------------------- //
-
-            DemomanExplosionPreCheck( m_hAbilityOwner.GetOrigin(),
-                                    DEMOMAN_CHARGE_BASE_DAMAGE,
-                                    DEMOMAN_CHARGE_DAMAGE_PER_PLAYER_MULT,
-                                    DEMOMAN_CHARGE_RADIUS,
-                                    m_hAbilityOwner,
-                                    DEMOMAN_CHARGE_FORCE,
-                                    DEMOMAN_CHARGE_FORCE_UPWARD_MULT )
-        }
-
-        // hide our fx wearable to stop the particles from generating
-        SetPropInt( _sc.m_hZombieFXWearable, "m_nRenderMode", kRenderNone )
-
-        try { _sc.m_hZombieWearable.Destroy() } catch ( e ) {}
-
-        _hPlayer.AddEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
-        SendGlobalGameEvent( "post_inventory_application", { userid = GetPlayerUserID( _hPlayer ) } )
-        _hPlayer.RemoveEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
-
-        try { _sc.m_hZombieFXWearable.Destroy() } catch ( e ) {}
-
-        return; // zombie death event ends here
-    }
-
-    if ( ::bGameStarted ) { // if the game is started, a dying survivor becomes a zombie
-
-        // player was survivor, killed by a zombie and wasn't suicide
-        if ( _hKiller && _hPlayer && _hKiller.IsPlayer() && _hKiller.GetTeam() == TEAM_ZOMBIE && _hPlayerTeam == TEAM_HUMAN ) {
+        if ( _hKiller && _hPlayer && _hKiller.IsPlayer() && _hKiller.GetTeam() == TEAM_ZOMBIE ) {
 
             // show a notifcation to all players in chat.
             local _szDeathMsg = format( STRING_UI_CHAT_INFECT_MSG,
@@ -637,6 +510,129 @@ PZI_EVENT( "player_death", "Infection_PlayerDeath", function( params ) {
                                         NetName( _hPlayer ) )
 
             ClientPrint( null, HUD_PRINTTALK, _szDeathMsg )
+        }
+
+    }
+
+    if ( bGameStarted ) {
+
+        if ( _hPlayerTeam == TEAM_ZOMBIE ) { // zombie has died
+
+
+            // Kill all dropped ammo packs, we replaced health drops with ammo drops
+            EntFire( "tf_ammo_pack", "Kill" )
+
+            if ( _iClassNum == TF_CLASS_MEDIC )
+                _hPlayer.ClearZombieEntity( "m_hMedicDispenser" )
+
+            else if ( _iClassNum == TF_CLASS_SNIPER ) {
+
+                if ( _sc.m_hZombieAbility )
+                    _sc.m_hZombieAbility.CreateSpitball( true )
+            }
+
+            else if ( _iClassNum == TF_CLASS_PYRO ) {
+
+                local _hNextPlayer
+                local _hKillicon = KilliconInflictor( KILLICON_PYRO_BREATH )
+
+                // CreateMediumHealthKit( _hPlayer.GetOrigin() )
+                CreateAmmoPack( _hPlayer.GetOrigin(), "item_ammopack_small" )
+
+                if ( !bNoPyroExplosionMod && !( _sc.m_iFlags & ZBIT_PYRO_DONT_EXPLODE ) ) {
+
+                    while ( _hNextPlayer = FindByClassnameWithin( _hNextPlayer, "player", _hPlayer.GetOrigin(), 125 ) ) {
+
+                        if ( _hNextPlayer && _hNextPlayer.GetTeam() == TEAM_HUMAN && _hNextPlayer != _hPlayer ) {
+
+                            KnockbackPlayer           ( _hPlayer, _hNextPlayer, 210, 0.85, true )
+                            _hNextPlayer.TakeDamageEx ( _hKillicon, _hPlayer, _hPlayer.GetActiveWeapon(), Vector(), _hPlayer.GetOrigin(), 10, ( DMG_CLUB | DMG_PREVENT_PHYSICS_FORCE ) )
+                        }
+                    }
+
+                    _hKillicon.Destroy()
+
+                    EmitSoundOn            ( SFX_PYRO_FIREBOMB, _hPlayer )
+                    PZI_Util.DispatchEffect ( _hPlayer, "fireSmokeExplosion_track" )
+                }
+
+            }
+
+            else {
+
+                local _szKitType = "item_ammopack_" + ( _iClassNum == TF_CLASS_HEAVYWEAPONS ? "medium" : "small" )
+                CreateAmmoPack( _hPlayer.GetOrigin(), _szKitType )
+            }
+
+            // ------------------------------------- //
+            // remove zombie "vgui"                  //
+            // ------------------------------------- //
+            // we use the script overlay material for zombie ability hud
+            // so let's make sure it's cleared whenever a player has respawned
+            _hPlayer.SetScriptOverlayMaterial( "" )
+
+            // same thing for the HUD text channels
+            if ( _sc.m_hHUDText ) {
+
+                _sc.m_hHUDText.KeyValueFromString( "message", "" )
+                EntFireByHandle( _sc.m_hHUDText,  "Display", "", -1, _hPlayer, _hPlayer )
+            }
+
+            if ( _sc.m_hHUDTextAbilityName ) {
+
+                _sc.m_hHUDTextAbilityName.KeyValueFromString( "message", "" )
+                EntFireByHandle( _sc.m_hHUDTextAbilityName,  "Display", "", -1, _hPlayer, _hPlayer )
+            }
+
+            // ------------------------------------- //
+            // Zombie Gib Hack                       //
+            // ------------------------------------- //
+            // when a player has the zombie skin override, they are hard coded to never gib
+            // if we remove this skin here it creates gibs for the player
+            SetPropInt ( _hPlayer, "m_iPlayerSkinOverride", 0 )
+
+            // we set custom model on the player afterwards because otherwise the gibs come out red
+            _hPlayer.SetCustomModelWithClassAnimations( arrTFClassPlayerModels[ _iClassNum ] )
+
+            // ------------------------------------- //
+            // Check if Need Demoman Explosion       //
+            // ------------------------------------- //
+
+            if ( ( _sc.m_iFlags & ZBIT_MUST_EXPLODE ) ) {
+
+                _sc.m_iFlags <- ( _sc.m_iFlags & ~ZBIT_MUST_EXPLODE )
+                _sc.m_tblEventQueue <- { }
+
+                // ---------------------------------------- //
+                // check for buildings and find the nearest //
+                // to become the explosion origin           //
+                // ---------------------------------------- //
+
+                if ( "m_hAbilityOwner" in this ) {
+
+                    DemomanExplosionPreCheck( m_hAbilityOwner.GetOrigin(),
+                                            DEMOMAN_CHARGE_BASE_DAMAGE,
+                                            DEMOMAN_CHARGE_DAMAGE_PER_PLAYER_MULT,
+                                            DEMOMAN_CHARGE_RADIUS,
+                                            m_hAbilityOwner,
+                                            DEMOMAN_CHARGE_FORCE,
+                                            DEMOMAN_CHARGE_FORCE_UPWARD_MULT )
+
+                }
+            }
+
+            // hide our fx wearable to stop the particles from generating
+            SetPropInt( _sc.m_hZombieFXWearable, "m_nRenderMode", kRenderNone )
+
+            _hPlayer.ClearZombieEntity( "m_hZombieWearable" )
+
+            _hPlayer.AddEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
+            SendGlobalGameEvent( "post_inventory_application", { userid = GetPlayerUserID( _hPlayer ) } )
+            _hPlayer.RemoveEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
+
+            _hPlayer.ClearZombieEntity( "m_hZombieFXWearable" )
+
+            return; // zombie death event ends here
         }
 
         // dead ringer deaths exit here
@@ -659,7 +655,7 @@ PZI_EVENT( "player_death", "Infection_PlayerDeath", function( params ) {
             _sc.m_bCanAddTime <- false
         }
 
-        PlayGlobalBell( false )
+        PlayGlobalBell()
 
         local _hRoundTimer = FindByClassname( null, "team_round_timer" )
 
