@@ -999,7 +999,7 @@ function PZI_Bots::ThinkTable::BotQuotaManager() {
 	printf( "wish: %d cur: %d diff: (%d) cmp: [%d]\n", wish_bots, cur_bots, kick_urgency, cmp )
 
 	// we have bots queued to be kicked already, take care of these first
-	if ( kick_urgency >= MIN_KICK_URGENCY ) {
+	if ( kick_urgency >= MIN_KICK_URGENCY && doomed_bots.len() >= kick_urgency ) {
 
 		// grab the oldest bot
 		// local kickme = ( ( doomed_bots.keys() ).sort( @( a, b ) b[1] <=> a[1] ) )[0]
