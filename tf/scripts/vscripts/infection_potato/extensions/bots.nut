@@ -980,7 +980,7 @@ function PZI_Bots::ThinkTable::BotQuotaManager() {
 	local cur_bots = bots.len()
 
 	// no bots found, spawn them.
-	if ( !cur_bots && !generator && !( "PopulateSafeNav" in PZI_Nav.ThinkTable ) )
+	if ( !cur_bots && !( "PopulateSafeNav" in PZI_Nav.ThinkTable ) )
 		return AllocateBots( MAX_BOTS, true )
 
 	// check fill mode for how many bots we want
