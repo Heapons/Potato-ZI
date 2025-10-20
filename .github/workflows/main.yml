@@ -45,8 +45,8 @@ jobs:
             mapfile -t servers < <(curl -s https://raw.githubusercontent.com/potato-tf/deploy/refs/heads/main/serverlist.json | jq -r '.servers[]')
             for i in "${servers[@]}"; do a=( $i );
             {
-                rsync --delete -a --include="*/" --exclude="*.bz2" --chmod=777 --mkpath -e "ssh -p ${a[0]} -o StrictHostKeyChecking=no" ./tf/* ${a[1]}:${a[2]}/tf2server/tf/zi/
-                rsync --delete -a --include="*/" --include="*.bz2" --exclude "*" --chmod=777 --mkpath -e "ssh -p ${a[0]} -o StrictHostKeyChecking=no" ./tf/* ${a[1]}:${a[2]}/www/html/gameassets/zi/
+                rsync --delete -a --include="*/" --exclude="*.bz2" --chmod=777 --mkpath -e "ssh -p ${a[0]} -o StrictHostKeyChecking=no" ./tf/ ${a[1]}:${a[2]}/tf2server/tf/zi/
+                rsync --delete -a --include="*/" --include="*.bz2" --exclude "*" --chmod=777 --mkpath -e "ssh -p ${a[0]} -o StrictHostKeyChecking=no" ./tf/ ${a[1]}:${a[2]}/www/html/gameassets/zi/
                 ssh -p ${a[0]} ${a[1]} "cd ${a[2]}/tf2server/tf && mv -f zi/maps/generate_res.sh maps/generate_res.sh"
                 ssh -p ${a[0]} ${a[1]} "cd ${a[2]}/tf2server/tf/maps && ./generate_res.sh"
             } &
