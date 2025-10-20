@@ -32,6 +32,11 @@ jobs:
             ssh-agent -a $SSH_AUTH_SOCK > /dev/null
             ssh-add - <<< "${{ secrets.DEPLOY_KEY }}"
 
+      - name: Create bz2 archives
+        run: |
+          cd tf/download
+          find . -type f -not \( -name "*.pop" -or -name "*.nav" -or -name "*.res" -or -name "*.bz2" -or -name "*.lua" -or -name "*.nut" \) \( ! -regex '.*/\..*' \) | parallel bzip2 -f -k
+        
     # Runs a set of commands using the runners shell
       - name: Sync with game servers
         env:
@@ -40,8 +45,9 @@ jobs:
             mapfile -t servers < <(curl -s https://raw.githubusercontent.com/potato-tf/deploy/refs/heads/main/serverlist.json | jq -r '.servers[]')
             for i in "${servers[@]}"; do a=( $i );
             {
-                rsync -a --chmod=777 --mkpath -e "ssh -p ${a[0]} -o StrictHostKeyChecking=no" ./tf/* ${a[1]}:${a[2]}/tf2server/tf/zi/
-                ssh -p ${a[0]} ${a[1]} "ln -sfn ${a[2]}/tf2server/tf/zi ${a[2]}/www/html/gameassets/; cd ${a[2]}/tf2server/tf && mv -f zi/maps/generate_res.sh maps/generate_res.sh"
+                rsync --delete -a --include="*/" --exclude="*.bz2" --chmod=777 --mkpath -e "ssh -p ${a[0]} -o StrictHostKeyChecking=no" ./tf/* ${a[1]}:${a[2]}/tf2server/tf/zi/
+                rsync --delete -a --include="*/" --include="*.bz2" --exclude "*" --chmod=777 --mkpath -e "ssh -p ${a[0]} -o StrictHostKeyChecking=no" ./tf/* ${a[1]}:${a[2]}/www/html/gameassets/zi/
+                ssh -p ${a[0]} ${a[1]} "cd ${a[2]}/tf2server/tf && mv -f zi/maps/generate_res.sh maps/generate_res.sh"
                 ssh -p ${a[0]} ${a[1]} "cd ${a[2]}/tf2server/tf/maps && ./generate_res.sh"
             } &
             done
