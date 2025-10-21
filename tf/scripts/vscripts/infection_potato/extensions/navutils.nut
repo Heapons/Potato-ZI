@@ -20,7 +20,7 @@ PZI_Nav.MAX_AREAS_PER_TICK <- 150
 GetAllAreas( PZI_Nav.AllNavAreas )
 
 // we don't support maps with no nav for now
-if ( !PZI_Nav.AllNavAreas.len() ) {
+if ( !PZI_Nav.AllNavAreas.len() && IsDedicatedServer() ) {
 
 	local msg = "NO NAVMESH FOUND FOR" + MAPNAME + "! SWITCHING TO NEXT MAP\n"
 
@@ -127,46 +127,54 @@ function PZI_Nav::ThinkTable::PopulateSafeNav() {
 
 function PZI_Nav::GetRandomSafeArea() { return SafeNavAreas.values()[RandomInt(0, SafeNavAreas.len() - 1)] }
 
-function PZI_Nav::NavGenerate( only_this_arena = null ) {
+function PZI_Nav::NavGenerate() {
 
 	local player = GetListenServerHost()
 
-	local progress = 0
-
 	local points_len = WalkablePoints.len()
 
-	foreach( point in WalkablePoints ) {
+	if ( !points_len ) {
 
-		local generate_delay = 0.0
-		progress++
-		// Process spawn points for current arena
-		foreach( spawn_point in WalkablePoints ) {
+		foreach( ent in [ "info_player_teamspawn", "item_teamflag", "team_control_point" ])
+			for ( local e; e = FindByClassname( e, ent ); )
+				WalkablePoints.append( e.GetOrigin() )
 
-			generate_delay += 0.01
-			EntFireByHandle( player, "RunScriptCode", format( @"
-
-				local origin = Vector( %f, %f, %f )
-				self.SetAbsOrigin( origin )
-				self.SnapEyeAngles( QAngle( 90, 0, 0 ) )
-					SendToConsole( `nav_mark_walkable` )
-					printl( `Marking Spawn Point: ` + origin )
-
-			", spawn_point[0].x, spawn_point[0].y, spawn_point[0].z ), generate_delay, null, null )
-		}
-
-		// Schedule nav generation for current arena
-		EntFire( "bignet", "RunScriptCode", format( @"
-
-			ClientPrint( null, 3, `Areas marked!` )
-			ClientPrint( null, 3, `Generating nav...` )
-			SendToConsole( `host_thread_mode -1` )
-			SendToConsole( `nav_generate_incremental` )
-			ClientPrint( null, 3, `Progress: ` + %d +`/`+ %d )
-
-		", progress, points_len ), generate_delay + GENERIC_DELAY )
-
-		yield
+		points_len = WalkablePoints.len()
 	}
+
+	local generate_delay = 0.0
+	// Process spawn points for current arena
+	foreach( i, point in WalkablePoints ) {
+
+		generate_delay += 0.01
+		EntFireByHandle( player, "RunScriptCode", format( @"
+
+			local origin = Vector( %f, %f, %f )
+			self.SetAbsOrigin( origin )
+			self.SnapEyeAngles( QAngle( 90, 0, 0 ) )
+			SendToConsole( `nav_mark_walkable` )
+			local progress = ( %d + 1 )
+			local total = %d
+			local str = `Marking Spawn Point: ` + origin.ToKVString() + ` Progress: ` + progress + ` / ` + total
+			printl( str )
+			ClientPrint( null, 3, str )
+
+		", point.x, point.y, point.z, i, points_len ), generate_delay, null, null )
+
+		yield true
+	}
+
+	// Schedule nav generation for current arena
+	EntFire( "bignet", "RunScriptCode", @"
+
+		ClientPrint( null, 3, `Areas marked!` )
+		ClientPrint( null, 3, `Generating nav...` )
+		SendToConsole( `host_thread_mode -1` )
+		SendToConsole( `nav_generate_incremental` )
+
+	", generate_delay + 1 )
+
+	PZI_Util.RemoveThink( player, "NavThink" )
 }
 
 function PZI_Nav::ResumeNavGeneration() {
@@ -177,7 +185,9 @@ function PZI_Nav::ResumeNavGeneration() {
 	resume nav_generation_state.generator
 }
 
-function PZI_Nav::CreateNav( only_this_arena = null ) {
+function PZI_Nav::CreateNav() {
+
+	player <- GetListenServerHost()
 
 	player.SetMoveType( MOVETYPE_NOCLIP, MOVECOLLIDE_DEFAULT )
 
@@ -188,12 +198,13 @@ function PZI_Nav::CreateNav( only_this_arena = null ) {
 		if ( !GetInt( "host_thread_mode" ) )
 			ResumeNavGeneration()
 
-		return 1
+		return 0.05
 
 	}
+
 	AddThinkToEnt( player, "NavThink" )
 
 	// Start generating
-	nav_generation_state.generator = NavGenerate( only_this_arena )
+	nav_generation_state.generator = NavGenerate()
 	nav_generation_state.is_running = true
 }

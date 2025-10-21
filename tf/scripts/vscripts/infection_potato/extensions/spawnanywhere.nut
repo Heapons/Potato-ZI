@@ -470,15 +470,27 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
             // snap the spawn point to the nav area center
             if ( buttons & IN_ATTACK && !( buttons & IN_ATTACK2 ) ) {
                 
-                foreach ( cls in ["player", "obj_*"] )
-                    for ( local ent; ent = FindByClassnameWithin( ent, cls, tracepos, SUMMON_RADIUS ); )
-                        if ( ent.GetTeam() == TEAM_HUMAN ) {
+                foreach ( cls in ["player", "obj_*"] ) {
 
-                            ClientPrint( player, HUD_PRINTCENTER, "Too close to a " + ( cls == "player" ? "survivor!" : "building!" ) )
-                            local mdl = PZI_Util.ShowModelToPlayer( player, [ent.GetModelName(), ent.GetSkin()], ent.GetOrigin(), ent.GetAbsAngles(), SINGLE_TICK )
+                    local ent = FindByClassnameNearest( cls, tracepos, SUMMON_RADIUS )
+
+                    if ( ent && ent.GetTeam() == TEAM_HUMAN ) {
+
+                        ClientPrint( player, HUD_PRINTCENTER, "Too close to a " + ( cls == "player" ? "survivor!" : "building!" ) )
+
+                        if ( !("mdl" in scope) || !scope.mdl || !scope.mdl.IsValid() ) {
+
+                            local mdl = PZI_Util.ShowModelToPlayer( player, [ent.GetModelName(), ent.GetSkin()], ent.GetOrigin(), ent.GetAbsAngles(), 1.0 )
                             mdl.SetTeam( ent.GetTeam() )
+                            mdl.SetSequence( ent.GetSequence() )
+                            SetPropInt( mdl, "m_nRenderFX", kRenderTransColor )
+                            SetPropInt( mdl, "m_clrRender", 0 )
                             SetPropBool( mdl, "m_bGlowEnabled", true )
+                            scope.mdl <- mdl
                         }
+                        return
+                    }
+                }
 
                 PZI_SpawnAnywhere.BeginSummonSequence( player, spawnpos )
             }

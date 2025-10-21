@@ -66,7 +66,7 @@ PZI_Bots.kick_urgency_funcs <- {
 PZI_Util.ScriptEntFireSafe( "__pzi_bots", "SetValue( `tf_bot_quota`, 0 )", SINGLE_TICK )
 
 PZI_Bots.FILL_MODE 				<- 1 // see tf_bot_quota_mode, 0 1 2 = normal fill match
-PZI_Bots.MAX_THREAT_DISTANCE 	<- 64.0 * 64.0 // use LengthSqr for performance
+PZI_Bots.MAX_THREAT_DISTANCE 	<- 32.0 * 32.0 // use LengthSqr for performance
 PZI_Bots.NAV_SNIPER_SPOT_FACTOR <- 125 // higher value = lower chance.  1/30 chance to be a sniper spot
 PZI_Bots.NAV_SENTRY_SPOT_FACTOR <- 370 // higher value = lower chance.  1/50 chance to be a sentry spot
 

@@ -492,29 +492,29 @@ PZI_EVENT( "player_death", "Infection_PlayerDeath", function( params ) {
 
     SetPropIntArray( _hPlayer, STRING_NETPROP_MDLINDEX_OVERRIDES, 0, 3 )
 
-    // player was survivor
-    if ( _hPlayerTeam == TEAM_HUMAN ) {
-
-        if ( _hKiller && _hPlayer && _hKiller.IsPlayer() && _hKiller.GetTeam() == TEAM_ZOMBIE ) {
-
-            // show a notifcation to all players in chat.
-            local _szDeathMsg = format( STRING_UI_CHAT_INFECT_MSG,
-                                        NetName( _hPlayer ),
-                                        NetName( _hKiller ) )
-
-            ClientPrint( null, HUD_PRINTTALK, _szDeathMsg )
-        }
-        else { // player died to enviro/other, announce they were infected with no killer name
-
-            local _szDeathMsg = format ( STRING_UI_CHAT_INFECT_SOLO_MSG,
-                                        NetName( _hPlayer ) )
-
-            ClientPrint( null, HUD_PRINTTALK, _szDeathMsg )
-        }
-
-    }
-
     if ( bGameStarted ) {
+
+        // player was survivor
+        if ( _hPlayerTeam == TEAM_HUMAN ) {
+
+            if ( _hKiller && _hPlayer && _hKiller.IsPlayer() && _hKiller.GetTeam() == TEAM_ZOMBIE ) {
+
+                // show a notifcation to all players in chat.
+                local _szDeathMsg = format( STRING_UI_CHAT_INFECT_MSG,
+                                            NetName( _hPlayer ),
+                                            NetName( _hKiller ) )
+
+                ClientPrint( null, HUD_PRINTTALK, _szDeathMsg )
+            }
+            else { // player died to enviro/other, announce they were infected with no killer name
+
+                local _szDeathMsg = format ( STRING_UI_CHAT_INFECT_SOLO_MSG,
+                                            NetName( _hPlayer ) )
+
+                ClientPrint( null, HUD_PRINTTALK, _szDeathMsg )
+            }
+            return
+        }
 
         if ( _hPlayerTeam == TEAM_ZOMBIE ) { // zombie has died
 

@@ -339,10 +339,19 @@ PZI_EVENT( "teamplay_round_start", "PZI_MapStripper_RoundStart", function ( para
 
     local doors = ["func_door*", "func_areaportal*"]
     local cls   = ["prop_dynamic", "func_brush"]
-    foreach( e in doors )
-        for ( local ent; ent = FindByClassname( ent, e ); )
+    foreach( d in doors ) {
+
+        for ( local ent; ent = FindByClassname( ent, d ); ) {
+
+            local scope = PZI_Util.GetEntScope( ent )
+            scope.InputClose <- @() false
+            scope.Inputclose <- @() false
+
             foreach( c in cls )
                 EntFireByHandle( FindByClassnameNearest( c, ent.GetCenter(), 256 ), "Kill", null, -1, null, null )
+        }
+
+    }
 
     // kill these immediately
     for ( local ent; ent = FindByClassname( ent, "team_round_timer" ); )
@@ -407,9 +416,9 @@ PZI_EVENT( "teamplay_setup_finished", "PZI_MapStripper_SetupFinished", function 
 PZI_EVENT( "player_spawn", "PZI_MapStripper_PlayerSpawn", function ( params ) {
 
     local player = GetPlayerFromUserID( params.userid )
+    PZI_Util.ScriptEntFireSafe( "__pzi_respawnoverride", "self.SetSize( Vector( -9999, -9999, -9999 ), Vector( 9999, 9999, 9999 ) )", -1 )
     EntFire( "__pzi_respawnoverride", "SetRespawnTime", ""+BASE_RESPAWN_TIME, -1 )
     EntFire( "__pzi_respawnoverride", "StartTouch", "!activator", -1, player )
-    PZI_Util.RespawnOverride.SetSize( Vector( -9999, -9999. -9999 ), Vector( 9999, 9999, 9999 ) )
 
     // random spawn points
     // EntFire( "__pzi_respawnoverride", "SetRespawnName", spawns[ RandomInt( 0, spawns_len - 1 ) ], -1, player )
