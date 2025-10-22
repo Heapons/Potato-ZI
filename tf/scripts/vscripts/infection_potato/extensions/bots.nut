@@ -971,7 +971,8 @@ function PZI_Bots::BotRemoveThink() {
 function PZI_Bots::ThinkTable::BotQuotaManager() {
 
 	// don't run any quota logic while we're actively spawning/removing bots
-	if ( allocating )
+	// wait a bit for the map to finish loading
+	if ( allocating || Time() < 10.0 )
 		return
 
 	local bots = PZI_Util.BotArray
