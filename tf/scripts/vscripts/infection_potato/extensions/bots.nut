@@ -1057,8 +1057,8 @@ function PZI_Bots::AllocateBots( count = PZI_Bots.MAX_BOTS, replace = false ) {
 
 	if ( replace ) {
 
-		if ( generator )
-			EntFireByHandle( generator, "Kill", null, 1, null, null )
+		if ( generator && generator.IsValid() )
+			generator.Kill()
 
 		PZI_Util.ValidatePlayerTables()
 
