@@ -371,7 +371,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 
 		this.bot_level 			 = bot.GetDifficulty()
 
-		this.navdebug = false
+		this.path_debug = true
 	}
 
 	function GiveRandomLoadout() {
@@ -823,25 +823,6 @@ PZI_Bots.PZI_BotBehavior <- class {
 			path_recompute_time = time + mod
 		}
 
-		if ( navdebug ) {
-
-			for ( local i = 0; i < path_count; i++ ) {
-				if ( i in path_points)
-					DebugDrawLine( path_points[i].pos, (i+1 < path_points.len()) ? path_points[i+1].pos : path_points[i].pos, 0, 0, 255, false, 0.1 )
-				// else
-					// __DumpScope( 0, path_points )
-			}
-			local area = path_areas["area0"]
-			local area_count = path_areas.len()
-
-			for ( local i = 0; i < area_count && area; i++ ) {
-				local x = ( ( area_count - i - 0.0 ) / area_count ) * 255.0
-				area.DebugDrawFilled( 0, x, 0, 50, 0.075, true, 0.0 )
-
-				area = area.GetParent()
-			}
-		}
-
 		// if (!(path_index in path_points))
 		// 	return
 
@@ -865,11 +846,31 @@ PZI_Bots.PZI_BotBehavior <- class {
 		// locomotion.FaceTowards( point )
 
 		local look_pos = Vector( point.x, point.y, cur_eye_pos.z )
+
 		if ( lookat )
 			if ( threat )
 				LookAt( look_pos, turnrate_min, turnrate_max )
 			else
 				LookAt( look_pos, 350.0, 600.0 )
+
+		if ( path_debug ) {
+
+			for ( local i = 0; i < path_count; i++ ) {
+				if ( i in path_points)
+					DebugDrawLine( path_points[i].pos, (i+1 < path_points.len()) ? path_points[i+1].pos : path_points[i].pos, 0, 0, 255, false, 0.1 )
+				// else
+					// __DumpScope( 0, path_points )
+			}
+			local area = path_areas["area0"]
+			local area_count = path_areas.len()
+
+			for ( local i = 0; i < area_count && area; i++ ) {
+				local x = ( ( area_count - i - 0.0 ) / area_count ) * 255.0
+				area.DebugDrawFilled( 0, x, 0, 50, 0.075, true, 0.0 )
+
+				area = area.GetParent()
+			}
+		}
 
 		// calc lookahead point
 
@@ -920,7 +921,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 
 	cosmetic 			= null
 
-	navdebug 			= null
+	path_debug 			= null
 }
 
 function PZI_Bots::ShouldKickBot( bot ) {
@@ -963,7 +964,7 @@ function PZI_Bots::BotRemoveThink() {
 		self.AddBotAttribute( REMOVE_ON_DEATH )
 
 	else if ( self.IsAlive() )
-		PZI_Util.KillPlayer( self ), self.ForceChangeTeam( TEAM_SPECTATOR, true )
+		PZI_Util.SilentKill( self )
 
 	return -1
 }
@@ -988,16 +989,19 @@ function PZI_Bots::ThinkTable::BotQuotaManager() {
 	else if ( FILL_MODE )
 		wish_bots = FILL_MODE == 2 ? PZI_Util.Max( 0, MAX_BOTS * humans.len() ) : MAX_BOTS - humans.len()
 
+	// kick urgency is decided by the difference between how many bots we want and how many we currently have
+	// always kick at max urgency in pre-round
+	kick_urgency = bGameStarted ? PZI_Util.Min( abs( wish_bots - cur_bots ), MAX_KICK_URGENCY ) : MAX_KICK_URGENCY
+
+	printf( "wish: %d cur: %d urgency: (%d) doomed: [%d]\n", wish_bots, cur_bots, kick_urgency, doomed_bots.len() )
+
 	// check if we need more/less bots for our fill mode
 	local cmp = wish_bots <=> cur_bots
 
 	// we have the correct amount already
 	if ( !cmp ) return
-
-	// kick urgency is decided by the difference between how many bots we want and how many we currently have
-	kick_urgency = PZI_Util.Min( abs( wish_bots - cur_bots ), MAX_KICK_URGENCY )
-
-	printf( "wish: %d cur: %d diff: (%d) cmp: [%d]\n", wish_bots, cur_bots, kick_urgency, cmp )
+	if ( doomed_bots.len() >= kick_urgency )
+		return
 
 	// we have bots queued to be kicked already, take care of these first
 	if ( kick_urgency >= MIN_KICK_URGENCY && doomed_bots.len() >= kick_urgency ) {
@@ -1013,6 +1017,7 @@ function PZI_Bots::ThinkTable::BotQuotaManager() {
 
 			local scope = kickme.GetScriptScope()
 			kickme.AddEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
+			PZI_Util.SetNextRespawnTime( kickme, INT_MAX )
 			scope.BotRemoveThink <- BotRemoveThink.bindenv( scope )
 			AddThinkToEnt( kickme, "BotRemoveThink" )
 			delete doomed_bots[ kickme ]
@@ -1026,16 +1031,16 @@ function PZI_Bots::ThinkTable::BotQuotaManager() {
 
 		local tries = -1
 
-		if ( !rnd || !rnd.IsValid() || doomed_bots.len() >= kick_urgency )
+		if ( !rnd || !rnd.IsValid() )
 			return PZI_Util.ValidatePlayerTables()
 
 		// already dead or doomed, find another
 		while ( tries++, ( rnd in doomed_bots || !rnd.IsAlive() ) && tries < cur_bots )
 			rnd = bots[ RandomInt( 0, cur_bots - 1 ) ]
 
-		printl( rnd )
+		rnd.AddBotAttribute( REMOVE_ON_DEATH )		
+		PZI_Util.SetNextRespawnTime( rnd, INT_MAX )
 
-		rnd.AddBotAttribute( REMOVE_ON_DEATH )
 		doomed_bots[ rnd ] <- Time()
 	}
 
@@ -1066,6 +1071,7 @@ function PZI_Bots::AllocateBots( count = PZI_Bots.MAX_BOTS, replace = false ) {
 		foreach( bot in PZI_Util.BotArray ) {
 
 			bot.AddBotAttribute( REMOVE_ON_DEATH )
+			PZI_Util.SetNextRespawnTime( bot, INT_MAX )
 			bot.AddEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE ) // block post_inventory_application
 			doomed_bots[ bot ] <- 0.0
 			local scope = PZI_Util.GetEntScope( bot )
@@ -1208,7 +1214,7 @@ function PZI_Bots::GenericZombie( bot, threat_type = "closest" ) {
 
 		// we haven't taken/dealt any damage in a while, just respawn us if we're too far away from a player
 			if ( m_fTimeLastHit + 25.0 < b.time && !b.IsCurThreatVisible() && b.GetCurThreatDistanceSqr() > 262144.0 )
-				PZI_Util.KillPlayer( bot )
+				PZI_Util.SilentKill( bot )
             // else
             //     b.LookAt( threat.EyePosition() - Vector( 0, 0, 20 ), 1500, 1500 )
         }

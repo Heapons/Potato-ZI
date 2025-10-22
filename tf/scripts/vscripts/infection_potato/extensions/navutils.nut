@@ -172,7 +172,7 @@ function PZI_Nav::NavGenerate() {
 		SendToConsole( `host_thread_mode -1` )
 		SendToConsole( `nav_generate_incremental` )
 
-	", generate_delay + 1 )
+	", generate_delay + 0.5 )
 
 	PZI_Util.RemoveThink( player, "NavThink" )
 }
@@ -186,6 +186,8 @@ function PZI_Nav::ResumeNavGeneration() {
 }
 
 function PZI_Nav::CreateNav() {
+
+	EntFire( "team_round_timer", "Pause" )
 
 	player <- GetListenServerHost()
 

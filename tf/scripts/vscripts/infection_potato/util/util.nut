@@ -372,10 +372,10 @@ function PZI_Util::SpawnEnt( ... ) {
 
 		SetPropInt( ent, "m_spawnflags", SF_TRIGGER_ALLOW_CLIENTS )
 		local scope = GetEntScope( ent )
-		scope.InputStartTouch <- TouchCrashFix
-		scope.Inputstarttouch <- TouchCrashFix
-		scope.InputEndTouch <- TouchCrashFix
-		scope.Inputendtouch <- TouchCrashFix
+		scope.InputStartTouch <- TouchCrashFix.bindenv( scope )
+		scope.Inputstarttouch <- TouchCrashFix.bindenv( scope )
+		scope.InputEndTouch <- TouchCrashFix.bindenv( scope )
+		scope.Inputendtouch <- TouchCrashFix.bindenv( scope )
 		::DispatchSpawn( ent )
 		ent.SetSolid( SOLID_BBOX )
 		ent.SetSize( sizemin, sizemax )
@@ -799,6 +799,18 @@ function PZI_Util::StripWeapon( player, slot = -1 ) {
 		EntFireByHandle( weapon, "Kill", null, -1, null, null )
 		break
 	}
+}
+
+function PZI_Util::SetNextRespawnTime( player, time ) {
+
+	if ( !player || !player.IsValid() )
+		return
+
+	local oldtime = GetPropFloat( RespawnOverride, "m_flRespawnTime" )
+	RespawnOverride.AcceptInput( "SetRespawnTime", time.tostring(), player, player )
+	RespawnOverride.AcceptInput( "StartTouch", "!activator", player, player )
+	EntFire( "__pzi_respawnoverride", "SetRespawnTime", ""+oldtime )
+
 }
 
 function PZI_Util::DoExplanation( message, print_color = COLOR_YELLOW, message_prefix = "Explanation: ", sync_chat_with_game_text = false, text_print_time = -1, text_scan_time = 0.02 ) {
@@ -1955,6 +1967,20 @@ function PZI_Util::KillAllBots() {
 			KillPlayer( bot )
 }
 
+
+function PZI_Util::SilentKill( bot ) {
+	
+	local dummy = CreateByClassname( "tf_weapon_knife" )
+	SetPropInt( dummy, STRING_NETPROP_ITEMDEF, ID_YOUR_ETERNAL_REWARD )
+	SetPropBool( dummy, STRING_NETPROP_INIT, true )
+	DispatchSpawn( dummy )
+	SetPropBool( dummy, STRING_NETPROP_PURGESTRINGS, true )
+	dummy.SetTeam( bot.GetTeam() == TEAM_HUMAN ? TEAM_ZOMBIE : TEAM_HUMAN )
+	dummy.DisableDraw()
+	bot.TakeDamageCustom( dummy, dummy, dummy, Vector(), bot.GetOrigin(), INT_MAX, DMG_MELEE, TF_DMG_CUSTOM_BACKSTAB )
+	EntFireByHandle( dummy, "Kill", null, -1, null, null )
+}
+
 // EntFire wrapper for:
 // - Purging game strings to avoid CUtlRBTree Overflow crashes
 // - Logging for invalid targets when debug mode is enabled
@@ -2500,14 +2526,14 @@ function PZI_Util::Clamp360Angle( ang ) {
 }
 
 // wrapper so we can see it in the perf counter
-function PZI_Util::_collectgarbage() { collectgarbage() }
+function PZI_Util::collectgarbage() { ::collectgarbage() }
 
 PZI_EVENT( "teamplay_setup_finished", "UtilSetupStatus", function ( params ) {
 
 	PZI_Util.IsInSetup = false
 
 	// delay GC call so we don't eat into the budget of other round start scripts
-	EntFire( "__pzi_util", "CallScriptFunction", "_collectgarbage", 0.5 )
+	EntFire( "__pzi_util", "CallScriptFunction", "collectgarbage", 0.5 )
 
 }, EVENT_WRAPPER_UTIL )
 
