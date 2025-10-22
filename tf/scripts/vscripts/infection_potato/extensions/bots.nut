@@ -979,8 +979,8 @@ function PZI_Bots::ThinkTable::BotQuotaManager() {
 
 	local cur_bots = bots.len()
 
-	// no bots found, spawn them.
-	if ( !cur_bots && !( "PopulateSafeNav" in PZI_Nav.ThinkTable ) )
+	// less than half the max bots, kill and start over.
+	if ( cur_bots < MAX_BOTS / 2 && !( "PopulateSafeNav" in PZI_Nav.ThinkTable ) )
 		return AllocateBots( MAX_BOTS, true )
 
 	// check fill mode for how many bots we want
@@ -1080,7 +1080,7 @@ function PZI_Bots::AllocateBots( count = PZI_Bots.MAX_BOTS, replace = false ) {
 
 
 	generator = CreateByClassname( "bot_generator" )
-	generator.KeyValueFromString("targetname", "__pzi_bot_generator_" + generator.entindex() )
+	generator.KeyValueFromString( "targetname", "__pzi_bot_generator_" + generator.entindex() )
 	generator.KeyValueFromInt( "spawnOnlyWhenTriggered", 1 )
 	generator.KeyValueFromInt( "actionOnDeath", 0 )
 	generator.KeyValueFromInt( "useTeamSpawnPoint", 0 )
