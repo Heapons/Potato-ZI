@@ -1977,7 +1977,7 @@ function PZI_Util::SilentKill( bot ) {
 	SetPropBool( dummy, STRING_NETPROP_PURGESTRINGS, true )
 	dummy.SetTeam( bot.GetTeam() == TEAM_HUMAN ? TEAM_ZOMBIE : TEAM_HUMAN )
 	dummy.DisableDraw()
-	bot.TakeDamageCustom( dummy, dummy, dummy, Vector(), bot.GetOrigin(), INT_MAX, DMG_MELEE, TF_DMG_CUSTOM_BACKSTAB )
+	bot.TakeDamageCustom( dummy, bot, dummy, Vector(), bot.GetOrigin(), INT_MAX, DMG_MELEE, TF_DMG_CUSTOM_BACKSTAB )
 	EntFireByHandle( dummy, "Kill", null, -1, null, null )
 }
 

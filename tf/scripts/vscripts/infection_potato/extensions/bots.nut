@@ -419,8 +419,6 @@ PZI_Bots.PZI_BotBehavior <- class {
 
 		PZI_Util.ScriptEntFireSafe( "__pzi_util", @"
 
-			local wep = activator.GetActiveWeapon()
-
 			SwitchToFirstValidWeapon( activator )
 
 			if ( !(activator in kill_on_death) )
@@ -430,8 +428,9 @@ PZI_Bots.PZI_BotBehavior <- class {
 
 			activator.RemoveEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
 
-		", 5.0, bot )
+		", 12.0, bot )
 	}
+
 	function IsLookingTowards( target, cos_tolerance ) {
 
 		local to_target = target - bot.EyePosition()
@@ -982,8 +981,8 @@ function PZI_Bots::ThinkTable::BotQuotaManager() {
 	local cur_bots = bots.len()
 
 	// less than half the max bots, kill and start over.
-	if ( cur_bots < MAX_BOTS / 2 )
-		return AllocateBots( MAX_BOTS, true )
+	if ( cur_bots < MAX_BOTS )
+		return AllocateBots( MAX_BOTS )
 
 	// check fill mode for how many bots we want
 	else if ( FILL_MODE )
@@ -1082,7 +1081,13 @@ function PZI_Bots::AllocateBots( count = PZI_Bots.MAX_BOTS, replace = false ) {
 
 	local max = count - PZI_Util.BotArray.len()
 
-	if ( FILL_MODE )
+	if ( max <= 0 )
+		return
+
+	else if ( max < MAX_BOTS )
+		return
+
+	else if ( FILL_MODE )
 		max = FILL_MODE == 2 ? PZI_Util.Max( 0, MAX_BOTS * PZI_Util.HumanArray.len() ) : max - PZI_Util.HumanArray.len()
 
 
