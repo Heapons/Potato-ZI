@@ -971,8 +971,8 @@ function PZI_Bots::BotRemoveThink() {
 function PZI_Bots::ThinkTable::BotQuotaManager() {
 
 	// don't run any quota logic while we're actively spawning/removing bots
-	// wait a bit for the map to finish loading
-	if ( allocating || Time() < 10.0 )
+	// wait a bit for the map/nav to finish loading
+	if ( allocating || "PopulateSafeNav" in PZI_Nav.ThinkTable )
 		return
 
 	local bots = PZI_Util.BotArray
@@ -981,7 +981,7 @@ function PZI_Bots::ThinkTable::BotQuotaManager() {
 	local cur_bots = bots.len()
 
 	// less than half the max bots, kill and start over.
-	if ( cur_bots < MAX_BOTS / 2 && !( "PopulateSafeNav" in PZI_Nav.ThinkTable ) )
+	if ( cur_bots < MAX_BOTS / 2 )
 		return AllocateBots( MAX_BOTS, true )
 
 	// check fill mode for how many bots we want
