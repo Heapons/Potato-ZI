@@ -287,17 +287,14 @@ PZI_EVENT( "player_spawn", "Infection_PlayerSpawn", function( params ) {
     return
 }, EVENT_WRAPPER_MAIN )
 
-PZI_EVENT( "teamplay_round_start", "Infection_RoundStart", @( params ) PZI_Util.ScriptEntFireSafe( "player", "self.Regenerate( true )", 0.1 ) )
+PZI_EVENT( "teamplay_round_start", "Infection_RoundStart", @( params ) PZI_Util.ScriptEntFireSafe( "player", "self.AddEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE ); self.Regenerate( true )", 0.1 ) )
 
 PZI_EVENT( "teamplay_setup_finished", "Infection_SetupFinished", function( params ) {
 
     bGameStarted = true
 
     local _iPlayerCountRed    = PlayerCount( TEAM_HUMAN )
-    local _numStartingZombies = ( _iPlayerCountRed / STARTING_ZOMBIE_FAC ) || 1
-
-    if ( _numStartingZombies > 6 )
-        _numStartingZombies = 6
+    local _numStartingZombies = ( _iPlayerCountRed / ( STARTING_ZOMBIE_FAC - ( _iPlayerCountRed < 12 ? 1 : 0 ) ) ) || 1
 
     // -------------------------------------------------- //
     // select players to become zombies                   //
@@ -318,8 +315,13 @@ PZI_EVENT( "teamplay_setup_finished", "Infection_SetupFinished", function( param
     // EntFire( "player", "RunScriptCode", "if ( self.GetTeam() == TEAM_HUMAN ) SetPropBool( self, `m_bGlowEnabled`, true )" )
 
     // local _szZombieNetNames  =  ""
-    local _zombieArr         =  GetRandomPlayers( _numStartingZombies, TEAM_HUMAN )
-    local _zombieArr_len     = _zombieArr.len()
+    local _zombieArr = []
+    if ( PZI_Util.BotArray.len() >= _numStartingZombies )
+        _zombieArr = PZI_Util.BotArray.slice( 0, _numStartingZombies )
+    else
+        _zombieArr = GetRandomPlayers( _numStartingZombies, TEAM_HUMAN )
+
+    local _zombieArr_len = _zombieArr.len()
 
     if ( !_zombieArr_len )
         return
@@ -419,13 +421,15 @@ PZI_EVENT( "teamplay_setup_finished", "Infection_SetupFinished", function( param
     }
 
     local convert_gen = ConvertPlayers()
+    resume convert_gen // run once before thinking
 
     function ConvertPlayersThink() {
 
         if ( convert_gen.getstatus() == "dead" )
-            self.Kill()
-        else
-            resume convert_gen
+            return self.Kill(), 1
+
+        resume convert_gen
+        return 0.05
     }
     dummy.GetScriptScope().ConvertPlayersThink <- ConvertPlayersThink
     AddThinkToEnt( dummy, "ConvertPlayersThink" )
@@ -441,10 +445,6 @@ PZI_EVENT( "teamplay_setup_finished", "Infection_SetupFinished", function( param
 
 }, EVENT_WRAPPER_MAIN )
 
-PZI_EVENT( "teamplay_broadcast_audio", "Infection_BroadcastAudio", function( params ) {
-    return
-}, EVENT_WRAPPER_MAIN )
-
 PZI_EVENT( "teamplay_restart_round", "Infection_RestartRound", function( params ) {
 
     bGameStarted = false
@@ -456,10 +456,9 @@ PZI_EVENT( "teamplay_restart_round", "Infection_RestartRound", function( params 
     // --------------------------- //
     SetValue( "mp_humans_must_join_team", "red" )
 
-    foreach ( _hNextPlayer in GetAllPlayers() ) {
+    PZI_Util.ValidatePlayerTables()
 
-        if ( !_hNextPlayer || !_hNextPlayer.IsValid() )
-            continue
+    foreach ( _hNextPlayer in PZI_Util.PlayerArray ) {
 
         _hNextPlayer.ResetInfectionVars()
         _hNextPlayer.ClearZombieEntities()
@@ -468,9 +467,10 @@ PZI_EVENT( "teamplay_restart_round", "Infection_RestartRound", function( params 
         _hNextPlayer.SetHealth( _hNextPlayer.GetMaxHealth() )
     }
 
-    EntFire("game_text", "Kill")
+    EntFire( "game_text", "Kill" )
 
     return
+
 }, EVENT_WRAPPER_MAIN )
 
 PZI_EVENT( "player_death", "Infection_PlayerDeath", function( params ) {
@@ -589,7 +589,7 @@ PZI_EVENT( "player_death", "Infection_PlayerDeath", function( params ) {
             // ------------------------------------- //
             // when a player has the zombie skin override, they are hard coded to never gib
             // if we remove this skin here it creates gibs for the player
-            SetPropInt ( _hPlayer, "m_iPlayerSkinOverride", 0 )
+            SetPropInt( _hPlayer, "m_iPlayerSkinOverride", 0 )
 
             // we set custom model on the player afterwards because otherwise the gibs come out red
             _hPlayer.SetCustomModelWithClassAnimations( arrTFClassPlayerModels[ _iClassNum ] )

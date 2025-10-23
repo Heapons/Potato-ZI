@@ -33,35 +33,37 @@ const PZI_VERSION   =  "10.20.2025.1"
 
 ::INFECTION_CONVARS <- {
 
-    "mp_autoteambalance"                   : 0,
-    "mp_teams_unbalance_limit"             : 0,
-    "mp_disable_respawn_times"             : 0,
-    "tf_classlimit"                        : 0,
-    "mp_forcecamera"                       : 0,
-    "sv_alltalk"                           : 1,
-    "mp_scrableteams_auto"                 : 0,
-    "mp_scrambleteams_auto_windifference"  : 0,
-    "mp_humans_must_join_team"             : "red",
-    "mp_forceautoteam"                     : 1,
-    "tf_weapon_criticals"                  : 1,
-    "tf_forced_holiday"                    : 2,
-    "tf_dropped_weapon_lifetime"           : 0,
-    "mp_winlimit"                          : 0,
-    "mp_scrambleteams_auto"                : 0,
-    "sv_vote_issue_autobalance_allowed"    : 0,
-    "sv_vote_issue_scramble_teams_allowed" : 0,
-    "cl_use_tournament_specgui"            : 0,
-    "mp_stalemate_timelimit"               : 9999,
-    "tf_stalematechangeclasstime"          : 9999,
-    "mp_idlemaxtime"                       : 9999,
-    "mp_tournament_readymode"              : 0,
-    "mp_tournament_readymode_min"          : 0,
-    "mp_tournament_readymode_team_size"    : 0,
-    "mp_tournament_readymode_countdown"    : 10,
-    "mp_idledealmethod"                    : 0,
-    "mp_tournament_stopwatch"              : 0,
-    "mp_tournament_redteamname"            : STRING_UI_TEAM_RED,
-    "mp_tournament_blueteamname"           : STRING_UI_TEAM_BLUE,
+    sv_alltalk                           = 1
+    mp_winlimit                          = 0
+    tf_classlimit                        = 0
+    mp_idlemaxtime                       = 9999
+    mp_forcecamera                       = 0
+    mp_forceautoteam                     = 1
+    mp_idledealmethod                    = 0
+    tf_forced_holiday                    = 2
+    mp_autoteambalance                   = 0
+    tf_weapon_criticals                  = 1
+    mp_scrableteams_auto                 = 0
+    mp_scrambleteams_auto                = 0
+    mp_stalemate_timelimit               = 9999
+    mp_tournament_readymode              = 0
+    tf_spawn_glows_duration              = 0
+    mp_tournament_stopwatch              = 0
+    mp_teams_unbalance_limit             = 0
+    mp_disable_respawn_times             = 0
+    mp_humans_must_join_team             = "red"
+    cl_use_tournament_specgui            = 0
+    mp_tournament_redteamname            = STRING_UI_TEAM_RED
+    mp_tournament_blueteamname           = STRING_UI_TEAM_BLUE
+    tf_dropped_weapon_lifetime           = 0
+    tf_stalematechangeclasstime          = 9999
+    mp_tournament_readymode_min          = 0
+    tf_enable_glows_after_respawn        = 0 
+    mp_tournament_readymode_countdown    = 10
+    mp_tournament_readymode_team_size    = 0
+    sv_vote_issue_autobalance_allowed    = 0
+    mp_scrambleteams_auto_windifference  = 0
+    sv_vote_issue_scramble_teams_allowed = 0
 }
 
 function SetInfectionConvars() {

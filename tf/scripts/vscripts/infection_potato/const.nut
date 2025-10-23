@@ -42,7 +42,7 @@ const MIN_TIME_BETWEEN_PYRO_BLAST      = 5;     // Ability Cooldown  - Pyro Blas
 /////////////////////////////////////////////////////////////////////////////////////////////
 const ADDITIONAL_SEC_PER_PLAYER        = 8;     // Additional time added per player death  //
 const ROUND_TIMER_NAME                 = "infection_timer"    // targetname of round timer //
-const STARTING_ZOMBIE_FAC              = 3;                                                //
+const STARTING_ZOMBIE_FAC              = 5;                                                //
 const GLOBAL_BELL_DELAY                = 3;     // delay in seconds for death bell         //
 /////////////////////////////////////////////////////////////////////////////////////////////
 // Zombie Stats |------------------------------------------------------------------------- //

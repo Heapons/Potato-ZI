@@ -481,7 +481,7 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
                         if ( !("mdl" in scope) || !scope.mdl || !scope.mdl.IsValid() ) {
 
                             local mdl = PZI_Util.ShowModelToPlayer( player, [ent.GetModelName(), ent.GetSkin()], ent.GetOrigin(), ent.GetAbsAngles(), 1.0 )
-                            mdl.SetTeam( ent.GetTeam() )
+                            mdl.SetTeam( TEAM_SPECTATOR ) // white outline
                             mdl.SetSequence( ent.GetSequence() )
                             SetPropInt( mdl, "m_nRenderFX", kRenderTransColor )
                             SetPropInt( mdl, "m_clrRender", 0 )

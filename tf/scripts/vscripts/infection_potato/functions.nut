@@ -64,17 +64,12 @@ function PlayerCount( _team = -1 ) {
 
 function PlayGlobalBell( _bForce = false ) {
 
-    if ( !_bForce && flTimeLastBell + GLOBAL_BELL_DELAY > Time() )
-        return
+    if ( _bForce || flTimeLastBell + GLOBAL_BELL_DELAY < Time() ) {
 
-    local _tblSfxEvent = {
+        SendGlobalGameEvent( "teamplay_broadcast_audio", { team = 255, sound = "Halloween.PlayerEscapedUnderworld" })
+        flTimeLastBell = Time()
 
-        team  = 255,
-        sound = "Halloween.PlayerEscapedUnderworld"
     }
-
-    SendGlobalGameEvent ( "teamplay_broadcast_audio", _tblSfxEvent )
-    flTimeLastBell = Time()
 }
 
 // damage is multiplied by _flDmgMult for each player in range
@@ -105,7 +100,7 @@ function DemomanExplosionPreCheck( _vecLocation, _flDmg, _flDmgMult, _flRange, _
 
     }
 
-    printl( "Final damage: " + _finalDmg )
+    // printl( "Final damage: " + _finalDmg )
     CreateExplosion( _vecLocation,
                      _finalDmg,
                      _flRange,
@@ -1218,6 +1213,9 @@ function CTFPlayer_ResetInfectionVars() {
 	if ( !_sc ) return
 
     // AddThinkToEnt( this, null )
+
+    if ( !this.IsPlayer() )
+        return __DumpScope(0, getstackinfos(2))
 
     if ( ( "m_iUserConfigFlags" in _sc ) ) {
 

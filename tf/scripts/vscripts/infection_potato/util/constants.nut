@@ -22,6 +22,14 @@ if ( !( "ConstantNamingConvention" in ROOT ) )
 		foreach( k, v in b )
 			CONST[k] <- v != null ? v : 0
 
+// overwrite this function to avoid conflicts with e.g. pl_spineyard
+function ClearGameEventCallbacks()
+{
+	foreach ( callbacks in [GameEventCallbacks, ScriptEventCallbacks, ScriptHookCallbacks] )
+		foreach ( event_name, scopes in callbacks )
+			scopes = scopes.filter( @( i, scope ) !scope || scope == ROOT || ( "self" in scope && scope.self.GetName() != "__pzi_eventwrapper" ) )
+}
+
 // String caches
 const STRING_NETPROP_ITEMDEF 	  	    = "m_AttributeManager.m_Item.m_iItemDefinitionIndex"
 const STRING_NETPROP_INIT 	 	  	    = "m_AttributeManager.m_Item.m_bInitialized"

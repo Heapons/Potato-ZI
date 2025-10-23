@@ -259,14 +259,10 @@ function PZI_Util::_OnDestroy() {
 
 	ResetConvars( false )
 
-	foreach( i, ent in EntShredder ) {
+	local gen = EntityManager()
 
-		if ( ent && ent.IsValid() ) {
-
-			SetPropBool( ent, STRING_NETPROP_PURGESTRINGS, true )
-			EntFireByHandle( ent, "Kill", "", i * 0.1, null, null )
-		}
-	}
+	while ( gen.getstatus() != "dead" )
+		resume gen
 }
 
 function PZI_Util::EntityManager() {
@@ -274,29 +270,35 @@ function PZI_Util::EntityManager() {
 	// strip out leftover nulls
 	EntShredder = EntShredder.filter( @(_, ent) ent && ent.IsValid() )
 
-	// batch delete 50 ents per think
+	// give everything a common targetname and EntFire kill it
 	local queue = "___ENTSHREDDER___QUEUED"
+	local _len = EntShredder.len()
 
 	foreach( i, ent in EntShredder ) {
 
-		if ( !(i % 50) )
-			yield EntFire( queue, "Kill" ), ent
+		if ( ent.GetName() != "" )
+			PZI_GameStrings.StringTable[ ent.GetName() ] <- ent.GetScriptId()
 
 		SetPropString( ent, STRING_NETPROP_NAME, queue )
-		SetPropBool( ent, STRING_NETPROP_PURGESTRINGS, true )
+
+		if ( _len < 150 && !( i % 10 ) )
+			yield EntFire( queue, "Kill" ), true
 	}
+
+	EntFire( queue, "Kill" )
 }
 
-local gen = null
+local gen = PZI_Util.EntityManager()
+resume gen
 function PZI_Util::ThinkTable::EntityManagerThink() {
 
 	if ( !EntShredder.len() )
 		return 0.5
 
-	if ( !gen || gen.getstatus() == "dead" )
+	else if ( gen.getstatus() == "dead" )
 		gen = EntityManager()
 
-	local result = resume gen
+	resume gen
 	return -1
 }
 
@@ -803,7 +805,7 @@ function PZI_Util::StripWeapon( player, slot = -1 ) {
 
 function PZI_Util::SetNextRespawnTime( player, time ) {
 
-	if ( !player || !player.IsValid() )
+	if ( !player || !player.IsValid() || !RespawnOverride.IsValid() )
 		return
 
 	local oldtime = GetPropFloat( RespawnOverride, "m_flRespawnTime" )
@@ -973,7 +975,8 @@ function PZI_Util::ForEachEnt( identifier = null, filter = null, callback = null
 
 				entlist.append( ent )
 
-				if ( callback ) callback( ent )
+				if ( callback ) 
+					callback( ent )
 			}
 		}
 
@@ -1976,9 +1979,13 @@ function PZI_Util::SilentKill( bot ) {
 	DispatchSpawn( dummy )
 	SetPropBool( dummy, STRING_NETPROP_PURGESTRINGS, true )
 	dummy.SetTeam( bot.GetTeam() == TEAM_HUMAN ? TEAM_ZOMBIE : TEAM_HUMAN )
+	dummy.SetOwner( Worldspawn )
+	SetPropEntity( dummy, "m_hOwner", Worldspawn )
 	dummy.DisableDraw()
-	bot.TakeDamageCustom( dummy, bot, dummy, Vector(), bot.GetOrigin(), INT_MAX, DMG_MELEE, TF_DMG_CUSTOM_BACKSTAB )
-	EntFireByHandle( dummy, "Kill", null, -1, null, null )
+	Worldspawn.SetTeam( bot.GetTeam() == TEAM_HUMAN ? TEAM_ZOMBIE : TEAM_HUMAN )
+	bot.TakeDamageCustom( dummy, Worldspawn, dummy, Vector(), bot.GetOrigin(), INT_MAX, DMG_MELEE, TF_DMG_CUSTOM_BACKSTAB )
+	Worldspawn.SetTeam( TEAM_UNASSIGNED )
+	dummy.Kill()
 }
 
 // EntFire wrapper for:
@@ -2041,8 +2048,8 @@ function PZI_Util::SetDestroyCallback( entity, callback ) {
 					entity = EntIndexToHScript( index )
 					local scope = entity.GetScriptScope()
 					scope.self <- entity
-					PZI_GameStrings.PurgeGameString( id )
 					scope.__pzi_util_destroy_callback()
+					PZI_GameStrings.PurgeGameString( id )
 				}
 
 				delete parent[k]
@@ -2237,7 +2244,7 @@ function PZI_Util::AddThink( ent, func ) {
 
 		if ( endswith( typeof func, "function" ) ) {
 
-			scope[ thinktable_name ][ func.getinfos().name || format( "__%s_ANONYMOUS_THINK", ent.GetName() ) ] <- func
+			scope[ thinktable_name ][ func.getinfos().name || format( "__%s_ANONYMOUS_THINK", ent.GetName() ) ] <- func.bindenv( scope )
 		}
 
 		else if (
@@ -2555,8 +2562,8 @@ PZI_EVENT( "teamplay_round_start", "UtilRoundStart", function ( params ) {
 	foreach( table in ["kill_on_spawn", "kill_on_death"] )
 		foreach ( player, wearables in PZI_Util[ table ] )
 			foreach ( wearable in wearables )
-				if ( wearable )
-					EntFireByHandle( wearable, "Kill", "", -1, null, null )
+				if ( wearable && wearable.IsValid() )
+					EntFireByHandle( wearable, "Kill", null, -1, null, null )
 
 	PZI_Util.kill_on_spawn.clear()
 	PZI_Util.kill_on_death.clear()
@@ -2587,7 +2594,8 @@ PZI_EVENT( "player_death", "UtilPlayerDeath", function ( params ) {
 
 	if ( player in PZI_Util.kill_on_death )
 		foreach ( wearable in PZI_Util.kill_on_death[ player ] )
-			EntFireByHandle( wearable, "Kill", "", -1, null, null )
+			if ( wearable && wearable.IsValid() )
+				EntFireByHandle( wearable, "Kill", null, -1, null, null )
 
 }, EVENT_WRAPPER_UTIL )
 
@@ -2597,11 +2605,24 @@ PZI_EVENT( "player_disconnect", "UtilPlayerDisconnect", function ( params ) {
 	local player = GetPlayerFromUserID( params.userid )
 
 	local u = PZI_Util
+
 	foreach( tbl in u.PLAYER_TABLES )
 		if ( player in u[ tbl ] )
 			delete u[ tbl ][ player ]
+	
+	foreach( wearables in [ "kill_on_spawn", "kill_on_death" ] ) {
 
-	PZI_Util.ValidatePlayerTables()
+		if ( player in u[ wearables ] ) {
+
+			foreach ( wearable in u[ wearables ][ player ] )
+				if ( wearable && wearable.IsValid() )
+					EntFireByHandle( wearable, "Kill", null, -1, null, null )
+
+			delete u[ wearables ][ player ]
+		}
+	}
+
+	u.ValidatePlayerTables()
 
 }, EVENT_WRAPPER_UTIL )
 
@@ -2613,9 +2634,9 @@ PZI_EVENT( "post_inventory_application", "UtilPostInventoryApplication", functio
 		return
 
 	if ( player in PZI_Util.kill_on_spawn )
-		foreach ( wearable in PZI_Util.kill_on_spawn[ player ] )
+		foreach ( wearable in PZI_Util.kill_on_spawn[ player ] || [] )
 			if ( wearable && wearable.IsValid() )
-				EntFireByHandle( wearable, "Kill", "", -1, null, null )
+				EntFireByHandle( wearable, "Kill", null, -1, null, null )
 
 	// fill out player tables if empty
 	local tbl = "PlayerTable"

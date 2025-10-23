@@ -11,8 +11,14 @@
 
 function PZI_PlayerThink() {
 
-    if ( !self.IsAlive() || self.GetFlags() & FL_NOTARGET )
+    if ( !self.IsValid() || !self.IsAlive() || self.GetFlags() & FL_NOTARGET )
         return
+
+    if ( !self.IsPlayer() ) {
+        PZI_Util.RemoveThink( self, "PZI_PlayerThink" )
+        return
+
+    }
 
     else if ( !self.GetPlayerClass() )  {
 
