@@ -342,10 +342,10 @@ function CreateSmallHealthKit( _vecLocation ) {
 
     local _hDroppedHealthkit = SpawnEntityFromTable( "item_healthkit_small", {
 
-        origin          = _vecLocation,
-        AutoMaterialize = false,
-        StartDisabled   = false,
-    } )
+        origin          = _vecLocation
+        AutoMaterialize = false
+        StartDisabled   = false
+    })
 
     _hDroppedHealthkit.ValidateScriptScope()
 
