@@ -1424,8 +1424,9 @@ PZI_EVENT( "teamplay_round_start", "PZI_Bots_TeamplayRoundStart", function( para
 	SetValue( "tf_bot_melee_attack_abandon_range", 64.0 )
 	SetValue( "tf_bot_min_setup_gate_defend_range", 0.0 )
 	SetValue( "tf_bot_max_setup_gate_defend_range", INT_MAX )
+	SetValue( "tf_bot_reevaluate_class_in_spawnroom", 0 )
 
-	SetValue( "nb_update_frequency", 0.5 )
+	SetValue( "nb_update_frequency", 0.8 )
 })
 
 PZI_EVENT( "player_spawn", "PZI_Bots_PostInventoryApplication", function( params ) {
