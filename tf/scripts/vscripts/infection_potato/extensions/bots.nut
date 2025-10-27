@@ -1160,7 +1160,7 @@ function PZI_Bots::AllocateBots( count = PZI_Bots.MAX_BOTS, replace = false ) {
 
 		EntFireByHandle( generator, "RunScriptCode", @"
 
-			self.SetAbsOrigin( GetRandomSafeArea().GetCenter() + Vector(0, 0, 20) )
+			self.SetAbsOrigin( PZI_Nav.GetRandomSafeArea().GetCenter() + Vector(0, 0, 20) )
 			self.AcceptInput( `SpawnBot`, null, null, null )
 
 		", inc + 5.0, null, null )
