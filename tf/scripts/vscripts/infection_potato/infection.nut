@@ -657,34 +657,34 @@ PZI_EVENT( "player_death", "Infection_PlayerDeath", function( params ) {
 
         PlayGlobalBell()
 
-        local _hRoundTimer = FindByClassname( null, "team_round_timer" )
+        // local _hRoundTimer = FindByClassname( null, "team_round_timer" )
 
-        // no round timer on the level, let's make one
-        if ( !_hRoundTimer ) {
+        // // no round timer on the level, let's make one
+        // if ( !_hRoundTimer ) {
 
-            // create an infection specific timer
-            _hRoundTimer = SpawnEntityFromTable( "team_round_timer", {
+        //     // create an infection specific timer
+        //     _hRoundTimer = SpawnEntityFromTable( "team_round_timer", {
 
-                auto_countdown       = "0",
-                max_length           = "360",
-                reset_time           = "1",
-                setup_length         = "30",
-                show_in_hud          = "1",
-                show_time_remaining  = "1",
-                start_paused         = "0",
-                timer_length         = "360",
-                StartDisabled        = "0",
-            } )
-        }
-        else {
+        //         auto_countdown       = "0",
+        //         max_length           = "360",
+        //         reset_time           = "1",
+        //         setup_length         = "30",
+        //         show_in_hud          = "1",
+        //         show_time_remaining  = "1",
+        //         start_paused         = "0",
+        //         timer_length         = "360",
+        //         StartDisabled        = "0",
+        //     } )
+        // }
+        // else {
 
-            EntFireByHandle( _hRoundTimer, "auto_countdown", "0", 0, null, null )
-        }
+        //     EntFireByHandle( _hRoundTimer, "auto_countdown", "0", 0, null, null )
+        // }
 
-        if ( bIsPayload )
-            return; // don't add time to the round timer if it's a payload map
+        // if ( bIsPayload )
+        //     return; // don't add time to the round timer if it's a payload map
 
-        EntFireByHandle( _hRoundTimer, "AddTime", ADDITIONAL_SEC_PER_PLAYER.tostring(), 0, null, null )
+        EntFire( "team_round_timer", "AddTime", ADDITIONAL_SEC_PER_PLAYER.tostring() )
     }
 }, EVENT_WRAPPER_MAIN )
 
