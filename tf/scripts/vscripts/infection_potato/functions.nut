@@ -64,7 +64,7 @@ function PlayerCount( _team = -1 ) {
 
 function PlayGlobalBell( _bForce = false ) {
 
-    if ( _bForce || flTimeLastBell + GLOBAL_BELL_DELAY < Time() ) {
+    if ( _bForce || Time() - flTimeLastBell > GLOBAL_BELL_DELAY ) {
 
         SendGlobalGameEvent( "teamplay_broadcast_audio", { team = 255, sound = "Halloween.PlayerEscapedUnderworld" })
         flTimeLastBell = Time()
