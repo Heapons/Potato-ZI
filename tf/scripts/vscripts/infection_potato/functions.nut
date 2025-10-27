@@ -59,7 +59,7 @@ function PlayerCount( _team = -1 ) {
     // return playerCount
 
     PZI_Util.ValidatePlayerTables()
-    return ( PZI_Util.PlayerArray.filter( @(i, player) _team == -1 || player.GetTeam() == _team ) ).len()
+    return (PZI_Util.PlayerArray.filter( @(i, player) _team == -1 || player.GetTeam() == _team ) ).len()
 }
 
 function PlayGlobalBell( _bForce = false ) {
@@ -68,6 +68,7 @@ function PlayGlobalBell( _bForce = false ) {
 
         SendGlobalGameEvent( "teamplay_broadcast_audio", { team = 255, sound = "Halloween.PlayerEscapedUnderworld" })
         flTimeLastBell = Time()
+
     }
 }
 
@@ -334,7 +335,7 @@ function CreateAmmoPack( _vecLocation, _szClassname ) {
     _hDroppedPack.SetAbsOrigin( _vecLocation )
     _hDroppedPack.SetMoveType( MOVETYPE_FLYGRAVITY, MOVECOLLIDE_FLY_BOUNCE )
     
-    EntFireByHandle( _hDroppedPack, "Kill", null, 20.0, null, null )
+    PZI_Util.ScriptEntFireSafe( _hDroppedPack, "self.Kill()", 20.0 )
 }
 
 function CreateSmallHealthKit( _vecLocation ) {
