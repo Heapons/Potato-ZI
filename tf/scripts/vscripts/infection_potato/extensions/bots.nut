@@ -1045,7 +1045,7 @@ function PZI_Bots::ThinkTable::BotQuotaManager() {
 		foreach ( kickme in doomed_bots.keys() ) {
 
 			local kick = ShouldKickBot( kickme )
-			printl( kickme + " : " + kick )
+			// printl( kickme + " : " + kick )
 			if ( !kick )
 				continue
 
@@ -1424,6 +1424,8 @@ PZI_EVENT( "teamplay_round_start", "PZI_Bots_TeamplayRoundStart", function( para
 	SetValue( "tf_bot_melee_attack_abandon_range", 64.0 )
 	SetValue( "tf_bot_min_setup_gate_defend_range", 0.0 )
 	SetValue( "tf_bot_max_setup_gate_defend_range", INT_MAX )
+
+	SetValue( "nb_update_frequency", 0.5 )
 })
 
 PZI_EVENT( "player_spawn", "PZI_Bots_PostInventoryApplication", function( params ) {
