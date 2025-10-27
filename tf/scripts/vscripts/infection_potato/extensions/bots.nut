@@ -1158,12 +1158,12 @@ function PZI_Bots::AllocateBots( count = PZI_Bots.MAX_BOTS, replace = false ) {
 	local i = -1, inc = 0.0
 	while ( i++, inc = i * 0.05, i < max ) {
 
-		EntFireByHandle( "__pzi_nav", "RunScriptCode", @"
+		EntFireByHandle( generator, "RunScriptCode", @"
 
-			activator.SetAbsOrigin( GetRandomSafeArea().GetCenter() + Vector(0, 0, 20) )
-			activator.AcceptInput( `SpawnBot`, null, null, null )
+			self.SetAbsOrigin( GetRandomSafeArea().GetCenter() + Vector(0, 0, 20) )
+			self.AcceptInput( `SpawnBot`, null, null, null )
 
-		", inc + 5.0, generator, generator )
+		", inc + 5.0, null, null )
 	}
 
 	// done allocating

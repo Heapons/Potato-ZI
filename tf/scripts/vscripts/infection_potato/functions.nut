@@ -59,7 +59,7 @@ function PlayerCount( _team = -1 ) {
     // return playerCount
 
     PZI_Util.ValidatePlayerTables()
-    return (PZI_Util.PlayerArray.filter( @(i, player) _team == -1 || player.GetTeam() == _team ) ).len()
+    return ( PZI_Util.PlayerArray.filter( @(i, player) _team == -1 || player.GetTeam() == _team ) ).len()
 }
 
 function PlayGlobalBell( _bForce = false ) {
@@ -68,7 +68,6 @@ function PlayGlobalBell( _bForce = false ) {
 
         SendGlobalGameEvent( "teamplay_broadcast_audio", { team = 255, sound = "Halloween.PlayerEscapedUnderworld" })
         flTimeLastBell = Time()
-
     }
 }
 
