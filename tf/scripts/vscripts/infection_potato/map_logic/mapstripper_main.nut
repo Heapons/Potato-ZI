@@ -84,7 +84,7 @@ local gamemode_funcs = {
         local cart_stuff = []
         for ( local watcher, cart; watcher = FindByClassname( watcher, "team_train_watcher" ); ) {
 
-            while ( cart = FindByName( null, GetPropString( watcher, "m_iszTrain" ) ) ) {
+            while ( cart = FindByName( cart, GetPropString( watcher, "m_iszTrain" ) ) ) {
 
                 cart_stuff.append( cart )
 
