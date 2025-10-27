@@ -1101,6 +1101,18 @@ function PZI_Bots::AllocateBots( count = PZI_Bots.MAX_BOTS, replace = false ) {
 	if ( PZI_Util.BotArray.len() >= MAX_BOTS )
 		return
 
+	// TODO
+	// re-running scripts will cause BotArray to get reset back to 0
+	// this will cause stacking bot generators that completely break quota logic.
+	// fix that instead of manually re-iterating players here!
+	local j = 0
+	for ( local i = 1; i <= MAX_CLIENTS; i++ )
+		if ( PlayerInstanceFromIndex(i) )
+			j++
+
+	if ( j >= MAX_BOTS )
+		return
+
 	local max = count - PZI_Util.BotArray.len()
 
 	if ( max <= 0 )

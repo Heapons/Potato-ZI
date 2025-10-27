@@ -78,50 +78,71 @@ local gamemode_funcs = {
         }
 
         // grab the tracks and cart entity from the watcher
-        for ( local watcher; watcher = FindByClassname( watcher, "team_train_watcher" ); ) {
+        // NOTE: this crashes the game for many reasons!
+        // bot logic and other things try to read team_train_watcher properties with no NULL checks!
 
-            // grab the start and end tracks
-            while ( first = FindByName( first, GetPropString( watcher, "m_iszStartNode" ) ) )
-                break
-            while ( last = FindByName( last, GetPropString( watcher, "m_iszGoalNode" ) ) )
-                break
+        local cart_stuff = []
+        for ( local watcher, cart; watcher = FindByClassname( watcher, "team_train_watcher" ); ) {
 
-            prev  = GetPropEntity( last, "m_pprevious" )
+            while ( cart = FindByName( null, GetPropString( watcher, "m_iszTrain" ) ) ) {
 
-            altpath = GetPropEntity( prev, "m_paltpath" )
-            altname = GetPropString( prev, "m_altName" )
+                cart_stuff.append( cart )
 
-            foreach ( path in [ altpath, first, last, prev ] ) {
-
-                if ( !path || !path.IsValid() )
-                    continue
-
-                altpath = GetPropEntity( path, "m_paltpath" )
-                altname = GetPropString( path, "m_altName" )
-                _altpath()
+                for ( local child = cart.FirstMoveChild(); child; child = child.NextMovePeer() )
+                    cart_stuff.append( child )
             }
 
-            tracks[ prev ] <- null
+        //     // grab the start and end tracks
+        //     while ( first = FindByName( first, GetPropString( watcher, "m_iszStartNode" ) ) )
+        //         break
+        //     while ( last = FindByName( last, GetPropString( watcher, "m_iszGoalNode" ) ) )
+        //         break
 
-            // iterate backwards to the starting node
-            while ( prev = GetPropEntity( prev, "m_pprevious" ) ) {
+        //     prev  = GetPropEntity( last, "m_pprevious" )
 
-                if ( prev == first ) {
+        //     altpath = GetPropEntity( prev, "m_paltpath" )
+        //     altname = GetPropString( prev, "m_altName" )
 
-                    // keep start/end and link them together to keep working bot logic
-                    // delete every track in between
-                    SetPropEntity( first, "m_pnext", last )
-                    continue
-                }
+        //     foreach ( path in [ altpath, first, last, prev ] ) {
 
-                tracks[ prev ] <- null
-                altpath = GetPropEntity( prev, "m_paltpath" )
-                altname = GetPropString( prev, "m_altName" )
-                _altpath()
-            }
+        //         if ( !path || !path.IsValid() )
+        //             continue
+
+        //         altpath = GetPropEntity( path, "m_paltpath" )
+        //         altname = GetPropString( path, "m_altName" )
+        //         _altpath()
+        //     }
+
+        //     tracks[ prev ] <- null
+
+        //     // iterate backwards to the starting node
+        //     while ( prev = GetPropEntity( prev, "m_pprevious" ) ) {
+
+        //         if ( prev == first ) {
+
+        //             // keep start/end and link them together to keep working bot logic
+        //             // delete every track in between
+        //             SetPropEntity( first, "m_pnext", last )
+        //             continue
+        //         }
+
+        //         tracks[ prev ] <- null
+        //         altpath = GetPropEntity( prev, "m_paltpath" )
+        //         altname = GetPropString( prev, "m_altName" )
+        //         _altpath()
+        //     }
         }
 
-        PZI_Util.EntShredder.extend( ( ( tracks.keys() ).extend( tracks.values() ) ) )
+        foreach ( cart in cart_stuff ) {
+
+            cart.AcceptInput( "Disable", null, null, null )
+            cart.DisableDraw()
+            SetPropInt( cart, "m_nRenderMode", kRenderTransColor )
+            SetPropInt( cart, "m_clrRender", 0 )
+            SetPropBool( cart, "m_bGlowEnabled", false )
+        }
+    
+        // PZI_Util.EntShredder.extend( ( ( tracks.keys() ).extend( tracks.values() ) ) )
     }
 
     // delete mvm entities
