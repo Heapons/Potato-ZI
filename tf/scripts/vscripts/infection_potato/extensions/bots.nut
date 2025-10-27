@@ -1362,7 +1362,7 @@ function PZI_Bots::EngineerZombie( bot ) {
 		b.SetThreat( red_buildings[ RandomInt( 0, red_buildings.len() - 1 ) ] )
 
 		if ( !b.threat || !b.threat.IsValid() )
-			red_buildings = red_buildings.filter( @( k, v ) k != null )
+			red_buildings = red_buildings.filter( @( k, v ) k && k.IsValid() )
 	}
 
 	PZI_Util.AddThink( bot, EngineerZombieThink )
