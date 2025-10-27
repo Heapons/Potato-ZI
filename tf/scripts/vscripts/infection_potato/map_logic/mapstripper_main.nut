@@ -135,11 +135,18 @@ local gamemode_funcs = {
 
         foreach ( cart in cart_stuff ) {
 
-            cart.AcceptInput( "Disable", null, null, null )
             cart.DisableDraw()
-            SetPropInt( cart, "m_nRenderMode", kRenderTransColor )
             SetPropInt( cart, "m_clrRender", 0 )
+            cart.AcceptInput( "Disable", null, null, null )
+            SetPropInt( cart, "m_nRenderMode", kRenderTransColor )
             SetPropBool( cart, "m_bGlowEnabled", false )
+
+            cart.SetSolid( SOLID_NONE )
+            cart.SetSolidFlags( FSOLID_NOT_SOLID )
+            cart.SetCollisionGroup( COLLISION_GROUP_DEBRIS )
+
+            cart.AddFlag( FL_DONTTOUCH )
+            cart.AddEFlags( EFL_NO_THINK_FUNCTION|EFL_NO_GAME_PHYSICS_SIMULATION )
         }
     
         // PZI_Util.EntShredder.extend( ( ( tracks.keys() ).extend( tracks.values() ) ) )
@@ -439,7 +446,7 @@ local round_start_relay_table = {
     "OnTrigger#6" : "func_door*,AddOutput,OnFullyOpened func_door*:Kill::0:-1,0,-1"
     "OnTrigger#7" : "func_door*,Unlock,,0,-1"
     "OnTrigger#8" : "func_door*,Open,,0.1,-1"
-    "OnTrigger#9" : "func_door*,Kill,,3,-1"
+    "OnTrigger#9" : "func_door*,Kill,,5,-1"
 }
 
 local setup_finished_relay_table = {
@@ -451,7 +458,7 @@ local setup_finished_relay_table = {
     "OnSpawn#3" : "func_door*,AddOutput,OnFullyOpened func_door*:Kill::0:-1,0,-1"
     "OnSpawn#4" : "func_door*,Unlock,,0,-1"
     "OnSpawn#5" : "func_door*,Open,,0.1,-1"
-    "OnSpawn#6" : "func_door*,Kill,,3,-1"
+    "OnSpawn#6" : "func_door*,Kill,,5,-1"
     "OnSpawn#7" : "func_respawnroom,Disable,,0,-1"
     "OnSpawn#8" : "func_respawnroom,SetInactive,,0,-1"
     "OnSpawn#9" : "func_regenerate,Kill,,0,-1"

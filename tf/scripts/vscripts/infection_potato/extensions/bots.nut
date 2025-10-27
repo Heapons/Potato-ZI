@@ -1019,7 +1019,6 @@ function PZI_Bots::ThinkTable::BotQuotaManager() {
 	local bots   = PZI_Util.BotArray
 	local humans = PZI_Util.HumanArray
 	local cur_bots = bots.len() - doomed_bots.len()
-	// printf( "wish: %d cur: %d urgency: (%d) doomed: [%d]\n", wish_bots, PZI_Util.BotArray.len(), kick_urgency, doomed_bots.len() )
 
 	if ( ( !generator || !generator.IsValid() ) && !doomed_bots.len() )
 		return AllocateBots( MAX_BOTS, true )
@@ -1028,6 +1027,7 @@ function PZI_Bots::ThinkTable::BotQuotaManager() {
 	else if ( FILL_MODE )
 		wish_bots = FILL_MODE == 2 ? PZI_Util.Max( 0, MAX_BOTS * humans.len() ) : MAX_BOTS - humans.len()
 
+	// printf( "wish: %d cur: %d urgency: (%d) doomed: [%d]\n", wish_bots, PZI_Util.BotArray.len(), kick_urgency, doomed_bots.len() )
 	// kick urgency is decided by the difference between how many bots we want and how many we currently have
 	// always kick at max urgency in pre-round
 	kick_urgency = bGameStarted ? PZI_Util.Min( abs( wish_bots - cur_bots ), MAX_KICK_URGENCY ) : MAX_KICK_URGENCY
@@ -1167,7 +1167,7 @@ function PZI_Bots::AllocateBots( count = PZI_Bots.MAX_BOTS, replace = false ) {
 	}
 
 	// done allocating
-	EntFire( "__pzi_bots", "RunScriptCode", "allocating = false", inc + 6.0 )
+	EntFire( "__pzi_bots", "RunScriptCode", "allocating = false", inc + 5.0 )
 
 	return generator
 }
