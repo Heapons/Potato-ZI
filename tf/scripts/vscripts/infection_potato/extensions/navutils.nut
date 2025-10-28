@@ -5,7 +5,6 @@ PZI_CREATE_SCOPE( "__pzi_nav", "PZI_Nav", null, "PZI_NavThink" )
 
 PZI_Nav.AllNavAreas    <- {}
 PZI_Nav.SafeNavAreas   <- {}
-PZI_Nav.WalkablePoints <- []
 PZI_Nav.NAV_DEBUG      <- false // draw nav areas
 PZI_Nav.MAX_AREAS_PER_TICK <- 150
 // function PZI_Nav::FindWalkablePoints() {
@@ -124,26 +123,37 @@ function PZI_Nav::ThinkTable::PopulateSafeNav() {
 function PZI_Nav::GetRandomSafeArea() { return SafeNavAreas.values()[RandomInt( 0, SafeNavAreas.len() - 1 )] }
 
 // NAV GENERATION TOOLS BELOW
-
 function PZI_Nav::NavGenerator() {
 
 	local player = GetListenServerHost()
 
-	local points_len = WalkablePoints.len()
+	local walkable_points = array( MAX_EDICTS )
+	local e
+	foreach( i, ent in [ "info_player_teamspawn", "item_teamflag", "team_control_point", "trigger_capture_area", "func_capturezone" ] ) {
 
-	if ( !points_len ) {
+		yield printl( "collecting: " + ent ), true
 
-		local e
-		foreach( ent in [ "info_player_teamspawn", "item_teamflag", "team_control_point" ] )
-			while ( e = FindByClassname( e, ent ) )
-				WalkablePoints.append( e.GetOrigin() )
-
-		points_len = WalkablePoints.len()
+		while ( e = FindByClassname( e, ent ) )
+			walkable_points[ e.entindex() ] = e.GetCenter()
 	}
+
+	foreach ( e in PZI_MapLogic.payload_tracks.keys() )
+		if ( e )
+			walkable_points[ e.entindex() ] = e.GetCenter()
+
+	walkable_points = walkable_points.filter( @( i, v ) v )
+	local points_len = walkable_points.len()
+
+	__DumpScope( 0, walkable_points )
+
+	printl( "WALKABLE POINTS: " + points_len )
 
 	local generate_delay = 0.0
 	// Process spawn points for current arena
-	foreach( i, point in WalkablePoints ) {
+	foreach( i, point in walkable_points ) {
+
+		if ( !point )
+			continue
 
 		generate_delay += 0.01
 		PZI_Util.ScriptEntFireSafe( player, format( @"
@@ -164,38 +174,47 @@ function PZI_Nav::NavGenerator() {
 	}
 
 	// Schedule nav generation
-	PZI_Util.ScriptEntFireSafe( "bignet", @"
+	PZI_Util.ScriptEntFireSafe( PZI_Util.Worldspawn, @"
 
 		ClientPrint( null, 3, `Areas marked!` )
 		ClientPrint( null, 3, `Generating nav...` )
-		SendToConsole( `host_thread_mode -1; wait 10; nav_generate_incremental` )
+		SendToConsole( `nav_generate` )
 
 	", generate_delay + 0.5 )
 
 	yield true
+
 
 	AddThinkToEnt( player, null )
 }
 
 function PZI_Nav::CreateNav() {
 
-	EntFire( "team_round_timer", "Pause" )
-	SendToConsole( "host_thread_mode -1" )
+	if ( FileToString( "__NAV_DISCONNECT" ) == "1" )
+		return DisconnectAreas(), StringToFile( "__NAV_DISCONNECT", "0" )
 
-	player <- GetListenServerHost()
+	EntFire( "team_round_timer", "Pause" )
+	SendToConsole( "host_thread_mode 0; developer 1" )
+
+	local player = GetListenServerHost()
 
 	player.SetMoveType( MOVETYPE_NOCLIP, MOVECOLLIDE_DEFAULT )
 
 	scope <- PZI_Util.GetEntScope( player )
-	scope.gen <- NavGenerator()
+
+	local gen = NavGenerator()
 
 	function scope::NavThink() {
 
-		if ( gen.getstatus() == "dead" )
-			return INT_MAX
-
-		else if ( !GetInt( "host_thread_mode" ) )
+		if ( gen.getstatus() != "dead" )
 			resume gen
+
+		else if ( GetInt( "host_thread_mode" ) ) {
+
+			StringToFile( "__NAV_DISCONNECT", "1" )
+			// EntFire( "__pzi_nav", "CallScriptFunction", "DisconnectAreas", 1 )
+			// PZI_Util.ScriptEntFireSafe( player, "SendToConsole(`nav_analyze`)", 2 )
+		}
 
 		return 0.05
 	}
@@ -317,8 +336,6 @@ function PZI_Nav::DisconnectAreas()
 	}
 
 	local gen = DisconnectAreaGenerator()
-	resume gen
-
 	function ThinkTable::DisconnectAreaThink() {
 
 		if ( gen.getstatus() == "dead" )

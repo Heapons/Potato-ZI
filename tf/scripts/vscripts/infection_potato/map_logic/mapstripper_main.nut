@@ -1,3 +1,5 @@
+PZI_CREATE_SCOPE( "__PZI_MapLogic", "PZI_MapLogic" )
+
 // Strip all logic from all maps to replace with ZI logic
 SetValue( "mp_autoteambalance", 0 )
 SetValue( "mp_scrambleteams_auto", 0 )
@@ -46,6 +48,8 @@ LocalTime(LOCALTIME)
 	// }
 }
 
+PZI_MapLogic.payload_tracks <- []
+
 local gamemode_funcs = {
 
     // delete payload cart and tracks
@@ -60,21 +64,23 @@ local gamemode_funcs = {
 
             if ( altpath ) {
 
-                altpath = GetPropEntity( altpath, "m_paltpath" )
-                tracks[ prev ] = altpath
+                tracks[ altpath ] <- altpath.GetName()
+
+                if ( altpath = GetPropEntity( altpath, "m_paltpath" ) )
+                    tracks[ altpath ] <- altpath.GetName()                    
 
                 while ( altpath = GetPropEntity( altpath, "m_pnext" ) ) {
 
                     if ( altpath == first )
                         continue
 
-                    tracks[ altpath ] <- null
+                    tracks[ altpath ] <- altpath.GetName()
                 }
             }
 
             if ( altname != "" )
                 while ( altpath = FindByName( altpath, altname ) )
-                    tracks[ altpath ] <- null
+                    tracks[ altpath ] <- altname
         }
 
         // grab the tracks and cart entity from the watcher
@@ -92,46 +98,48 @@ local gamemode_funcs = {
                     cart_stuff.append( child )
             }
 
-        //     // grab the start and end tracks
-        //     while ( first = FindByName( first, GetPropString( watcher, "m_iszStartNode" ) ) )
-        //         break
-        //     while ( last = FindByName( last, GetPropString( watcher, "m_iszGoalNode" ) ) )
-        //         break
+            // grab the start and end tracks
+            while ( first = FindByName( first, GetPropString( watcher, "m_iszStartNode" ) ) )
+                break
+            while ( last = FindByName( last, GetPropString( watcher, "m_iszGoalNode" ) ) )
+                break
 
-        //     prev  = GetPropEntity( last, "m_pprevious" )
+            prev  = GetPropEntity( last, "m_pprevious" )
 
-        //     altpath = GetPropEntity( prev, "m_paltpath" )
-        //     altname = GetPropString( prev, "m_altName" )
+            altpath = GetPropEntity( prev, "m_paltpath" )
+            altname = GetPropString( prev, "m_altName" )
 
-        //     foreach ( path in [ altpath, first, last, prev ] ) {
+            foreach ( path in [ altpath, first, last, prev ] ) {
 
-        //         if ( !path || !path.IsValid() )
-        //             continue
+                if ( !path || !path.IsValid() )
+                    continue
 
-        //         altpath = GetPropEntity( path, "m_paltpath" )
-        //         altname = GetPropString( path, "m_altName" )
-        //         _altpath()
-        //     }
+                altpath = GetPropEntity( path, "m_paltpath" )
+                altname = GetPropString( path, "m_altName" )
+                _altpath()
+            }
 
-        //     tracks[ prev ] <- null
+            tracks[ prev ] <- prev ? prev.GetName() : null 
 
-        //     // iterate backwards to the starting node
-        //     while ( prev = GetPropEntity( prev, "m_pprevious" ) ) {
+            // iterate backwards to the starting node
+            while ( prev = GetPropEntity( prev, "m_pprevious" ) ) {
 
-        //         if ( prev == first ) {
+                if ( prev == first ) {
 
-        //             // keep start/end and link them together to keep working bot logic
-        //             // delete every track in between
-        //             SetPropEntity( first, "m_pnext", last )
-        //             continue
-        //         }
+                    // keep start/end and link them together to keep working bot logic
+                    // delete every track in between
+                    SetPropEntity( first, "m_pnext", last )
+                    continue
+                }
 
-        //         tracks[ prev ] <- null
-        //         altpath = GetPropEntity( prev, "m_paltpath" )
-        //         altname = GetPropString( prev, "m_altName" )
-        //         _altpath()
-        //     }
+                tracks[ prev ] <- prev.GetName()
+                altpath = GetPropEntity( prev, "m_paltpath" )
+                altname = GetPropString( prev, "m_altName" )
+                _altpath()
+            }
         }
+
+        PZI_MapLogic.payload_tracks <- tracks
 
         foreach ( cart in cart_stuff ) {
 
@@ -149,7 +157,7 @@ local gamemode_funcs = {
             cart.AddEFlags( EFL_NO_THINK_FUNCTION|EFL_NO_GAME_PHYSICS_SIMULATION )
         }
     
-        // PZI_Util.EntShredder.extend( ( ( tracks.keys() ).extend( tracks.values() ) ) )
+        // PZI_Util.EntShredder.extend( tracks.keys() )
     }
 
     // delete mvm entities
@@ -182,7 +190,7 @@ local gamemode_funcs = {
 
         EntFire( "func_capturezone", "Kill" )
 
-        PZI_EVENT( "player_death", "PZI_MapStripper_PlayerDeath", function ( params ) {
+        PZI_EVENT( "player_death", "PZI_MapLogic_PlayerDeath", function ( params ) {
 
             EntFire( "item_teamflag", "Kill" )
         })
@@ -436,7 +444,7 @@ local nearest
 
 local round_start_relay_table = {
 
-    targetname = "__pzi_mapstripper_round_start_relay"
+    targetname = "__pzi_round_start_relay"
     spawnflags = 1
     "OnTrigger#1" : "func_areaportal*,Open,,0,-1"
     "OnTrigger#2" : "__pzi_nav_interface,RecomputeBlockers,,0,-1"
@@ -451,7 +459,7 @@ local round_start_relay_table = {
 
 local setup_finished_relay_table = {
 
-    targetname = "__pzi_mapstripper_setup_finished_relay"
+    targetname = "__pzi_setup_finished_relay"
     spawnflags = 1
     "OnSpawn#1" : "func_areaportal*,Open,,0,-1"
     "OnSpawn#2" : "__pzi_nav_interface,RecomputeBlockers,,0,-1"
@@ -463,7 +471,7 @@ local setup_finished_relay_table = {
     "OnSpawn#8" : "func_respawnroom,SetInactive,,0,-1"
     "OnSpawn#9" : "func_regenerate,Kill,,0,-1"
 }
-PZI_EVENT( "teamplay_round_start", "PZI_MapStripper_RoundStart", function ( params ) {
+PZI_EVENT( "teamplay_round_start", "PZI_MapLogic_RoundStart", function ( params ) {
 
     if ( GAMEMODE in gamemode_funcs )
         gamemode_funcs[ GAMEMODE ]()
@@ -495,7 +503,7 @@ PZI_EVENT( "teamplay_round_start", "PZI_MapStripper_RoundStart", function ( para
     foreach( name in ents_to_kill )
         AddOutput( _relay, "OnTrigger", name, "Kill", null, 0, -1 )
 
-    _relay.AcceptInput( "Trigger", null, null, null )
+    EntFireByHandle( _relay, "Trigger", null, -1, null, null )
 
     timer = SetupRoundTimer()
 
@@ -516,9 +524,9 @@ PZI_EVENT( "teamplay_round_start", "PZI_MapStripper_RoundStart", function ( para
 
 })
 
-PZI_EVENT( "teamplay_setup_finished", "PZI_MapStripper_SetupFinished", @ ( params ) SpawnEntityFromTable( "logic_relay", setup_finished_relay_table ) )
+PZI_EVENT( "teamplay_setup_finished", "PZI_MapLogic_SetupFinished", @ ( params ) SpawnEntityFromTable( "logic_relay", setup_finished_relay_table ) )
 
-PZI_EVENT( "player_spawn", "PZI_MapStripper_PlayerSpawn", function ( params ) {
+PZI_EVENT( "player_spawn", "PZI_MapLogic_PlayerSpawn", function ( params ) {
 
     local player = GetPlayerFromUserID( params.userid )
     PZI_Util.ScriptEntFireSafe( "__pzi_respawnoverride", "self.SetSize( Vector( -9999, -9999, -9999 ), Vector( 9999, 9999, 9999 ) )", -1 )

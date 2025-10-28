@@ -538,9 +538,9 @@ PZI_Bots.PZI_BotBehavior <- class {
 
 	function IsCurThreatVisible() 			{ return threat_visible = ( IsInFieldOfView( threat ) && IsVisible( threat ) ), threat_visible }
 
-	function GetCurThreatDistance() 		{ return ( ( threat_pos || Vector() ) - ( cur_pos || Vector() ) ).Length() }
+	function GetCurThreatDistance() 		{ return ( threat_pos - cur_pos ).Length() }
 
-	function GetCurThreatDistanceSqr() 		{ return ( ( threat_pos || Vector() ) - ( cur_pos || Vector() ) ).LengthSqr() }
+	function GetCurThreatDistanceSqr() 		{ return ( threat_pos - cur_pos ).LengthSqr() }
 
 	function FindClosestThreat( min_dist, must_be_visible = true ) {
 
@@ -947,9 +947,9 @@ PZI_Bots.PZI_BotBehavior <- class {
 			return
 
 		local point = path_points[path_index].pos
-		locomotion.Approach( point, 0.0 )
-		// locomotion.DriveTo( point )
-		locomotion.FaceTowards( point )
+		// locomotion.Approach( point, 0.0 )
+		locomotion.DriveTo( point )
+		// locomotion.FaceTowards( point )
 
 		local look_pos = Vector( point.x, point.y, cur_eye_pos.z )
 
@@ -1167,7 +1167,7 @@ function PZI_Bots::AllocateBots( count = PZI_Bots.MAX_BOTS, replace = false ) {
 	}
 
 	// done allocating
-	EntFire( "__pzi_bots", "RunScriptCode", "allocating = false", inc + 5.0 )
+	EntFire( "worldspawn", "RunScriptCode", "PZI_Bots.allocating = false", inc + 5.0 )
 
 	return generator
 }
@@ -1222,9 +1222,6 @@ function PZI_Bots::PrepareNavmesh() {
 
 function PZI_Bots::GenericZombie( bot, threat_type = "closest" ) {
 
-    local cooldown = 0.0
-    local threat_cooldown = 5.0
-
     function GenericZombieThink() {
 
         if ( !bot.IsAlive() || bot.GetTeam() != TEAM_ZOMBIE )
@@ -1234,25 +1231,21 @@ function PZI_Bots::GenericZombie( bot, threat_type = "closest" ) {
 			return
 
 		local b = PZI_Util.GetEntScope( bot ).PZI_BotBehavior
-		// for some reason bots don't like to move until they're nudged around a bit
-		// if we're stuck just throw us around a bit and hope for the best
-		// if ( bGameStarted && !b.locomotion.IsStuck() && !bot.GetAbsVelocity().Length() )
-			// bot.ApplyAbsVelocityImpulse( Vector( RandomInt( -50, 50 ), RandomInt( -50, 50 ), RandomInt( 10, 30 ) ) )
 
         local threat = b.threat
 
         if ( !threat || !threat.IsValid() || !threat.IsAlive() || threat.GetTeam() == bot.GetTeam() ) {
 
-            if ( threat_type == "closest" && b.time > cooldown ) {
+            if ( threat_type == "closest" ) {
 
                     b.SetThreat( b.FindClosestThreat( INT_MAX, false ), true )
-                    cooldown = b.time + threat_cooldown // find new threat every threat_cooldown seconds
             }
             else if ( threat_type == "random" ) {
 
                     local threats = b.CollectThreats( INT_MAX, true, true )
-                    if ( !threats.len() )
-						return
+
+                    if ( !threats.len() ) return
+
                     b.SetThreat( threats[RandomInt( 0, threats.len() - 1 )] )
             }
         }
@@ -1260,7 +1253,6 @@ function PZI_Bots::GenericZombie( bot, threat_type = "closest" ) {
 
 			b.FindPathToThreat()
 			b.MoveToThreat()
-			bot.SetAttentionFocus( threat )
 
 			if ( b.GetCurThreatDistanceSqr() > 262144.0 ) { // 512^2
 
@@ -1271,12 +1263,15 @@ function PZI_Bots::GenericZombie( bot, threat_type = "closest" ) {
 
 					PZI_Util.SetNextRespawnTime( bot, 1.0 )
 					PZI_Util.SilentKill( bot )
-					m_fTimeLastHit = b.time + 25.0
+					m_fTimeLastHit = INT_MAX
 				}
 
 			}
-            // else
-            //     b.LookAt( threat.EyePosition() - Vector( 0, 0, 20 ), 1500, 1500 )
+            else {
+
+				bot.SetAttentionFocus( threat )
+				b.LookAt( threat.EyePosition() - Vector( 0, 0, 20 ), 1500, 1500 )
+			}
         }
     }
 
