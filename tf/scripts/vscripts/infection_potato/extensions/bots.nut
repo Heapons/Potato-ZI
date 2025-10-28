@@ -34,7 +34,7 @@ PZI_Bots.kick_urgency_funcs <- {
 			return false
 
 		// > 1024 hu away from threat, can't see them
-		else if ( b.GetThreatDistanceSqr() > 0xFFFFF && !b.IsCurThreatVisible() )
+		else if ( b.GetCurThreatDistanceSqr() > 0xFFFFF && !b.IsCurThreatVisible() )
 			return true
 	}
 
@@ -543,6 +543,8 @@ PZI_Bots.PZI_BotBehavior <- class {
 
 	function GetCurThreatDistanceSqr() 		{ return ( threat_pos - cur_pos ).LengthSqr() }
 
+	function GetCurThreatDistanceSqr2D() 	{ return ( threat_pos - cur_pos ).LengthSqr() }
+
 	function FindClosestThreat( min_dist, must_be_visible = true ) {
 
 		local closest_threat = null
@@ -597,6 +599,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 		threat 			   = target
 		threat_pos 		   = ( threat || PZI_Util.Worldspawn ).GetOrigin()
 		threat_visible 	   = visible
+		threat_time 	   = time
 		threat_behind_time = time + 0.5
 	}
 
@@ -716,22 +719,11 @@ PZI_Bots.PZI_BotBehavior <- class {
 
 	function OnTakeDamage( attacker ) {
 
-		if ( attacker && attacker.IsValid() && attacker.IsPlayer() && attacker != bot ) {
+		if ( time - threat_time < 3.0 )
+			return
 
-			if ( threat && threat.IsValid() ) {
-				threat_dist = GetThreatDistanceSqr( threat ) * 0.8
-
-				if ( threat_dist > 16384.0 ) {
-					local attacker_dist = GetThreatDistanceSqr( attacker )
-					threat_dist   = GetThreatDistanceSqr( threat ) * 0.8
-
-					if ( attacker_dist > threat_dist )
-						return
-				}
-			}
-
-			SetThreat( attacker, true )
-		}
+		if ( attacker != bot && GetCurThreatDistanceSqr() > GetThreatDistanceSqr( attacker ) )
+			SetThreat( attacker )
 	}
 
 	function OnUpdate() {
@@ -757,7 +749,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 		if ( path_recompute_time > time )
 			return
 
-		if ( ( !path_points.len() ) || GetCurThreatDistanceSqr() > MAX_THREAT_DISTANCE ) {
+		if ( ( !path_points.len() ) || GetCurThreatDistanceSqr2D() > MAX_THREAT_DISTANCE ) {
 
 			local area = GetNavArea( threat_pos, 0.0 )
 			if ( area )
@@ -944,6 +936,14 @@ PZI_Bots.PZI_BotBehavior <- class {
 		// if ( !(path_index in path_points) )
 		// 	__DumpScope( 0, path_points )
 
+		// we're underwater and can see our target, just move directly at them
+		if ( bot.GetWaterLevel() >= 2 && IsVisible( threat ) ) {
+
+			locomotion.Approach( threat_pos, 0.0 )
+			locomotion.FaceTowards( threat_pos )
+			return
+		}
+
 		if ( path_index == null || !( path_index in path_points ) )
 			return UpdatePath( threat_pos, locomotion.GetStuckDuration() >= 1.0 )
 
@@ -962,6 +962,15 @@ PZI_Bots.PZI_BotBehavior <- class {
 			LookAt( look_pos, turnrate_min, turnrate_max )
 				
 		DebugDrawLine( bot.GetOrigin(), point, 255, 100, 0, false, 0.1 )
+
+		local area_count = path_areas.len()
+
+		local i = 0
+		foreach( area in path_areas ) {
+			i++
+			local x = ( ( area_count - i - 0.0 ) / area_count ) * 255.0
+			area.DebugDrawFilled( x, (x / 2), 0, 50, 0.075, true, 0.0 )
+		}
 	}
 }
 
