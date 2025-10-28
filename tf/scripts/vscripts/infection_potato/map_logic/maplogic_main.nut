@@ -226,7 +226,8 @@ local gamemode_props = [
 foreach ( prop in gamemode_props )
     SetPropBool( PZI_Util.GameRules, prop, false )
 
-try { IncludeScript( "infection_potato/map_logic/" + MAPNAME, ROOT ) } catch ( e ) { printl( e )}
+try { IncludeScript( "infection_potato/map_logic/" + MAPNAME, ROOT ) } catch ( e ) { printl( e ) }
+IncludeScript( "infection_potato/map_logic/kill_doors", ROOT )
 
 local ents_to_kill = [
 
@@ -348,6 +349,7 @@ local function SetupRoundTimer() {
         reset_time          = 1
         setup_length        = 45
         show_in_hud         = 1
+        force_map_reset     = true
         show_time_remaining = 1
         start_paused        = 0
         timer_length        = 120

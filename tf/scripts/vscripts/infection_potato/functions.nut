@@ -931,7 +931,7 @@ function CTFPlayer_InitializeZombieHUD() {
     // previous checks apparently don't work, just kill by targetname
     for ( local ent = worldspawn, name ; ent = FindByClassname( ent, "game_text"); )
         if ( ( name = ent.GetName() ), startswith( name, "__pzi" ) && endswith( name, userid.tostring() ) )
-            EntFireByHandle( ent, "Kill", "", -1, null, null )
+            EntFire( name, "Kill" )
 
     local _hAbilityHUDText = SpawnEntityFromTable( "game_text", {
 

@@ -1,7 +1,7 @@
 // add extensions to this table.
 // extensions will be loaded in the order they are defined.
 ::PZI_ACTIVE_EXTENSIONS <- [
-    {"infection_potato/extensions/"    : [ "navutils", "damageradiusmult", "spawnanywhere", "bots" ] }
+    {"infection_potato/extensions/"    : [ "damageradiusmult", "spawnanywhere", "bots" ] }
 ]
 
 ::ROOT <- getroottable()
@@ -29,11 +29,11 @@ local function Include( script ) { IncludeScript( script, ROOT ) }
 local include = [
 
     // our new utils
-    {"infection_potato/util/" : [ "constants", "itemdef_constants", "item_map", "create_scope", "event_wrapper", "gamestrings", "util" ] }
+    {"infection_potato/util/" : [ "constants", "itemdef_constants", "item_map", "create_scope", "event_wrapper", "gamestrings", "navutils", "util" ] }
     // core zi files
     {"infection_potato/" : [ "strings", "const", "infection" ] }
     // misc map logic scripts for map conversions
-    {"infection_potato/map_logic/" : [ "_MAPLOGIC_MAIN" ] }
+    {"infection_potato/map_logic/" : [ "maplogic_main" ] }
 ]
 
 local function IncludeGen( include ) {
