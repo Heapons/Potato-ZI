@@ -944,13 +944,13 @@ PZI_Bots.PZI_BotBehavior <- class {
 		// if ( !(path_index in path_points) )
 		// 	__DumpScope( 0, path_points )
 
-		if ( path_index == null || !( path_index in path_points ) || !( 1 in path_points ) )
+		if ( path_index == null || !( path_index in path_points ) )
 			return UpdatePath( threat_pos, locomotion.GetStuckDuration() >= 1.0 )
 
-		local point = path_points[1].pos
+		local point = path_points[0].pos
 
 		if ( bot.GetLastKnownArea() == GetNearestNavArea( point, MAX_THREAT_DISTANCE, false, false ) )
-			return UpdatePath( threat_pos, locomotion.GetStuckDuration() >= 1.0 )
+			return path_points.remove( 0 ), path_index--
 
 		locomotion.Approach( point, 0.0 )
 		// locomotion.DriveTo( point )
@@ -1251,7 +1251,7 @@ function PZI_Bots::GenericZombie( bot, threat_type = "closest" ) {
         else {
 
 			b.FindPathToThreat()
-			b.MoveToThreat( false )
+			b.MoveToThreat()
 
 			if ( b.GetCurThreatDistanceSqr() > 262144.0 ) { // 512^2
 

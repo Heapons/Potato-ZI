@@ -3,6 +3,7 @@ PZI_CREATE_SCOPE( "__pzi_spawnanywhere", "PZI_SpawnAnywhere", null, "SpawnAnywhe
 const SNIPER_SKELETON = "models/bots/skeleton_sniper/skeleton_sniper.mdl"
 
 const NEST_MODEL            = "models/player/heavy.mdl"
+const NEST_PARTICLE         = "utaunt_graveparty_parent"
 const NEST_EXPLODE_SOUND    = "misc/null.wav"
 const NEST_EXPLODE_PARTICLE = " "
 const NEST_EXPLODE_DAMAGE   = 120

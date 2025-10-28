@@ -1061,9 +1061,9 @@ function EngieEMPThink() {
 
     if ( m_bMustFizzle ) {
 
-        SetPropInt             ( self, "m_takedamage", 0 )
-        PZI_Util.DispatchEffect ( self, FX_EMP_SPARK )
-        EmitSoundOn            ( SFX_EMP_EXPLODE, self )
+        SetPropInt( self, "m_takedamage", 0 )
+        PZI_Util.DispatchEffect( self, FX_EMP_SPARK )
+        EmitSoundEx({ sound_name = SFX_EMP_EXPLODE entity = self })
         self.Destroy()
         return -1
     }
@@ -1169,10 +1169,10 @@ function EngieEMPThink() {
                      0,
                      true )
 
-        PZI_Util.DispatchEffect ( self, FX_EMP_BURST )
-        PZI_Util.DispatchEffect ( self, FX_EMP_GIBS )
-        PZI_Util.DispatchEffect ( self, FX_EMP_SPARK )
-        EmitSoundOn            ( SFX_EMP_EXPLODE, self )
+        PZI_Util.DispatchEffect( self, FX_EMP_BURST )
+        PZI_Util.DispatchEffect( self, FX_EMP_GIBS )
+        PZI_Util.DispatchEffect( self, FX_EMP_SPARK )
+        EmitSoundEx({ sound_name SFX_EMP_EXPLODE entity = self })
 
         local _buildableArr    =  [ ]
         local _buildable       =  null

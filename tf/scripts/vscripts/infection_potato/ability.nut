@@ -158,7 +158,12 @@ class CSpyReveal extends CZombieAbility {
         ScreenShake        ( m_hAbilityOwner.GetOrigin(), 15.0, 150.0, 1.0, 500, 0, false )
         EntFireByHandle    ( _d.m_hTempEntity, "SetParent", "!activator", 0, m_hAbilityOwner, m_hAbilityOwner )
 
-        EmitAmbientSoundOn ( SFX_SPY_REVEAL_ONCAST, 899,  1, 100, m_hAbilityOwner )
+        EmitSoundEx({
+            sound_name = format( SFX_SPY_REVEAL_ONCAST, RandomInt( 1, 3 ) )
+            sound_level = 100
+            volume = 1
+            entity = m_hAbilityOwner
+        })
 
         local _hPlayer            = null
         local _arrPlayersInRange  = []
@@ -280,16 +285,16 @@ class CMedicHeal extends CZombieAbility {
         // m_hAbilityOwner.GiveZombieFXWearable()
         m_hAbilityOwner.GiveZombieCosmetics()
 
-        m_hAbilityOwner.SetForcedTauntCam  ( 1 )
-        m_hAbilityOwner.AddCustomAttribute ( "no_attack", 1, -1 )
-        m_hAbilityOwner.AddEventToQueue    ( EVENT_KILL_TEMP_ENTITY, 2 ); // todo - const
-        m_hAbilityOwner.AddEventToQueue    ( EVENT_PUT_ABILITY_ON_CD, INSTANT )
-        m_hAbilityOwner.AddCondEx          ( TF_COND_INVULNERABLE_USER_BUFF, 1, m_hAbilityOwner )
-        m_hAbilityOwner.AddCondEx          ( TF_COND_HALLOWEEN_QUICK_HEAL, 2, m_hAbilityOwner  )
-        EmitSoundOn                             ( SFX_ZMEDIC_HEAL, m_hAbilityOwner )
+        m_hAbilityOwner.SetForcedTauntCam( 1 )
+        m_hAbilityOwner.AddCustomAttribute( "no_attack", 1, -1 )
+        m_hAbilityOwner.AddEventToQueue( EVENT_KILL_TEMP_ENTITY, 2 ); // todo - const
+        m_hAbilityOwner.AddEventToQueue( EVENT_PUT_ABILITY_ON_CD, INSTANT )
+        m_hAbilityOwner.AddCondEx( TF_COND_INVULNERABLE_USER_BUFF, 1, m_hAbilityOwner )
+        m_hAbilityOwner.AddCondEx( TF_COND_HALLOWEEN_QUICK_HEAL, 2, m_hAbilityOwner  )
+        EmitSoundEx({ sound_name = SFX_ZMEDIC_HEAL entity = m_hAbilityOwner })
 
-        EntFireByHandle    ( _d.m_hTempEntity, "SetParent", "!activator", 0, m_hAbilityOwner, m_hAbilityOwner )
-        EntFireByHandle    ( _d.m_hTempEntity, "Start", "", 0.2, null, null )
+        EntFireByHandle( _d.m_hTempEntity, "SetParent", "!activator", 0, m_hAbilityOwner, m_hAbilityOwner )
+        EntFireByHandle( _d.m_hTempEntity, "Start", "", 0.2, null, null )
        // EmitSoundOnClient  ( "WeaponMedigun.HealingWorld", m_hAbilityOwner )
 
         local _hPlayer            = null
@@ -364,7 +369,7 @@ class CSniperSpitball extends CZombieAbility {
         _d.m_fTimeAbilityCastStarted <- Time()
 
         _d.m_iFlags = ( _d.m_iFlags | ZBIT_SNIPER_CHARGING_SPIT )
-        EmitSoundOn   ( SFX_ZOMBIE_SPIT_START, m_hAbilityOwner )
+        EmitSoundEx({ sound_name = SFX_ZOMBIE_SPIT_START entity = m_hAbilityOwner })
 
         m_hAbilityOwner.GetActiveWeapon().AddAttribute( "move speed penalty", 0.5, -1 )
         return
@@ -440,7 +445,7 @@ class CSniperSpitball extends CZombieAbility {
 
         m_hAbilityOwner.GetActiveWeapon().RemoveAttribute( "move speed penalty" )
 
-        EmitSoundOn( SFX_ZOMBIE_SPIT_END, m_hAbilityOwner )
+        EmitSoundEx({ sound_name = SFX_ZOMBIE_SPIT_END entity = m_hAbilityOwner })
 
         _d.m_iFlags = ( _d.m_iFlags & ~ZBIT_SNIPER_CHARGING_SPIT )
 
@@ -611,7 +616,10 @@ class CDemoCharge extends CZombieAbility {
         // m_hAbilityOwner.GiveZombieFXWearable()
         m_hAbilityOwner.GiveZombieCosmetics()
 
-        EmitSoundOn( SFX_DEMO_CHARGE_RAMP, m_hAbilityOwner )
+        EmitSoundEx({
+            sound_name = format( SFX_DEMO_CHARGE_RAMP, RandomInt( 1, 3 ) )
+            entity = m_hAbilityOwner 
+        })
 
         // todo - array
         m_hAbilityOwner.AddCond   ( TF_COND_CRITBOOSTED_PUMPKIN )
