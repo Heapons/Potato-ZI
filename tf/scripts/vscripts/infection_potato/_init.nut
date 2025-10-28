@@ -225,6 +225,10 @@ function PrecacheThink() {
         return self.Kill(), 1
 
     local result = resume gen
+
+    if ( !result )
+        return 1
+
     printf( "PRECACHING RESOURCES (%d / %d)\n", result, getconsttable().len() )
     return -1
 }
