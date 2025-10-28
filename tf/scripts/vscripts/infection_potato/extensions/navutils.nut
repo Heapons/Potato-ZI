@@ -336,7 +336,7 @@ function PZI_Nav::DisconnectAreas()
 	function ThinkTable::DisconnectAreaThink() {
 
 		if ( gen.getstatus() == "dead" )
-			return delete ThinkTable.DisconnectAreaThink
+			return SendToConsole("nav_save"), delete ThinkTable.DisconnectAreaThink
 
 		resume gen
 		return 0.05
