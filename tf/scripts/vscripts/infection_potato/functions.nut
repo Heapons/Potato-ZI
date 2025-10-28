@@ -23,7 +23,7 @@ function PrecacheResources() {
 
         i++
         if ( !(i & 1200) )
-            yield _key
+            yield i || 1
     }
 
     foreach ( particle in szEyeParticles )

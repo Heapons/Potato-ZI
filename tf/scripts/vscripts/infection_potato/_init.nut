@@ -221,11 +221,11 @@ resume gen
 
 function PrecacheThink() {
 
-    printl( "PRECACHING RESOURCES..." )
     if ( gen.getstatus() == "dead" )
         return self.Kill(), 1
 
-    resume gen
+    local result = resume gen
+    printf( "PRECACHING RESOURCES (%d / %d)\n", result, getconsttable().len() )
     return -1
 }
 dummy.GetScriptScope().PrecacheThink <- PrecacheThink
