@@ -753,7 +753,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 
 			local area = GetNavArea( threat_pos, 0.0 )
 			if ( area )
-				UpdatePath( threat_pos, locomotion.GetStuckDuration() > 1.0 )
+				UpdatePath( threat_pos, true )
 		}
 	}
 
@@ -945,7 +945,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 		}
 
 		if ( path_index == null || !( path_index in path_points ) )
-			return UpdatePath( threat_pos, locomotion.GetStuckDuration() >= 1.0 )
+			return UpdatePath( threat_pos, true )
 
 		local point = path_points[0].pos
 
@@ -1465,7 +1465,7 @@ PZI_EVENT( "player_spawn", "PZI_Bots_PostInventoryApplication", function( params
 		// tf_bot_reevaluate_class_in_spawnroom falls apart with large numbers of bots.
 		// 66% chance the medic bots will switch to a random class
 		if ( bot.GetTeam() == TEAM_HUMAN && RandomInt( 0, 2 ) )
-			return PZI_Util.ForceChangeClass( bot, RandomInt( 1, 9 ) )
+			PZI_Util.ForceChangeClass( bot, RandomInt( 1, 9 ) )
 		else
 			bot.SetMission( NO_MISSION, true )
 	}
