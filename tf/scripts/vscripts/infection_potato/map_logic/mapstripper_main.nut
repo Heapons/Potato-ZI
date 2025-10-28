@@ -168,9 +168,9 @@ local gamemode_funcs = {
 
         PZI_Util.ScriptEntFireSafe( "item_teamflag", @"
 
-            self.AddFlag( FL_DONTTOUCH )
+            // self.AddFlag( FL_DONTTOUCH )
             self.DisableDraw()
-            AddOutput( self, `OnPickup`, `item_teamflag`, `ForceResetSilent`, null, 0, -1 )
+            // AddOutput( self, `OnPickup`, `item_teamflag`, `ForceResetSilent`, null, 0, -1 )
 
             self.ValidateScriptScope()
 
@@ -178,6 +178,7 @@ local gamemode_funcs = {
             function FlagMoveThink() {
 
                 self.SetAbsOrigin( PZI_Nav.GetRandomSafeArea().GetCenter() )
+                self.AcceptInput( `ForceResetSilent`, null, null, null )
                 return 10.0
             }
 

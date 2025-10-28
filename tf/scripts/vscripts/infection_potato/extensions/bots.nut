@@ -519,9 +519,9 @@ PZI_Bots.PZI_BotBehavior <- class {
 	function IsVisible( target ) {
 
 		local trace = {
-			start  = bot.EyePosition(),
-			end    = target.EyePosition(),
-			mask   = MASK_OPAQUE,
+			start  = bot.EyePosition()
+			end    = target.EyePosition()
+			mask   = MASK_OPAQUE
 			ignore = bot
 		}
 		TraceLineEx( trace )
