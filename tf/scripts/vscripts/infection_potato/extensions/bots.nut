@@ -427,7 +427,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 
 		this.bot_level 			 = bot.GetDifficulty()
 
-		this.path_debug			 = true
+		this.path_debug			 = false
 	}
 
 	function GiveRandomLoadout() {
