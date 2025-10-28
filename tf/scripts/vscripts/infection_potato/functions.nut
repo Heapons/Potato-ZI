@@ -11,24 +11,23 @@
 
 function PrecacheResources() {
 
+    local i = 0
     foreach ( _key, _value in getconsttable() ) {
 
-        if ( startswith( _key, "SFX" ) ) {
-
+        if ( startswith( _key, "SFX" ) )
             PrecacheSound( _value )
-        }
-        else if ( startswith( _key, "FX" ) ) {
-
+        else if ( startswith( _key, "FX" ) )
             PrecacheEntityFromTable( { classname = "info_particle_system", effect_name = _value } )
-        }
-        else if ( startswith( _key, "MDL" ) ) {
-
+        else if ( startswith( _key, "MDL" ) )
             PrecacheModel( _value )
-        }
+
+        i++
+        if ( !(i & 1200) )
+            yield _key
     }
 
     foreach ( particle in szEyeParticles )
-        PrecacheEntityFromTable( { classname = "info_particle_system", effect_name = particle } )
+        yield PrecacheEntityFromTable( { classname = "info_particle_system", effect_name = particle } ), particle
 
     return
 }

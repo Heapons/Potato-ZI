@@ -214,7 +214,22 @@ arrZombieFXWearable <-
     PrecacheModel( MDL_FX_WEARABLE_ENGINEER ),
 ]
 
-PrecacheResources()
+local dummy = SpawnEntityFromTable( "entity_saucer", { vscripts = " "} )
+
+local gen = PrecacheResources()
+resume gen
+
+function PrecacheThink() {
+
+    printl( "PRECACHING RESOURCES..." )
+    if ( gen.getstatus() == "dead" )
+        return self.Kill(), 1
+
+    resume gen
+    return -1
+}
+dummy.GetScriptScope().PrecacheThink <- PrecacheThink
+AddThinkToEnt( dummy, "PrecacheThink" )
 
 printl( "_init.nut Complete." )
 printl( GAMEMODE_NAME + "\n" + PZI_VERSION )

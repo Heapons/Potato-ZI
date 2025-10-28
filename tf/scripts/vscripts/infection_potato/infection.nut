@@ -697,7 +697,7 @@ PZI_EVENT( "OnTakeDamage", "Infection_OnTakeDamage", function( params ) {
     local _hVictim        =   params.const_entity
     local _hAttacker      =   params.attacker
     local _hInflictor     =   params.inflictor
-    local _sc             =   _hVictim.GetScriptScope()
+    local _sc             =   _hVictim.GetScriptScope() || ( _hVictim.ValidateScriptScope(), _hVictim.GetScriptScope() )
     local _iWeaponIDX     =   0
     local _szWeaponName   =   "none"
     local _iForceGibDmg   =   ( _hVictim.GetMaxHealth() + 20 )
