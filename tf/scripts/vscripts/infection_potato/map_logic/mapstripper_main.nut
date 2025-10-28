@@ -168,9 +168,9 @@ local gamemode_funcs = {
 
         PZI_Util.ScriptEntFireSafe( "item_teamflag", @"
 
-            // self.AddFlag( FL_DONTTOUCH )
+            self.AddFlag( FL_DONTTOUCH )
             self.DisableDraw()
-            // AddOutput( self, `OnPickup`, `item_teamflag`, `ForceResetSilent`, null, 0, -1 )
+            AddOutput( self, `OnPickup`, `item_teamflag`, `ForceResetSilent`, null, 0, -1 )
 
             self.ValidateScriptScope()
 
