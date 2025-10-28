@@ -1273,7 +1273,7 @@ function PZI_Util::IsPointInTrigger( point, classname = "func_respawnroom" ) {
 function PZI_Util::GetItemInSlot( player, slot ) {
 
 	for ( local child = player.FirstMoveChild(); child; child = child.NextMovePeer() )
-		if ( child.GetSlot() == slot )
+		if ( child instanceof CBaseCombatWeapon && child.GetSlot() == slot )
 			return child
 }
 
@@ -1633,15 +1633,13 @@ function PZI_Util::GiveWeapon( player, class_name, item_id ) {
 	SetPropBool( weapon, STRING_NETPROP_PURGESTRINGS, true )
 
 	// remove existing weapon in same slot
-	ForEachItem( player, function( child ) {
+	local old = GetItemInSlot( player, weapon.GetSlot() )
 
-		if ( child.GetSlot() != weapon.GetSlot() )
-			return
+	if ( old && old.IsValid() ) {
 
-		SetPropBool( child, STRING_NETPROP_PURGESTRINGS, true )
-		EntFireByHandle( child, "Kill", null, -1, null, null )
-		// SetPropEntityArray( player, STRING_NETPROP_MYWEAPONS, null, slot )
-	}, true )
+		SetPropBool( old, STRING_NETPROP_PURGESTRINGS, true )
+		old.Kill()
+	}
 
 	player.Weapon_Equip( weapon )
 	player.Weapon_Switch( weapon )
@@ -1864,6 +1862,16 @@ function PZI_Util::RoundWin( team = 2 ) {
     SetValue( "mp_humans_must_join_team", "red" )
 	round_win.AcceptInput( "RoundWin", null, null, null )
 	bGameStarted = false
+
+	EntFire( "tf_wea*", "Kill" )
+	EntFire( "tf_viewmodel*", "Kill" )
+	ScriptEntFireSafe("player", @"
+
+		self.TerminateScriptScope()
+		self.AcceptInput(`DispatchEffect`, `ParticleEffectStop`, null, null )
+		SetPropInt(self, `m_nRenderMode`, kRenderTransColor )
+		SetPropInt(self, `m_clrRender`, 0 )
+	")
 }
 
 function PZI_Util::GetWeaponMaxAmmo( player, wep ) {

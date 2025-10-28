@@ -301,7 +301,7 @@ class CMedicHeal extends CZombieAbility {
         m_hAbilityOwner.AddEventToQueue( EVENT_PUT_ABILITY_ON_CD, INSTANT )
         m_hAbilityOwner.AddCondEx( TF_COND_INVULNERABLE_USER_BUFF, 1, m_hAbilityOwner )
         m_hAbilityOwner.AddCondEx( TF_COND_HALLOWEEN_QUICK_HEAL, 2, m_hAbilityOwner  )
-        EmitSoundEx({ sound_name = SFX_ZMEDIC_HEAL entity = m_hAbilityOwner })
+        EmitSoundEx({ sound_name = SFX_ZMEDIC_HEAL entity = m_hAbilityOwner pitch = 0.5 })
 
         EntFireByHandle( _d.m_hTempEntity, "SetParent", "!activator", 0, m_hAbilityOwner, m_hAbilityOwner )
         EntFireByHandle( _d.m_hTempEntity, "Start", "", 0.2, null, null )
@@ -379,7 +379,11 @@ class CSniperSpitball extends CZombieAbility {
         _d.m_fTimeAbilityCastStarted <- Time()
 
         _d.m_iFlags = ( _d.m_iFlags | ZBIT_SNIPER_CHARGING_SPIT )
-        EmitSoundEx({ sound_name = SFX_ZOMBIE_SPIT_START entity = m_hAbilityOwner })
+        EmitSoundEx({ 
+            sound_name = SFX_ZOMBIE_SPIT_START 
+            sound_level = 100
+            entity = m_hAbilityOwner 
+        })
 
         m_hAbilityOwner.GetActiveWeapon().AddAttribute( "move speed penalty", 0.5, -1 )
         return

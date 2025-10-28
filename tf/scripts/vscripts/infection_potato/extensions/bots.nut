@@ -900,7 +900,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 
 			path_index++
 
-			printf( "path_index: %d path_count: %d dist_to_target: %f\n", path_index, path_count, dist_to_target )
+			// printf( "path_index: %d path_count: %d dist_to_target: %f\n", path_index, path_count, dist_to_target )
 			if ( path_index >= path_count ) {
 
 				ResetPath()
@@ -960,16 +960,19 @@ PZI_Bots.PZI_BotBehavior <- class {
 
 		if ( lookat )
 			LookAt( look_pos, turnrate_min, turnrate_max )
-				
-		DebugDrawLine( bot.GetOrigin(), point, 255, 100, 0, false, 0.1 )
+		
+		if ( path_debug ) {
 
-		local area_count = path_areas.len()
+			DebugDrawLine( bot.GetOrigin(), point, 255, 100, 0, false, 0.1 )
 
-		local i = 0
-		foreach( area in path_areas ) {
-			i++
-			local x = ( ( area_count - i - 0.0 ) / area_count ) * 255.0
-			area.DebugDrawFilled( x, (x / 2), 0, 50, 0.075, true, 0.0 )
+			local area_count = path_areas.len()
+
+			local i = 0
+			foreach( area in path_areas ) {
+				i++
+				local x = ( ( area_count - i - 0.0 ) / area_count ) * 255.0
+				area.DebugDrawFilled( x, (x / 2), 0, 50, 0.075, true, 0.0 )
+			}
 		}
 	}
 }
@@ -1259,6 +1262,9 @@ function PZI_Bots::GenericZombie( bot, threat_type = "closest" ) {
         }
         else {
 
+			if ( !b.threat_pos )
+				return
+
 			b.FindPathToThreat()
 			b.MoveToThreat()
 
@@ -1432,7 +1438,7 @@ PZI_EVENT( "teamplay_round_start", "PZI_Bots_TeamplayRoundStart", function( para
 	SetValue( "tf_bot_max_setup_gate_defend_range", INT_MAX )
 	SetValue( "tf_bot_reevaluate_class_in_spawnroom", 0 )
 
-	SetValue( "nb_update_frequency", 0.8 )
+	SetValue( "nb_update_frequency", 1.0 )
 })
 
 PZI_EVENT( "player_spawn", "PZI_Bots_PostInventoryApplication", function( params ) {
@@ -1475,9 +1481,19 @@ PZI_EVENT( "player_spawn", "PZI_Bots_PostInventoryApplication", function( params
 
 	else if ( bot.GetTeam() == TEAM_HUMAN ) {
 
-		// non engineers/medics have a 1/5 chance to use sniper AI
-		bot.SetMission( cls == TF_CLASS_ENGINEER ? MISSION_ENGINEER : !RandomInt( 0, 5 ) ? MISSION_SNIPER : NO_MISSION, true )
-		scope.PZI_BotBehavior.GiveRandomLoadout()
+		// non engineers/medics have a rare chance to use sniper AI
+		// (periodically right click and melee when enemies are close)
+		local mission = NO_MISSION
+
+		if ( cls == TF_CLASS_ENGINEER || cls == TF_CLASS_SPY )
+			mission = cls == TF_CLASS_ENGINEER ? MISSION_ENGINEER : MISSION_SPY
+		else if ( !RandomInt( 0, 10 ) )
+			mission = MISSION_SNIPER
+
+		bot.SetMission( mission, true )
+
+		// scope.PZI_BotBehavior.GiveRandomLoadout()
+		PZI_Util.ScriptEntFireSafe( bot, " if ( self.GetTeam() == TEAM_HUMAN ) PZI_BotBehavior.GiveRandomLoadout()", 5.0 )
 	}
 
 	// give bots infinite ammo

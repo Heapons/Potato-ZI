@@ -600,13 +600,13 @@ PZI_EVENT( "player_death", "Infection_PlayerDeath", function( params ) {
             _hPlayer.SetScriptOverlayMaterial( "" )
 
             // same thing for the HUD text channels
-            if ( _sc.m_hHUDText ) {
+            if ( _sc.m_hHUDText && _sc.m_hHUDText.IsValid() ) {
 
                 _sc.m_hHUDText.KeyValueFromString( "message", "" )
                 EntFireByHandle( _sc.m_hHUDText,  "Display", "", -1, _hPlayer, _hPlayer )
             }
 
-            if ( _sc.m_hHUDTextAbilityName ) {
+            if ( _sc.m_hHUDTextAbilityName && _sc.m_hHUDText.IsValid() ) {
 
                 _sc.m_hHUDTextAbilityName.KeyValueFromString( "message", "" )
                 EntFireByHandle( _sc.m_hHUDTextAbilityName,  "Display", "", -1, _hPlayer, _hPlayer )

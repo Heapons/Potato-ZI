@@ -33,8 +33,38 @@ function PZI_PlayerThink() {
         if ( m_bLastThree )
             self.AddCond( TF_COND_OFFENSEBUFF )
 
-        else if ( m_bLastManStanding )
+        else if ( m_bLastManStanding ) {
+
             self.AddCond( TF_COND_CRITBOOSTED )
+
+            // spy watches drain at double speed in last human
+            if ( !self.IsEFlagSet( EFL_NO_MEGAPHYSCANNON_RAGDOLL ) && self.GetPlayerClass() == TF_CLASS_SPY ) {
+
+                local watch = PZI_Util.HasItemInLoadout( self, "tf_weapon_invis" )
+                
+                // disable C&D movement-based cloak for last human
+                watch.AddAttribute( "mult cloak meter consume rate", 2.0, -1 )
+
+                if ( watch.GetAttribute( "set cloak is movement based", 0.0 ) == 2.0 )
+                    watch.AddAttribute( "set cloak is movement based", 0.0, -1 )
+
+                self.AddCustomAttribute( "cannot disguise", 1.0, -1 )
+                self.AddEFlags( EFL_NO_MEGAPHYSCANNON_RAGDOLL )
+            }
+        }
+
+        else if ( self.IsEFlagSet( EFL_NO_MEGAPHYSCANNON_RAGDOLL ) ) {
+
+            local watch = PZI_Util.HasItemInLoadout( self, "tf_weapon_invis" )
+            watch.RemoveAttribute( "mult cloak meter consume rate" )
+
+            if ( PZI_Util.GetItemIndex( watch ) == ID_CLOAK_AND_DAGGER )
+                watch.AddAttribute( "set cloak is movement based", 2.0, -1 )
+
+            self.RemoveCustomAttribute( "cannot disguise" )
+            self.RemoveEFlags( EFL_NO_MEGAPHYSCANNON_RAGDOLL )
+
+        }
     }
     // spy garbage
     // if ( self.GetPlayerClass() == TF_CLASS_SPY )

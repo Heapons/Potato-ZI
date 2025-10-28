@@ -417,7 +417,7 @@ const FX_ZOMBIE_SPAWN_FLASH          = "zombie_spawn_flash"
 const FX_ZOMBIE_SPAWN_SKYFLASH       = "zombie_spawn_skyflash"
 
 const FX_EMP_PARENT                  = "taunt_conga_fireworks_flash"
-const FX_EMP_ELECTRIC                = "drg_cow_explosioncore_charged_blue"
+const FX_EMP_ELECTRIC                = "halloween_boss_axe_hit_sparks"
 const FX_EMP_GIBS                    = "drg_cow_explosioncore_charged_blue"
 const FX_EMP_FLASH                   = "taunt_conga_fireworks_flash"
 const FX_EMP_BURST                   = "drg_cow_explosioncore_charged_blue"
@@ -480,7 +480,7 @@ const SFX_ABILITY_USE         = "Halloween.Merasmus_Spell"
 const SFX_PYRO_FIREBOMB       = "Halloween.spell_fireball_impact"
 const SFX_DEMO_CHARGE         = "infection_potato/demo_charge_0%d.wav"
 const SFX_DEMO_CHARGE_RAMP    = "infection_potato/demo_charge_rampup_0%d.wav"
-const SFX_ZMEDIC_HEAL         = "infection_potato/medic_zombie_heal.wav"
+const SFX_ZMEDIC_HEAL         = "Halloween.spell_overheal"
 const SFX_SOLDIER_POUNCE      = "infection_potato/soldier_pounce_0%d.wav"
 
 PrecacheSound( SFX_ZOMBIE_SPIT_START )
