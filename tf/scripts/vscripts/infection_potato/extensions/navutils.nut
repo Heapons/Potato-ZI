@@ -139,7 +139,7 @@ function PZI_Nav::NavGenerator() {
 
 	foreach ( track, _ in PZI_MapLogic.payload_tracks )
 		if ( track )
-			walkable_points.append( track.GetCenter() )
+			walkable_points.append( track.GetOrigin() )
 
 	local points_len = walkable_points.len()
 

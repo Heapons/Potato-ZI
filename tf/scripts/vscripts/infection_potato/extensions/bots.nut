@@ -563,7 +563,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 				closest_threat_dist = dist
 			}
 		}
-		if ( path_debug )
+		if ( closest_threat && path_debug )
 			DebugDrawLine( bot.GetOrigin(), closest_threat.GetOrigin(), 255, 0, 0, false, 5.0 )
 
 		return closest_threat
@@ -1020,8 +1020,8 @@ function PZI_Bots::ThinkTable::BotQuotaManager() {
 	local humans = PZI_Util.HumanArray
 	local cur_bots = bots.len() - doomed_bots.len()
 
-	if ( ( !generator || !generator.IsValid() ) && !doomed_bots.len() )
-		return AllocateBots( MAX_BOTS, true )
+	if ( ( !generator || !generator.IsValid() ) )
+		return AllocateBots()
 
 	// check fill mode for how many bots we want
 	else if ( FILL_MODE )
@@ -1042,18 +1042,19 @@ function PZI_Bots::ThinkTable::BotQuotaManager() {
 	if ( doomed_bots.len() ) {
 
 		// kick a bot and check again next think
-		foreach ( kickme in doomed_bots.keys() ) {
+		foreach ( _bot in doomed_bots.keys() ) {
 
-			local kick = ShouldKickBot( kickme )
+			// local kick = ShouldKickBot( kickme ) 
 			// printl( kickme + " : " + kick )
-			if ( !kick )
+			if ( !ShouldKickBot( _bot ) )
 				continue
 
-			local scope = kickme.GetScriptScope()
+			local scope = _bot.GetScriptScope()
 			scope.BotRemoveThink <- BotRemoveThink.bindenv( scope )
-			AddThinkToEnt( kickme, "BotRemoveThink" )
+			AddThinkToEnt( _bot, "BotRemoveThink" )
 		}
-		doomed_bots = doomed_bots.filter( @( bot, time ) bot && bot.IsValid() )
+
+		doomed_bots = doomed_bots.filter( @( _b, _ ) _b && _b.IsValid() )
 
 		return
 	}
@@ -1079,7 +1080,7 @@ function PZI_Bots::ThinkTable::BotQuotaManager() {
 	}
 
 	// not enough bots, add another
-	else if ( cmp && generator && generator.IsValid() ) {
+	else if ( cmp ) {
 
 		// local node = CreateByClassname( "point_commentary_node" )
 		// DispatchSpawn( node )
@@ -1089,7 +1090,7 @@ function PZI_Bots::ThinkTable::BotQuotaManager() {
 
 }
 
-function PZI_Bots::AllocateBots( count = PZI_Bots.MAX_BOTS, replace = false ) {
+function PZI_Bots::AllocateBots( count = PZI_Bots.MAX_BOTS ) {
 
 	// hide bot join messages in chat
 	// local node = CreateByClassname( "point_commentary_node" )
@@ -1123,9 +1124,6 @@ function PZI_Bots::AllocateBots( count = PZI_Bots.MAX_BOTS, replace = false ) {
 
 	else if ( FILL_MODE )
 		max = FILL_MODE == 2 ? PZI_Util.Max( 0, MAX_BOTS * PZI_Util.HumanArray.len() ) : max - PZI_Util.HumanArray.len()
-
-
-	allocating = true
 
 	generator = CreateByClassname( "bot_generator" )
 	generator.KeyValueFromString( "targetname", "__pzi_bot_generator_" + generator.entindex() )
@@ -1165,9 +1163,6 @@ function PZI_Bots::AllocateBots( count = PZI_Bots.MAX_BOTS, replace = false ) {
 
 		", inc + 5.0, null, null )
 	}
-
-	// done allocating
-	EntFire( "worldspawn", "RunScriptCode", "PZI_Bots.allocating = false", inc + 5.0 )
 
 	return generator
 }
@@ -1357,7 +1352,7 @@ function PZI_Bots::EngineerZombie( bot ) {
 		b.SetThreat( red_buildings[ RandomInt( 0, red_buildings.len() - 1 ) ] )
 
 		if ( !b.threat || !b.threat.IsValid() )
-			red_buildings = red_buildings.filter( @( k, v ) k && k.IsValid() )
+			red_buildings = red_buildings.filter( @( k, v ) k && k instanceof CBaseEntity && k.IsValid() )
 	}
 
 	PZI_Util.AddThink( bot, EngineerZombieThink )
