@@ -544,6 +544,9 @@ function CTFPlayer_SpawnEffect() {
     EmitSoundOn( "Halloween.spell_lightning_cast",   this )
     EmitSoundOn( "Halloween.spell_lightning_impact", this )
 
+    EmitSoundEx({ sound_name = "Halloween.spell_lightning_cast"   entity = this volume = 0.5 })
+    EmitSoundEx({ sound_name = "Halloween.spell_lightning_impact" entity = this volume = 0.5 })
+
     PZI_Util.DispatchEffect( this, FX_ZOMBIE_SPAWN )
     return
 }

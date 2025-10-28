@@ -919,7 +919,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 		if ( path_debug ) {
 
 			for ( local i = 0; i < path_count; i++ ) {
-				if ( i in path_points )
+				if ( i in path_points && path_debug )
 					DebugDrawLine( path_points[i].pos, (i+1 < path_points.len()) ? path_points[i+1].pos : path_points[i].pos, 0, 0, 255, false, 0.1 )
 				// else
 					// __DumpScope( 0, path_points )
@@ -945,7 +945,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 		// 	__DumpScope( 0, path_points )
 
 		if ( path_index == null || !( path_index in path_points ) || !( 1 in path_points ) )
-			return
+			return UpdatePath( threat_pos, locomotion.GetStuckDuration() >= 1.0 )
 
 		local point = path_points[1].pos
 
@@ -959,11 +959,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 		local look_pos = Vector( point.x, point.y, cur_eye_pos.z )
 
 		if ( lookat )
-			if ( threat )
-				LookAt( look_pos, turnrate_min, turnrate_max )
-			else
-				LookAt( look_pos, 350.0, 600.0 )
-
+			LookAt( look_pos, turnrate_min, turnrate_max )
 				
 		DebugDrawLine( bot.GetOrigin(), point, 255, 100, 0, false, 0.1 )
 	}
@@ -1255,7 +1251,7 @@ function PZI_Bots::GenericZombie( bot, threat_type = "closest" ) {
         else {
 
 			b.FindPathToThreat()
-			b.MoveToThreat()
+			b.MoveToThreat( false )
 
 			if ( b.GetCurThreatDistanceSqr() > 262144.0 ) { // 512^2
 
@@ -1274,6 +1270,7 @@ function PZI_Bots::GenericZombie( bot, threat_type = "closest" ) {
 
 				bot.SetAttentionFocus( threat )
 				b.LookAt( threat.EyePosition() - Vector( 0, 0, 20 ), 1500, 1500 )
+				bot.PressFireButton( 5.0 )
 			}
         }
     }
@@ -1307,7 +1304,7 @@ function PZI_Bots::ScoutZombie( bot ) { bot.SetAutoJump( 0.05, 2 ) }
 
 function PZI_Bots::SoldierZombie( bot ) {
 
-	function SoldierZombieThink( bot ) {
+	function SoldierZombieThink() {
 
 		local buttons = GetPropInt( bot, "m_nButtons" )
 
@@ -1317,9 +1314,11 @@ function PZI_Bots::SoldierZombie( bot ) {
 			SetPropInt( bot, "m_nButtons", buttons & ~IN_BACK )
 			return
 		}
-
 		SetPropInt( bot, "m_afButtonDisabled", 0 )
 	}
+
+	GenericSpecial( bot )
+	PZI_Util.AddThink( bot, SoldierZombieThink )
 }
 
 function PZI_Bots::MedicZombie( bot ) {
@@ -1473,8 +1472,8 @@ PZI_EVENT( "player_spawn", "PZI_Bots_PostInventoryApplication", function( params
 	}
 
 	// give bots infinite ammo
-	PZI_Util.ScriptEntFireSafe( bot, "self.AddCustomAttribute( `ammo regen`, 9999.0, -1 )" , 0.1 )
-	PZI_Util.ScriptEntFireSafe( bot, "self.AddCustomAttribute( `metal regen`, 9999.0, -1 )", 0.1 )
+	PZI_Util.ScriptEntFireSafe( bot, "self.AddCustomAttribute( `ammo regen`, 9999.0, -1 )" , 1.0 )
+	PZI_Util.ScriptEntFireSafe( bot, "self.AddCustomAttribute( `metal regen`, 9999.0, -1 )", 1.0 )
 
 	local b = scope.PZI_BotBehavior
 

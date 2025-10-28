@@ -310,6 +310,7 @@ class CMedicHeal extends CZombieAbility {
 
         // apply heal effect
         local _arrPlayersInRange_len = _arrPlayersInRange.len()
+
         for ( local i = 0; i < _arrPlayersInRange_len; i++ ) {
 
             local _hNextPlayer   =  _arrPlayersInRange[ i ]
@@ -321,7 +322,7 @@ class CMedicHeal extends CZombieAbility {
 
             local _scNext = _hNextPlayer.GetScriptScope()
 
-            _hNextPlayer.SpawnEffect()
+            // _hNextPlayer.SpawnEffect()
 
             _hNextPlayer.AddCondEx ( TF_COND_INVULNERABLE_USER_BUFF, 1, m_hAbilityOwner )
             _hNextPlayer.AddCondEx ( TF_COND_HALLOWEEN_QUICK_HEAL,   2, m_hAbilityOwner )
@@ -537,7 +538,7 @@ class CEngineerSapperNade extends CZombieAbility {
         EntFireByHandle             ( _hPfxEnt,  "SetParent", "!activator",  0, _nadeEnt, _nadeEnt )
        // _nadeEnt.KeyValueFromString ( "targetname", "engie_nade_physprop" )
 
-        _nadeEnt.SetAngles           ( _fPitch, _fYaw, _fRoll )
+        _nadeEnt.SetAbsAngles        ( QAngle( _fPitch, _fYaw, _fRoll ) )
         _nadeEnt.SetAngularVelocity  ( _fPitch, _fYaw, _fRoll )
         _nadeEnt.SetPhysVelocity     ( _vecThrow )
 
