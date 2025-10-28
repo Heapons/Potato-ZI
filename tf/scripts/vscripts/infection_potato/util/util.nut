@@ -411,7 +411,6 @@ PZI_Util.IsLinux 		   <- RAND_MAX != 32767
 
 // all the one-liners
 function PZI_Util::ShowMessage( message ) 		    { ClientPrint( null, HUD_PRINTCENTER, message ) }
-function PZI_Util::KillPlayer( player ) 			{ player.TakeDamageEx( null, TriggerHurt, null, Vector(), player.GetOrigin(), INT_MAX, DMG_ALWAYSGIB|DMG_PREVENT_PHYSICS_FORCE ) }
 function PZI_Util::WeaponSwitchSlot( player, slot ) { EntFire( "__pzi_clientcommand", "Command", format( "slot%d", slot + 1 ), -1, player ) }
 function PZI_Util::SwitchWeaponSlot( player, slot ) { EntFire( "__pzi_clientcommand", "Command", format( "slot%d", slot + 1 ), -1, player ) }
 function PZI_Util::ShowHintMessage( message ) 	    { SendGlobalGameEvent( "player_hintmessage", {hintmessage = message} ) }
@@ -1962,6 +1961,13 @@ function PZI_Util::ClearLastKnownArea( bot ) {
 	})
 	EntFireByHandle( trigger, "StartTouch", "!activator", -1, bot, bot )
 	EntFireByHandle( trigger, "Kill", "", -1, null, null )
+}
+
+function PZI_Util::KillPlayer( player ) { 
+	
+	// zombie skin never gibs, force gib
+	SetPropInt( player, "m_iPlayerSkinOverride", 0 )
+	player.TakeDamageEx( null, TriggerHurt, null, Vector(), player.GetOrigin(), INT_MAX, DMG_ALWAYSGIB|DMG_PREVENT_PHYSICS_FORCE ) 
 }
 
 function PZI_Util::KillAllBots() {

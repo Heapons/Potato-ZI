@@ -833,16 +833,16 @@ PZI_EVENT( "OnTakeDamage", "Infection_OnTakeDamage", function( params ) {
 
                     SetPropInt( _hWeapon, STRING_NETPROP_ITEMDEF, 444 ); // mantreads, obviously
 
-                    ScreenShake            ( _hGroundEnt.GetOrigin(), 12.5, 145.0, 1.0, 490, 0, false )
-                    PZI_Util.DispatchEffect ( _hVictim, FX_TF_STOMP_TEXT )
+                    ScreenShake( _hGroundEnt.GetOrigin(), 12.5, 145.0, 1.0, 490, 0, false )
+                    PZI_Util.DispatchEffect( _hVictim, FX_TF_STOMP_TEXT )
 
                     _hGroundEnt.TakeDamageCustom( _hVictim, _hVictim, _hWeapon,
                                                 Vector( 0, 0, 0 ), _hVictim.GetOrigin(),
                                                 _flDamage, DMG_FALL, TF_DMG_CUSTOM_BOOTS_STOMP )
 
-                    SetPropInt          ( _hWeapon, STRING_NETPROP_ITEMDEF, arrZombieCosmeticIDX[ TF_CLASS_SOLDIER ] )
-                    EmitAmbientSoundOn  ( "Weapon_Mantreads.Impact", 10, 1, 100, _hGroundEnt )
-                    EmitAmbientSoundOn  ( "Player.FallDamageDealt", 10, 1, 100, _hGroundEnt )
+                    SetPropInt( _hWeapon, STRING_NETPROP_ITEMDEF, arrZombieCosmeticIDX[ TF_CLASS_SOLDIER ] )
+                    EmitAmbientSoundOn( "Weapon_Mantreads.Impact", 10, 1, 100, _hGroundEnt )
+                    EmitAmbientSoundOn( "Player.FallDamageDealt", 10, 1, 100, _hGroundEnt )
 
                     _sc.m_iFlags = (  _sc.m_iFlags & ~ZBIT_SOLDIER_IN_POUNCE )
                 }
@@ -1007,8 +1007,8 @@ PZI_EVENT( "player_hurt", "Infection_PlayerHurt", function( params ) {
         if ( params.health <= 0 ) {
 
             // force gibs on zombie death
-            SetPropInt          ( _hPlayer, "m_iPlayerSkinOverride", 0 )
-            _hPlayer.SetHealth  ( -20 ); // force overkill threshhold
+            SetPropInt( _hPlayer, "m_iPlayerSkinOverride", 0 )
+            _hPlayer.SetHealth( -20 ); // force overkill threshhold
 
             _hPlayer.SetCustomModelWithClassAnimations( arrTFClassPlayerModels[ _hPlayer.GetPlayerClass() ] )
             return
