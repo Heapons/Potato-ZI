@@ -646,14 +646,14 @@ PZI_EVENT( "player_death", "Infection_PlayerDeath", function( params ) {
         ShouldZombiesWin ( _hPlayer )
 
         // make sure players can only add time once per round
-        if ( "m_bCanAddTime" in _sc && !_sc.m_bCanAddTime ) {
+        // if ( "m_bCanAddTime" in _sc && !_sc.m_bCanAddTime ) {
 
-            return
-        }
-        else {
+        //     return
+        // }
+        // else {
 
-            _sc.m_bCanAddTime <- false
-        }
+        //     _sc.m_bCanAddTime <- false
+        // }
 
         PlayGlobalBell()
 
