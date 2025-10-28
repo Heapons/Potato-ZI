@@ -48,7 +48,7 @@ LocalTime(LOCALTIME)
 	// }
 }
 
-PZI_MapLogic.payload_tracks <- []
+PZI_MapLogic.payload_tracks <- {}
 
 local gamemode_funcs = {
 

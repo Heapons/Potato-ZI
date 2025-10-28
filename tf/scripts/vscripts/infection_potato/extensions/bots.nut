@@ -947,9 +947,9 @@ PZI_Bots.PZI_BotBehavior <- class {
 			return
 
 		local point = path_points[path_index].pos
-		// locomotion.Approach( point, 0.0 )
-		locomotion.DriveTo( point )
-		// locomotion.FaceTowards( point )
+		locomotion.Approach( point, 0.0 )
+		// locomotion.DriveTo( point )
+		locomotion.FaceTowards( point )
 
 		local look_pos = Vector( point.x, point.y, cur_eye_pos.z )
 

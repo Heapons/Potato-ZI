@@ -221,8 +221,8 @@ function PZI_Nav::CreateNav() {
 
 // nav area disconnect: Modified from scripts by Mikusch & ficool2
 
-function CTFNavArea::ComputePortal( to, dir )
-{
+function CTFNavArea::ComputePortal( to, dir ) {
+
 	local center = Vector()
 	local nwCorner = GetCorner( NORTH_WEST )
 	local seCorner = GetCorner( SOUTH_EAST )
@@ -278,8 +278,8 @@ function CTFNavArea::ComputePortal( to, dir )
 	return center
 }
 
-function CTFNavArea::GetClosestPointOnArea( pos )
-{
+function CTFNavArea::GetClosestPointOnArea( pos ) {
+
 	local close = Vector()
 	local nwCorner = GetCorner( NORTH_WEST )
 	local seCorner = GetCorner( SOUTH_EAST )
@@ -291,22 +291,22 @@ function CTFNavArea::GetClosestPointOnArea( pos )
 	return close
 }
 
-function PZI_Nav::DisconnectAreas()
-{
+function PZI_Nav::DisconnectAreas() {
+
 	GetAllAreas( AllNavAreas )
 
 	function DisconnectAreaGenerator() {
 
-		foreach ( i, area in AllNavAreas )
-		{
+		foreach ( i, area in AllNavAreas ) {
+
 			local center = area.GetCenter()
-			for ( local dir = 0; dir < NUM_DIRECTIONS; dir++ )
-			{
+			for ( local dir = 0; dir < NUM_DIRECTIONS; dir++ ) {
+
 				local adjacentAreas = {}
 				area.GetAdjacentAreas( dir, adjacentAreas )
 
-				foreach ( j, adjacentArea in adjacentAreas )
-				{
+				foreach ( j, adjacentArea in adjacentAreas ) {
+
 					local pos = area.ComputePortal( adjacentArea, dir )
 					local from = pos + Vector()
 					local to = pos + Vector()

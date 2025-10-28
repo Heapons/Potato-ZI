@@ -33,7 +33,7 @@ local include = [
     // core zi files
     {"infection_potato/" : [ "strings", "const", "infection" ] }
     // misc map logic scripts for map conversions
-    {"infection_potato/map_logic/" : [ "mapstripper_main" ] }
+    {"infection_potato/map_logic/" : [ "_MAPLOGIC_MAIN" ] }
 ]
 
 local function IncludeGen( include ) {
