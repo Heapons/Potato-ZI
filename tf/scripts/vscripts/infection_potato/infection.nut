@@ -331,6 +331,7 @@ PZI_EVENT( "teamplay_setup_finished", "Infection_SetupFinished", function( param
     // ------------------------------------------ //
 
     local dummy = CreateByClassname( "logic_autosave" )
+    SetPropString( dummy, STRING_NETPROP_NAME, "__pzi_convert_think" )
     dummy.ValidateScriptScope()
 
     function ConvertPlayers() {
@@ -433,11 +434,11 @@ PZI_EVENT( "teamplay_setup_finished", "Infection_SetupFinished", function( param
     }
     dummy.GetScriptScope().ConvertPlayersThink <- ConvertPlayersThink
     AddThinkToEnt( dummy, "ConvertPlayersThink" )
+    SetPropBool( dummy, STRING_NETPROP_PURGESTRINGS, true )
 
-    local _hNextRespawnRoom = null
-    while ( _hNextRespawnRoom = FindByClassname( _hNextRespawnRoom, "func_respawnroom" ) ) {
+    for ( local _hNextRespawnRoom; _hNextRespawnRoom = FindByClassname( _hNextRespawnRoom, "func_respawnroom" ); ) {
 
-        if ( _hNextRespawnRoom && _hNextRespawnRoom.GetTeam() == TEAM_HUMAN ) {
+        if ( _hNextRespawnRoom.GetTeam() == TEAM_HUMAN ) {
 
             EntFireByHandle( _hNextRespawnRoom, "SetInactive", "", -1, null, null )
         }
@@ -467,7 +468,7 @@ PZI_EVENT( "teamplay_restart_round", "Infection_RestartRound", function( params 
         _hNextPlayer.SetHealth( _hNextPlayer.GetMaxHealth() )
     }
 
-    EntFire( "game_text", "Kill" )
+    EntFire( "__pzi_hud*", "Kill" )
 
     return
 
@@ -494,6 +495,10 @@ PZI_EVENT( "player_death", "Infection_PlayerDeath", function( params ) {
 
     if ( bGameStarted ) {
 
+
+        // evaluate win condition when a player dies
+        ShouldZombiesWin( _hPlayer )
+
         // player was survivor
         if ( _hPlayerTeam == TEAM_HUMAN ) {
 
@@ -513,6 +518,29 @@ PZI_EVENT( "player_death", "Infection_PlayerDeath", function( params ) {
 
                 ClientPrint( null, HUD_PRINTTALK, _szDeathMsg )
             }
+
+            // dead ringer death
+            if ( ( params.death_flags & TF_DEATH_FEIGN_DEATH ) ) {
+
+                PlayGlobalBell( true )
+                return
+            }
+
+
+            // make sure players can only add time once per round
+            if ( "m_bCanAddTime" in _sc && !_sc.m_bCanAddTime )
+                return
+
+            // don't add time if we're actively converting players on round start
+            else if ( FindByName( null, "__pzi_convert_think" ) )
+                return
+            // else if ( bIsPayload )
+                // return // don't add time to the round timer if it's a payload map
+
+            PlayGlobalBell()
+            EntFire( "team_round_timer", "AddTime", ADDITIONAL_SEC_PER_PLAYER.tostring() )
+            _sc.m_bCanAddTime <- false
+
             return
         }
 
@@ -634,57 +662,6 @@ PZI_EVENT( "player_death", "Infection_PlayerDeath", function( params ) {
 
             return; // zombie death event ends here
         }
-
-        // dead ringer deaths exit here
-        if ( ( params.death_flags & TF_DEATH_FEIGN_DEATH ) ) {
-
-            PlayGlobalBell( true )
-            return
-        }
-
-        // evaluate win condition when a player dies
-        ShouldZombiesWin ( _hPlayer )
-
-        // make sure players can only add time once per round
-        // if ( "m_bCanAddTime" in _sc && !_sc.m_bCanAddTime ) {
-
-        //     return
-        // }
-        // else {
-
-        //     _sc.m_bCanAddTime <- false
-        // }
-
-        PlayGlobalBell()
-
-        // local _hRoundTimer = FindByClassname( null, "team_round_timer" )
-
-        // // no round timer on the level, let's make one
-        // if ( !_hRoundTimer ) {
-
-        //     // create an infection specific timer
-        //     _hRoundTimer = SpawnEntityFromTable( "team_round_timer", {
-
-        //         auto_countdown       = "0",
-        //         max_length           = "360",
-        //         reset_time           = "1",
-        //         setup_length         = "30",
-        //         show_in_hud          = "1",
-        //         show_time_remaining  = "1",
-        //         start_paused         = "0",
-        //         timer_length         = "360",
-        //         StartDisabled        = "0",
-        //     } )
-        // }
-        // else {
-
-        //     EntFireByHandle( _hRoundTimer, "auto_countdown", "0", 0, null, null )
-        // }
-
-        // if ( bIsPayload )
-        //     return; // don't add time to the round timer if it's a payload map
-
-        EntFire( "team_round_timer", "AddTime", ADDITIONAL_SEC_PER_PLAYER.tostring() )
     }
 }, EVENT_WRAPPER_MAIN )
 

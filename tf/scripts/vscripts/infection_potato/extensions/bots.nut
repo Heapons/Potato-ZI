@@ -376,6 +376,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 	threat_pos          = null
 
 	path_points		    = null
+	skip_corners		= null
 	path_index			= null
 	path_areas			= null
 	path_goalpoint      = null
@@ -753,16 +754,14 @@ PZI_Bots.PZI_BotBehavior <- class {
 
 	function FindPathToThreat() {
 
-		if ( path_recompute_time < time ) {
+		if ( path_recompute_time > time )
+			return
 
-			if ( ( !path_points.len() ) || ( (threat_pos - cur_pos).LengthSqr() > MAX_THREAT_DISTANCE ) ) {
+		if ( ( !path_points.len() ) || GetCurThreatDistanceSqr() > MAX_THREAT_DISTANCE ) {
 
-				local area = GetNavArea( threat_pos, 0.0 )
-				if ( area )
-					UpdatePath( threat_pos, locomotion.GetStuckDuration() > 1.0 )
-			}
-
-			path_recompute_time = time + 0.5
+			local area = GetNavArea( threat_pos, 0.0 )
+			if ( area )
+				UpdatePath( threat_pos, locomotion.GetStuckDuration() > 1.0 )
 		}
 	}
 
@@ -778,6 +777,8 @@ PZI_Bots.PZI_BotBehavior <- class {
 
 		local dist_to_target = ( target_pos - bot.GetOrigin() ).LengthSqr()
         local path_count = path_points.len()
+
+		skip_corners = no_corners
 
 		if ( path_recompute_time < time ) {
 			ResetPath()
@@ -849,7 +850,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 							minarea.area <- path_to.area
 							maxarea.area <- path_from.area
 
-							if ( !no_corners ) {
+							if ( !skip_corners ) {
 
 								minarea.c1 <- to_c1
 								minarea.c2 <- to_c2
@@ -863,7 +864,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 							minarea.area <- path_from.area
 							maxarea.area <- path_to.area
 
-							if ( !no_corners ) {
+							if ( !skip_corners ) {
 
 								minarea.c1 <- fr_c1
 								minarea.c2 <- fr_c2
@@ -877,7 +878,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 						local vec = minarea.area.GetCenter()
 
 						// don't do any corner shortcuts and follow the strict path
-						if ( !no_corners ) {
+						if ( !skip_corners ) {
 
 							if ( !dir_to_from || dir_to_from == 2 ) { // GO_NORTH, GO_SOUTH
 								vec.y = minarea.c1.y
@@ -943,10 +944,14 @@ PZI_Bots.PZI_BotBehavior <- class {
 		// if ( !(path_index in path_points) )
 		// 	__DumpScope( 0, path_points )
 
-		if ( path_index == null || !(path_index in path_points ) )
+		if ( path_index == null || !( path_index in path_points ) || !( 1 in path_points ) )
 			return
 
-		local point = path_points[path_index].pos
+		local point = path_points[1].pos
+
+		if ( bot.GetLastKnownArea() == GetNearestNavArea( point, MAX_THREAT_DISTANCE, false, false ) )
+			return UpdatePath( threat_pos, locomotion.GetStuckDuration() >= 1.0 )
+
 		locomotion.Approach( point, 0.0 )
 		// locomotion.DriveTo( point )
 		locomotion.FaceTowards( point )
@@ -958,6 +963,9 @@ PZI_Bots.PZI_BotBehavior <- class {
 				LookAt( look_pos, turnrate_min, turnrate_max )
 			else
 				LookAt( look_pos, 350.0, 600.0 )
+
+				
+		DebugDrawLine( bot.GetOrigin(), point, 255, 100, 0, false, 0.1 )
 	}
 }
 
@@ -1001,7 +1009,7 @@ function PZI_Bots::BotRemoveThink() {
 
 		self.AddEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
 		PZI_Util.SetNextRespawnTime( self, INT_MAX )
-		PZI_Util.SilentKill( self )
+		PZI_Util.KillPlayer( self )
 		self.SetTeam( TEAM_SPECTATOR )
 		EntFire( "tf_ammo_pack", "Kill" )
 	}
@@ -1257,7 +1265,7 @@ function PZI_Bots::GenericZombie( bot, threat_type = "closest" ) {
 				if ( m_fTimeLastHit && m_fTimeLastHit + 25.0 < b.time && !b.IsCurThreatVisible() ) {
 
 					PZI_Util.SetNextRespawnTime( bot, 1.0 )
-					PZI_Util.SilentKill( bot )
+					PZI_Util.KillPlayer( bot )
 					m_fTimeLastHit = INT_MAX
 				}
 
@@ -1402,10 +1410,10 @@ PZI_EVENT( "teamplay_round_start", "PZI_Bots_TeamplayRoundStart", function( para
 
 	// disable pack pickup behavior
 	SetValue( "tf_bot_ammo_search_range", 1 )
-	SetValue( "tf_bot_health_ok_ratio", 0.0 )
-	SetValue( "tf_bot_health_critical_ratio", 0.0 )
-	SetValue( "tf_bot_health_search_far_range", 1 )
-	SetValue( "tf_bot_health_search_near_range", 1 )
+	// SetValue( "tf_bot_health_ok_ratio", 0.0 )
+	// SetValue( "tf_bot_health_critical_ratio", 0.0 )
+	// SetValue( "tf_bot_health_search_far_range", 1 )
+	// SetValue( "tf_bot_health_search_near_range", 1 )
 
 	// misc
 	SetValue( "tf_bot_always_full_reload", 1 )
@@ -1494,7 +1502,7 @@ PZI_EVENT( "player_spawn", "PZI_Bots_PostInventoryApplication", function( params
 
 			// still no nearby nav, just kill and respawn
 			if ( !area )
-				return PZI_Util.SilentKill( bot ), 1
+				return PZI_Util.KillPlayer( bot ), 1
 
 			for ( local navdir = 0; navdir < NUM_DIRECTIONS; navdir++ )
 

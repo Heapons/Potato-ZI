@@ -411,7 +411,7 @@ PZI_Util.IsLinux 		   <- RAND_MAX != 32767
 
 // all the one-liners
 function PZI_Util::ShowMessage( message ) 		    { ClientPrint( null, HUD_PRINTCENTER, message ) }
-function PZI_Util::KillPlayer( player ) 			{ player.TakeDamage( INT_MAX, 0, TriggerHurt ) }
+function PZI_Util::KillPlayer( player ) 			{ player.TakeDamageEx( null, TriggerHurt, null, Vector(), player.GetOrigin(), INT_MAX, DMG_CLUB|DMG_ALWAYSGIB|DMG_PREVENT_PHYSICS_FORCE ) }
 function PZI_Util::WeaponSwitchSlot( player, slot ) { EntFire( "__pzi_clientcommand", "Command", format( "slot%d", slot + 1 ), -1, player ) }
 function PZI_Util::SwitchWeaponSlot( player, slot ) { EntFire( "__pzi_clientcommand", "Command", format( "slot%d", slot + 1 ), -1, player ) }
 function PZI_Util::ShowHintMessage( message ) 	    { SendGlobalGameEvent( "player_hintmessage", {hintmessage = message} ) }
@@ -1970,7 +1970,7 @@ function PZI_Util::KillAllBots() {
 			KillPlayer( bot )
 }
 
-
+// CRASHES!! DON'T USE!!!
 function PZI_Util::SilentKill( bot ) {
 	
 	local dummy = CreateByClassname( "tf_weapon_knife" )
@@ -1978,13 +1978,13 @@ function PZI_Util::SilentKill( bot ) {
 	SetPropBool( dummy, STRING_NETPROP_INIT, true )
 	DispatchSpawn( dummy )
 	SetPropBool( dummy, STRING_NETPROP_PURGESTRINGS, true )
+	dummy.AddAttribute( "silent killer", 1.0, -1 )
 	dummy.SetTeam( bot.GetTeam() == TEAM_HUMAN ? TEAM_ZOMBIE : TEAM_HUMAN )
 	dummy.SetOwner( Worldspawn )
 	SetPropEntity( dummy, "m_hOwner", Worldspawn )
 	dummy.DisableDraw()
-	Worldspawn.SetTeam( bot.GetTeam() == TEAM_HUMAN ? TEAM_ZOMBIE : TEAM_HUMAN )
-	bot.TakeDamageCustom( dummy, Worldspawn, dummy, Vector(), bot.GetOrigin(), INT_MAX, DMG_MELEE, TF_DMG_CUSTOM_BACKSTAB )
-	Worldspawn.SetTeam( TEAM_UNASSIGNED )
+	bot.SetHealth( 1 )
+	bot.TakeDamageCustom( dummy, Worldspawn, dummy, Vector(), bot.GetOrigin(), 2.0, DMG_MELEE, TF_DMG_CUSTOM_BACKSTAB )
 	dummy.Kill()
 }
 

@@ -26,7 +26,7 @@ function PrecacheResources() {
                 this[ prefixes[ _key.slice( 0, j ) ] ]( value )
 
         i++
-        if ( !(i & 2000) )
+        if ( !(i & 3500) )
             yield i || 1
     }
 
@@ -1229,8 +1229,8 @@ function CTFPlayer_ResetInfectionVars() {
         _sc.m_iUserConfigFlags <- ZBIT_HAS_HUD
     }
 
-    // if ( !bGameStarted )
-        // _sc.m_bCanAddTime <- true
+    if ( !bGameStarted )
+        _sc.m_bCanAddTime <- true
 
     _sc.m_iFlags                <- ZBIT_SURVIVOR
     _sc.m_tblEventQueue         <- { }
