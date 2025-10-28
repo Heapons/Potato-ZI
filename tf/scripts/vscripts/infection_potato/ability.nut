@@ -227,7 +227,11 @@ class CSoldierJump extends CZombieAbility {
 
         local _sc = m_hAbilityOwner.GetScriptScope()
 
-        EmitAmbientSoundOn( "Infection.SoldierPounce", 9, 1, 100, m_hAbilityOwner )
+        EmitSoundEx({ 
+            sound_name = format( SFX_SOLDIER_POUNCE, RandomInt( 1, 4 ) )
+            sound_level = 100
+            entity = m_hAbilityOwner 
+        })
 
         local _hPlayerVM    =   GetPropEntity( m_hAbilityOwner, "m_hViewModel" )
         local _iSpecialSeq  =  _hPlayerVM.LookupSequence( "special" )
@@ -495,8 +499,16 @@ class CEngineerSapperNade extends CZombieAbility {
 
         local _d = m_hAbilityOwner.GetScriptScope()
 
-        PrecacheScriptSound  ( "Infection.EngineerEMP" )
-        EmitAmbientSoundOn   ( "Infection.EngineerEMP", 9, 1, 100, m_hAbilityOwner )
+        local sound = format( SFX_ENGI_EMP, RandomInt( 1, 4 ) )
+
+        PrecacheSound( sound )
+
+        EmitSoundEx({
+
+            sound_name = sound
+            sound_level = 100
+            entity = m_hAbilityOwner
+        })
 
         local _hPlayerVM     =  GetPropEntity( m_hAbilityOwner, "m_hViewModel" )
 
@@ -617,6 +629,7 @@ class CDemoCharge extends CZombieAbility {
         m_hAbilityOwner.GiveZombieCosmetics()
 
         EmitSoundEx({
+
             sound_name = format( SFX_DEMO_CHARGE_RAMP, RandomInt( 1, 3 ) )
             entity = m_hAbilityOwner 
         })
@@ -649,7 +662,16 @@ class CDemoCharge extends CZombieAbility {
 
         local _sc = m_hAbilityOwner.GetScriptScope()
 
-        EmitAmbientSoundOn ( "Infection.DemoCharge", 10, 1, 100, m_hAbilityOwner )
+        local sound = format( SFX_DEMO_CHARGE, RandomInt( 1, 3 ) )
+
+        PrecacheSound( sound )
+
+        EmitSoundEx({
+
+            sound_name = sound
+            sound_level = 100
+            entity = m_hAbilityOwner
+        })
 
         _sc.m_iFlags  <- ( _sc.m_iFlags | ZBIT_MUST_EXPLODE )
 
