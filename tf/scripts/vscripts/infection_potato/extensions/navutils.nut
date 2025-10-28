@@ -127,24 +127,21 @@ function PZI_Nav::NavGenerator() {
 
 	local player = GetListenServerHost()
 
-	local walkable_points = array( MAX_EDICTS )
+	local walkable_points = []
 	local e
 	foreach( i, ent in [ "info_player_teamspawn", "item_teamflag", "team_control_point", "trigger_capture_area", "func_capturezone" ] ) {
 
 		yield printl( "collecting: " + ent ), true
 
 		while ( e = FindByClassname( e, ent ) )
-			walkable_points[ e.entindex() ] = e.GetCenter()
+			walkable_points.append( e.GetCenter() )
 	}
 
-	foreach ( e in PZI_MapLogic.payload_tracks.keys() )
-		if ( e )
-			walkable_points[ e.entindex() ] = e.GetCenter()
+	foreach ( track, _ in PZI_MapLogic.payload_tracks )
+		if ( track )
+			walkable_points.append( track.GetCenter() )
 
-	walkable_points = walkable_points.filter( @( i, v ) v )
 	local points_len = walkable_points.len()
-
-	__DumpScope( 0, walkable_points )
 
 	printl( "WALKABLE POINTS: " + points_len )
 
