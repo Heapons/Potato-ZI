@@ -950,7 +950,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 		local point = path_points[0].pos
 
 		if ( bot.GetLastKnownArea() == GetNearestNavArea( point, MAX_THREAT_DISTANCE, false, false ) )
-			return path_points.remove( 0 ), path_index--
+			return path_points.remove( 0 ), path_index ? path_index-- : path_index
 
 		locomotion.Approach( point, 0.0 )
 		// locomotion.DriveTo( point )

@@ -1172,7 +1172,7 @@ function EngieEMPThink() {
         PZI_Util.DispatchEffect( self, FX_EMP_BURST )
         PZI_Util.DispatchEffect( self, FX_EMP_GIBS )
         PZI_Util.DispatchEffect( self, FX_EMP_SPARK )
-        EmitSoundEx({ sound_name SFX_EMP_EXPLODE entity = self })
+        EmitSoundEx({ sound_name = SFX_EMP_EXPLODE entity = self })
 
         local _buildableArr    =  [ ]
         local _buildable       =  null
