@@ -904,7 +904,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 		if ( path_index == null || !(path_index in path_points) )
 			path_index = path_points.len() - 1
 
-		if ( ( path_points[path_index].pos - bot.GetOrigin() ).LengthSqr() < MAX_THREAT_DISTANCE ) {
+		if ( path_index == -1 || ( path_points[path_index].pos - bot.GetOrigin() ).LengthSqr() < MAX_THREAT_DISTANCE ) {
 
 			path_index++
 

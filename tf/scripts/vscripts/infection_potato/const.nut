@@ -475,13 +475,33 @@ const SFX_EMP_BUILDING_DMGED  = "Building_Sentry.Damage"
 const SFX_SPIT_POP            = "Underwater.BulletImpact"
 const SFX_SPIT_SPLATTER       = "Halloween.PumpkinExplode"
 const SFX_SPIT_MISS           = "Mud.StepRight"
-const SFX_SPY_REVEAL_ONCAST   = "spy_reveal_0%d.wav"
+const SFX_SPY_REVEAL_ONCAST   = "infection_potato/spy_reveal_0%d.wav"
 const SFX_ABILITY_USE         = "Halloween.Merasmus_Spell"
 const SFX_PYRO_FIREBOMB       = "Halloween.spell_fireball_impact"
 const SFX_DEMO_CHARGE         = "infection_potato/demo_charge_0%d.wav"
 const SFX_DEMO_CHARGE_RAMP    = "infection_potato/demo_charge_rampup_0%d.wav"
 const SFX_ZMEDIC_HEAL         = "infection_potato/medic_zombie_heal.wav"
 const SFX_SOLDIER_POUNCE      = "infection_potato/soldier_pounce_0%d.wav"
+
+PrecacheSound( SFX_ZOMBIE_SPIT_START )
+PrecacheSound( SFX_ZOMBIE_SPIT_END )
+PrecacheSound( SFX_EMP_EXPLODE )
+PrecacheSound( SFX_EMP_BEEP )
+PrecacheSound( SFX_EMP_BUILDING_DMGED )
+PrecacheSound( SFX_SPIT_POP )
+PrecacheSound( SFX_SPIT_SPLATTER )
+PrecacheSound( SFX_SPIT_MISS )
+PrecacheSound( SFX_ABILITY_USE )
+PrecacheSound( SFX_PYRO_FIREBOMB )
+PrecacheSound( SFX_ZMEDIC_HEAL )
+
+for ( local i = 1; i < 5; i++ ) {
+    PrecacheSound( format( SFX_ENGI_EMP, i ) )
+    PrecacheSound( format( SFX_SPY_REVEAL_ONCAST, i ) )
+    PrecacheSound( format( SFX_SOLDIER_POUNCE, i ) )
+    PrecacheSound( format( SFX_DEMO_CHARGE, i ) )
+    PrecacheSound( format( SFX_DEMO_CHARGE_RAMP, i ) )
+}
 
 const KILLICON_SCOUT_MELEE      = "infection_scout"
 const KILLICON_SOLDIER_MELEE    = "infection_soldier"

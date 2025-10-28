@@ -158,8 +158,10 @@ class CSpyReveal extends CZombieAbility {
         ScreenShake        ( m_hAbilityOwner.GetOrigin(), 15.0, 150.0, 1.0, 500, 0, false )
         EntFireByHandle    ( _d.m_hTempEntity, "SetParent", "!activator", 0, m_hAbilityOwner, m_hAbilityOwner )
 
+        local sound = format( SFX_SPY_REVEAL_ONCAST, RandomInt( 1, 3 ) )
+        PrecacheSound( sound )
         EmitSoundEx({
-            sound_name = format( SFX_SPY_REVEAL_ONCAST, RandomInt( 1, 3 ) )
+            sound_name = sound
             sound_level = 100
             volume = 1
             entity = m_hAbilityOwner
@@ -227,8 +229,12 @@ class CSoldierJump extends CZombieAbility {
 
         local _sc = m_hAbilityOwner.GetScriptScope()
 
+        local sound = format( SFX_SOLDIER_POUNCE, RandomInt( 1, 4 ) )
+
+        PrecacheSound( sound )
+
         EmitSoundEx({ 
-            sound_name = format( SFX_SOLDIER_POUNCE, RandomInt( 1, 4 ) )
+            sound_name = sound
             sound_level = 100
             entity = m_hAbilityOwner 
         })
@@ -628,9 +634,12 @@ class CDemoCharge extends CZombieAbility {
         // m_hAbilityOwner.GiveZombieFXWearable()
         m_hAbilityOwner.GiveZombieCosmetics()
 
+        local sound = format( SFX_DEMO_CHARGE_RAMP, RandomInt( 1, 3 ) )
+
+        PrecacheSound( sound )
         EmitSoundEx({
 
-            sound_name = format( SFX_DEMO_CHARGE_RAMP, RandomInt( 1, 3 ) )
+            sound_name = sound
             entity = m_hAbilityOwner 
         })
 
