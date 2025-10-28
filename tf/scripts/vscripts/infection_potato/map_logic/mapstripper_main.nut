@@ -119,7 +119,8 @@ local gamemode_funcs = {
                 _altpath()
             }
 
-            tracks[ prev ] <- prev ? prev.GetName() : null 
+            if ( prev )
+                tracks[ prev ] <- prev.GetName()
 
             // iterate backwards to the starting node
             while ( prev = GetPropEntity( prev, "m_pprevious" ) ) {
