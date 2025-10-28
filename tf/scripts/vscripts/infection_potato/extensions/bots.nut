@@ -543,7 +543,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 
 	function GetCurThreatDistanceSqr() 		{ return ( threat_pos - cur_pos ).LengthSqr() }
 
-	function GetCurThreatDistanceSqr2D() 	{ return ( threat_pos - cur_pos ).LengthSqr() }
+	function GetCurThreatDistanceSqr2D() 	{ return ( threat_pos - cur_pos ).Length2DSqr() }
 
 	function FindClosestThreat( min_dist, must_be_visible = true ) {
 
@@ -737,9 +737,9 @@ PZI_Bots.PZI_BotBehavior <- class {
 		time = Time()
 
 		if ( threat && !threat.IsValid() )
-			threat = null
+			return threat = null, threat_pos = Vector()
 
-		threat_pos  = ( threat || PZI_Util.Worldspawn ).GetOrigin()
+		threat_pos  = threat.GetOrigin()
 
 		return -1
 	}

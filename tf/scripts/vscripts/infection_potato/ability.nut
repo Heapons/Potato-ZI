@@ -459,7 +459,11 @@ class CSniperSpitball extends CZombieAbility {
 
         m_hAbilityOwner.GetActiveWeapon().RemoveAttribute( "move speed penalty" )
 
-        EmitSoundEx({ sound_name = SFX_ZOMBIE_SPIT_END entity = m_hAbilityOwner })
+        EmitSoundEx({ 
+            sound_name = SFX_ZOMBIE_SPIT_END 
+            sound_level = 100
+            entity = m_hAbilityOwner 
+        })
 
         _d.m_iFlags = ( _d.m_iFlags & ~ZBIT_SNIPER_CHARGING_SPIT )
 

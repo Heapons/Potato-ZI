@@ -37,33 +37,28 @@ function PZI_PlayerThink() {
 
             self.AddCond( TF_COND_CRITBOOSTED )
 
-            // spy watches drain at double speed in last human
+            // disable Cloak and Dagger's movement-based invis for last survivor
             if ( !self.IsEFlagSet( EFL_NO_MEGAPHYSCANNON_RAGDOLL ) && self.GetPlayerClass() == TF_CLASS_SPY ) {
 
                 local watch = PZI_Util.HasItemInLoadout( self, "tf_weapon_invis" )
-                
-                // disable C&D movement-based cloak for last human
-                watch.AddAttribute( "mult cloak meter consume rate", 2.0, -1 )
 
                 if ( watch.GetAttribute( "set cloak is movement based", 0.0 ) == 2.0 )
                     watch.AddAttribute( "set cloak is movement based", 0.0, -1 )
 
-                self.AddCustomAttribute( "cannot disguise", 1.0, -1 )
+                // self.AddCustomAttribute( "cannot disguise", 1.0, -1 )
                 self.AddEFlags( EFL_NO_MEGAPHYSCANNON_RAGDOLL )
             }
         }
 
+        // remove spy nerfs from last survivor
         else if ( self.IsEFlagSet( EFL_NO_MEGAPHYSCANNON_RAGDOLL ) ) {
 
             local watch = PZI_Util.HasItemInLoadout( self, "tf_weapon_invis" )
-            watch.RemoveAttribute( "mult cloak meter consume rate" )
-
-            if ( PZI_Util.GetItemIndex( watch ) == ID_CLOAK_AND_DAGGER )
+            if ( !watch.GetAttribute( "set cloak is movement based", -1.0 ) )
                 watch.AddAttribute( "set cloak is movement based", 2.0, -1 )
 
-            self.RemoveCustomAttribute( "cannot disguise" )
+            // self.RemoveCustomAttribute( "cannot disguise" )
             self.RemoveEFlags( EFL_NO_MEGAPHYSCANNON_RAGDOLL )
-
         }
     }
     // spy garbage
