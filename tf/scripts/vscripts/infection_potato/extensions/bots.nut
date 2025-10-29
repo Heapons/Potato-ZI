@@ -1191,11 +1191,6 @@ function PZI_Bots::ThinkTable::BotQuotaManager() {
 
 function PZI_Bots::AllocateBots( count = PZI_Bots.MAX_BOTS ) {
 
-	// hide bot join messages in chat
-	local node = CreateByClassname( "point_commentary_node" )
-	DispatchSpawn( node )
-	EntFire( "point_commentary_node", "Kill", null, 5 )
-
 	PZI_Util.ValidatePlayerTables()
 
 	if ( PZI_Util.BotArray.len() >= MAX_BOTS )
@@ -1252,6 +1247,9 @@ function PZI_Bots::AllocateBots( count = PZI_Bots.MAX_BOTS ) {
 		}
 	})
 
+	// hide bot join messages in chat
+	local node = CreateByClassname( "point_commentary_node" )
+	DispatchSpawn( node )
 	local i = -1, inc = 0.0
 	while ( i++, inc = i * 0.05, i < max ) {
 
@@ -1262,6 +1260,7 @@ function PZI_Bots::AllocateBots( count = PZI_Bots.MAX_BOTS ) {
 
 		", inc + 5.0, null, null )
 	}
+	EntFire( "point_commentary_node", "Kill", null, 1 )
 
 	return generator
 }
