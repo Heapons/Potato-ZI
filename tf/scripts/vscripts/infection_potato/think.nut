@@ -51,9 +51,10 @@ function PZI_PlayerThink() {
         }
 
         // remove spy nerfs from last survivor
-        else if ( self.IsEFlagSet( EFL_NO_MEGAPHYSCANNON_RAGDOLL ) ) {
+        else if ( self.IsEFlagSet( EFL_NO_MEGAPHYSCANNON_RAGDOLL ) && self.GetPlayerClass() == TF_CLASS_SPY ) {
 
             local watch = PZI_Util.HasItemInLoadout( self, "tf_weapon_invis" )
+            
             if ( !watch.GetAttribute( "set cloak is movement based", -1.0 ) )
                 watch.AddAttribute( "set cloak is movement based", 2.0, -1 )
 
