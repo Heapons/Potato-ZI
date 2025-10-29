@@ -149,9 +149,9 @@ class CSpyReveal extends CZombieAbility {
         // m_hAbilityOwner.GiveZombieFXWearable()
         m_hAbilityOwner.GiveZombieCosmetics()
 
-        m_hAbilityOwner.AddCond            ( TF_COND_TAUNTING )
-        m_hAbilityOwner.AddEventToQueue    ( EVENT_KILL_TEMP_ENTITY, 2 ); // todo - const
-        m_hAbilityOwner.AddEventToQueue    ( EVENT_PUT_ABILITY_ON_CD, INSTANT )
+        m_hAbilityOwner.AddCond( TF_COND_TAUNTING )
+        m_hAbilityOwner.AddEventToQueue( EVENT_KILL_TEMP_ENTITY, 2 ); // todo - const
+        m_hAbilityOwner.AddEventToQueue( EVENT_PUT_ABILITY_ON_CD, INSTANT )
 
         EmitSoundOn        ( "WeaponMedigun.HealingWorld", _d.m_hTempEntity )
         EntFireByHandle    ( _d.m_hTempEntity, "Start", "", 0, null, null )
@@ -203,6 +203,8 @@ class CSpyReveal extends CZombieAbility {
 
             // stagger glow removal times so the players blink out at random times ( looks cool )
             _hNextPlayer.SetNextActTime ( ZOMBIE_KILL_GLOW, RandomFloat( 5, 7.5 ) )
+            if ( !( "m_iFlags" in _scNext ) ) 
+                _scNext.m_iFlags <- 0
             _scNext.m_iFlags         <- ( _scNext.m_iFlags | ZBIT_REVEALED_BY_SPY )
         }
 
