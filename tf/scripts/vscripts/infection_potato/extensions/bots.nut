@@ -8,6 +8,86 @@ PZI_Bots.MAX_KICK_URGENCY 		 <- 5 // max bot diff before we go full panic mode a
 PZI_Bots.NAV_SNIPER_SPOT_FACTOR  <- 125 // higher value = lower chance.  1/30 chance to be a sniper spot
 PZI_Bots.NAV_SENTRY_SPOT_FACTOR  <- 370 // higher value = lower chance.  1/50 chance to be a sentry spot
 
+PZI_Bots.MAX_BOTS_PER_MAP <- {
+
+    arena_byre          = 18
+
+    ctf_2fort           = 32
+    ctf_applejack       = 50
+    ctf_doublecross     = 40
+    ctf_haarp           = 32
+    ctf_landfall        = 40
+    ctf_pressure        = 50
+    ctf_sawmill         = 40
+    ctf_turbine         = 32
+    
+    cp_ambush_event     = 60
+    cp_coldfront        = 50
+    cp_conifer          = 60
+    cp_cowerhouse       = 40
+    cp_darkmarsh        = 40
+    cp_degrootkeep      = 18
+    cp_degrootkeep_rats = 18
+    cp_dustbowl         = 50
+    cp_egypt_final      = 65
+    cp_fastlane         = 40
+    cp_foundry          = 50
+    cp_freight_final1   = 40
+    cp_fulgur           = 50
+    cp_granary          = 40
+    cp_gorge            = 32
+    cp_gravelpit        = 32
+    cp_junction_final   = 24
+    cp_manor_event      = 40
+    cp_snowplow         = 40
+    cp_well             = 50
+    cp_yukon            = 50
+
+	koth_probed		    = 32
+    koth_sawmill        = 40
+    koth_sawmill_event  = 40
+    koth_slasher        = 32
+    koth_slime          = 24
+    koth_snowtower      = 18
+	koth_suijin		    = 24
+	koth_synthetic_event = 32
+	koth_toxic          = 18
+	koth_undergrove	    = 32
+	
+	plr_cutter		    = 45
+	plr_hacksaw_event   = 40
+	plr_hightower_event = 18
+
+	pl_aquarius			= 40
+	pl_badwater			= 40
+	pl_barnblitz		= 40
+	pl_borneo			= 40
+	pl_breadspace		= 65
+	pl_cactuscanyon		= 24
+	pl_coal_event		= 40
+	pl_goldrush			= 50
+	pl_enclosure		= 50
+	pl_fifthcurve_event	= 50
+	pl_frontier_final	= 50
+	pl_hasslecastle		= 40
+	pl_hoodoo_final		= 45
+	pl_millstone_event	= 45
+	pl_rumble_event		= 40
+	pl_rumford_event	= 40
+	pl_sludgepit_event	= 40
+	pl_snowycoast		= 40
+	pl_spineyard		= 50
+	pl_terror_event		= 40
+	pl_thundermountain	= 32
+	pl_swiftwater_final1 = 40
+	pl_precipice_event_final = 40
+
+    tc_hydro            = 65
+}
+
+if ( MAPNAME in PZI_Bots.MAX_BOTS_PER_MAP )
+	PZI_Bots.MAX_BOTS <- PZI_Bots.MAX_BOTS_PER_MAP[ MAPNAME ]
+
 PZI_Bots.cur_bots   <- null
 PZI_Bots.wish_bots  <- 0
 PZI_Bots.diff_time  <- 0.0
