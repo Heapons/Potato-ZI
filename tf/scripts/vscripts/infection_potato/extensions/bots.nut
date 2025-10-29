@@ -1141,7 +1141,7 @@ function PZI_Bots::ThinkTable::BotQuotaManager() {
 			if ( !ShouldKickBot( _bot ) )
 				continue
 
-			local scope = _bot.GetScriptScope()
+			local scope = PZI_Util.GetEntScope( _bot )
 			scope.BotRemoveThink <- BotRemoveThink.bindenv( scope )
 			AddThinkToEnt( _bot, "BotRemoveThink" )
 		}
