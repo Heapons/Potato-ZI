@@ -276,6 +276,9 @@ function PZI_Util::EntityManager() {
 
 	foreach( i, ent in EntShredder ) {
 
+		if ( !ent || !ent.IsValid() )
+			continue
+
 		PZI_GameStrings.StringTable[ ent.GetScriptId() ] <- ent.GetName()
 
 		SetPropString( ent, STRING_NETPROP_NAME, queue )
