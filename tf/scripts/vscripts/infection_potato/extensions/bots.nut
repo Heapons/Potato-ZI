@@ -615,11 +615,11 @@ PZI_Bots.PZI_BotBehavior <- class {
 
 	function IsCurThreatVisible() 			{ return threat_visible = ( IsInFieldOfView( threat ) && IsVisible( threat ) ), threat_visible }
 
-	function GetCurThreatDistance() 		{ return ( ( threat_pos || Vector() ) - cur_pos ).Length() }
+	function GetCurThreatDistance() 		{ return ( ( threat_pos || Vector() ) - ( cur_pos || Vector() ) ).Length() }
 
-	function GetCurThreatDistanceSqr() 		{ return ( ( threat_pos || Vector() ) - cur_pos ).LengthSqr() }
+	function GetCurThreatDistanceSqr() 		{ return ( ( threat_pos || Vector() ) - ( cur_pos || Vector() ) ).LengthSqr() }
 
-	function GetCurThreatDistanceSqr2D() 	{ return ( ( threat_pos || Vector() ) - cur_pos ).Length2DSqr() }
+	function GetCurThreatDistanceSqr2D() 	{ return ( ( threat_pos || Vector() ) - ( cur_pos || Vector() ) ).Length2DSqr() }
 
 	function FindClosestThreat( min_dist, must_be_visible = true ) {
 
