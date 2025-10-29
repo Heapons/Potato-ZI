@@ -308,7 +308,7 @@ PZI_Bots.RandomLoadouts <- {
 		[SLOT_PRIMARY] = [
 
 			"The Ambassador"
-			"The L'etranger"
+			"The L'Etranger"
 			"The Enforcer"
 			"The Diamondback"
 		],
