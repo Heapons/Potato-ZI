@@ -1588,8 +1588,8 @@ PZI_EVENT( "player_spawn", "PZI_Bots_PostInventoryApplication", function( params
 	}
 
 	// give bots infinite ammo
-	PZI_Util.ScriptEntFireSafe( bot, "self.AddCustomAttribute( `ammo regen`, 9999.0, -1 )" , 5.0 )
-	PZI_Util.ScriptEntFireSafe( bot, "self.AddCustomAttribute( `metal regen`, 9999.0, -1 )", 5.0 )
+	PZI_Util.ScriptEntFireSafe( bot, "self.AddCustomAttribute( `ammo regen`, 10.0, -1 )" , 7.0 )
+	PZI_Util.ScriptEntFireSafe( bot, "self.AddCustomAttribute( `metal regen`, 10.0, -1 )", 7.0 )
 
 	local b = scope.PZI_BotBehavior
 
