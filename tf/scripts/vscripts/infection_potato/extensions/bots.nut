@@ -1268,9 +1268,9 @@ function PZI_Bots::GenericZombie( bot, threat_type = "closest" ) {
 			b.FindPathToThreat()
 			b.MoveToThreat()
 
-			if ( b.GetCurThreatDistanceSqr() > 262144.0 ) { // 512^2
+			if ( b.GetCurThreatDistanceSqr() > 1048576.0 ) { // 1024^2
 
-				bot.AddCondEx( TF_COND_SPEED_BOOST, 3.0, bot )
+				bot.AddCondEx( TF_COND_SPEED_BOOST, 1.0, bot )
 
 				// we haven't taken/dealt any damage in a while, just respawn us if we're too far away from a player
 				if ( m_fTimeLastHit && m_fTimeLastHit + 25.0 < b.time && !b.IsCurThreatVisible() ) {
