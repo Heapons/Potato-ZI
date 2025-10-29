@@ -1185,9 +1185,9 @@ function PZI_Bots::ThinkTable::BotQuotaManager() {
 function PZI_Bots::AllocateBots( count = PZI_Bots.MAX_BOTS ) {
 
 	// hide bot join messages in chat
-	// local node = CreateByClassname( "point_commentary_node" )
-	// DispatchSpawn( node )
-	// EntFire( "point_commentary_node", "Kill", null, 7 )
+	local node = CreateByClassname( "point_commentary_node" )
+	DispatchSpawn( node )
+	EntFire( "point_commentary_node", "Kill", null, 7 )
 
 	PZI_Util.ValidatePlayerTables()
 
