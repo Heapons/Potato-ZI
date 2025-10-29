@@ -8,6 +8,7 @@ PZI_MapLogic.KILL_DOORS_ON_MAP <- {
     cp_dustbowl          = null
     cp_fastlane          = null
     cp_foundry           = null
+    cp_gorge_event       = null
     cp_gravelpit         = null
     cp_gravelpit_snowy   = null
     cp_lavapit_final     = null

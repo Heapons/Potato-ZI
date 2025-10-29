@@ -80,26 +80,26 @@ PZI_Bots.RandomLoadouts <- {
 
 		[SLOT_PRIMARY] = [
 
-			"The Soda Popper",
-			"The Shortstop",
+			"The Soda Popper"
+			"The Shortstop"
 			"The Force-a-Nature"
 		],
 
 		[SLOT_SECONDARY] = [
 
-			"The Winger",
-			"Pretty Boy's Pocket Pistol",
-			"Mad Milk",
-			"Crit-a-Cola",
+			"The Winger"
+			"Pretty Boy's Pocket Pistol"
+			"Mad Milk"
+			"Crit-a-Cola"
 			"The Flying Guillotine"
 		],
 
 		[SLOT_MELEE] = [
 
-			"The Candy Cane",
-			"The Fan O'War",
-			"The Atomizer",
-			"Unarmed Combat",
+			"The Candy Cane"
+			"The Fan O'War"
+			"The Atomizer"
+			"Unarmed Combat"
 			"The Holy Mackerel"
 		]
 	},
@@ -108,27 +108,27 @@ PZI_Bots.RandomLoadouts <- {
 
 		[SLOT_PRIMARY] = [
 
-			"The Original",
-			"The Liberty Launcher",
-			"The Black Box",
+			"The Original"
+			"The Liberty Launcher"
+			"The Black Box"
 			"The Direct Hit"
 		],
 
 		[SLOT_SECONDARY] = [
 
-			"Panic Attack Shotgun",
-			"The Reserve Shooter",
-			"The Buff Banner",
-			"The Concheror",
+			"Panic Attack Shotgun"
+			"The Reserve Shooter"
+			"The Buff Banner"
+			"The Concheror"
 			"The Battalion's Backup"
 		],
 
 		[SLOT_MELEE] = [
 
-			"The Disciplinary Action",
-			"The Equalizer",
-			"The Escape Plan",
-			"The Pain Train",
+			"The Disciplinary Action"
+			"The Equalizer"
+			"The Escape Plan"
+			"The Pain Train"
 			"The Half-Zatoichi"
 		]
 	},
@@ -137,31 +137,31 @@ PZI_Bots.RandomLoadouts <- {
 
 		[SLOT_PRIMARY] = [
 
-			"The Backburner",
-			"The Degreaser",
-			"The Nostromo Napalmer",
+			"The Backburner"
+			"The Degreaser"
+			"The Nostromo Napalmer"
 			"The Dragon's Fury"
 		],
 
 		[SLOT_SECONDARY] = [
 
-			"The Flare Gun",
-			"The Scorch Shot",
-			"The Detonator",
-			"The Manmelter",
-			"The Reserve Shooter",
-			"Panic Attack Shotgun",
+			"The Flare Gun"
+			"The Scorch Shot"
+			"The Detonator"
+			"The Manmelter"
+			"The Reserve Shooter"
+			"Panic Attack Shotgun"
 			"The Thermal Thruster"
 		],
 
 		[SLOT_MELEE] = [
 
-			"The Third Degree",
-			"The Hot Hand",
-			"The Back Scratcher",
-			"The Homewrecker",
-			"The Maul",
-			"The Powerjack",
+			"The Third Degree"
+			"The Hot Hand"
+			"The Back Scratcher"
+			"The Homewrecker"
+			"The Maul"
+			"The Powerjack"
 			"The Axtinguisher"
 		]
 	},
@@ -170,29 +170,29 @@ PZI_Bots.RandomLoadouts <- {
 
 		[SLOT_PRIMARY] = [
 
-			"The Iron Bomber",
-			"The Loch-n-Load",
-			"Ali Baba's Wee Booties",
+			"The Iron Bomber"
+			"The Loch-n-Load"
+			"Ali Baba's Wee Booties"
 			"The Bootlegger"
 		],
 
 		[SLOT_SECONDARY] = [
 
-			"The Scottish Resistance",
-			"The Quickiebomb Launcher",
-			"The Chargin' Targe",
-			"The Tide Turner",
+			"The Scottish Resistance"
+			"The Quickiebomb Launcher"
+			"The Chargin' Targe"
+			"The Tide Turner"
 			"The Splendid Screen"
 		],
 
 		[SLOT_MELEE] = [
 
-			"The Scottish Handshake",
-			"The Eyelander",
-			"The Scotsman's Skullcutter",
-			"The Half-Zatoichi",
-			"The Claidheamohmor",
-			"The Persian Persuader",
+			"The Scottish Handshake"
+			"The Eyelander"
+			"The Scotsman's Skullcutter"
+			"The Half-Zatoichi"
+			"The Claidheamohmor"
+			"The Persian Persuader"
 			"The Ullapool Caber"
 		]
 	},
@@ -201,30 +201,30 @@ PZI_Bots.RandomLoadouts <- {
 
 		[SLOT_PRIMARY] = [
 
-			"Natascha",
-			"Tomislav",
-			"The Brass Beast",
+			"Natascha"
+			"Tomislav"
+			"The Brass Beast"
 			"The Huo Long Heatmaker"
 		],
 
 		[SLOT_SECONDARY] = [
 
-			"The Family Business",
-			"Panic Attack Shotgun",
-			"The Sandvich",
-			"Fishcake",
-			"The Dalokohs Bar",
+			"The Family Business"
+			"Panic Attack Shotgun"
+			"The Sandvich"
+			"Fishcake"
+			"The Dalokohs Bar"
 			"The Second Banana"
 		],
 
 		[SLOT_MELEE] = [
 
-			"The Killing Gloves of Boxing",
-			"Gloves of Running Urgently",
-			"Gloves of Running Urgently MvM",
-			"The Eviction Notice",
-			"Fists of Steel",
-			"The Holiday Punch",
+			"The Killing Gloves of Boxing"
+			"Gloves of Running Urgently"
+			"Gloves of Running Urgently MvM"
+			"The Eviction Notice"
+			"Fists of Steel"
+			"The Holiday Punch"
 			"Apoco-Fists"
 		]
 	},
@@ -233,10 +233,10 @@ PZI_Bots.RandomLoadouts <- {
 
 		[SLOT_PRIMARY] = [
 
-			"The Rescue Ranger",
-			"The Frontier Justice",
-			"The Pomson 6000",
-			"The Widowmaker",
+			"The Rescue Ranger"
+			"The Frontier Justie"
+			"The Pomson 6000"
+			"The Widowmaker"
 			"Panic Attack Shotgun"
 		],
 
@@ -246,9 +246,9 @@ PZI_Bots.RandomLoadouts <- {
 
 		[SLOT_MELEE] = [
 
-			"The Eureka Effect",
-			"The Jag",
-			"The Gunslinger",
+			"The Eureka Effect"
+			"The Jag"
+			"The Gunslinger"
 			"The Southern Hospitality"
 		]
 	},
@@ -257,21 +257,20 @@ PZI_Bots.RandomLoadouts <- {
 
 		[SLOT_PRIMARY] = [
 
-			"The Crusader's Crossbow",
-			"The Blutsauger",
+			"The Crusader's Crossbow"
+			"The Blutsauger"
 			"The Overdose"
 		],
 
 		[SLOT_SECONDARY] = [
 
-			"The Kritzkrieg",
-			"The Vaccinator",
-			"The Quick-Fix",
+			"The Kritzkrieg"
+			"The Quick-Fix"
 		],
 
 		[SLOT_MELEE] = [
-			"The Amputator",
-			"The Ubersaw",
+			"The Amputator"
+			"The Ubersaw"
 			"The Vita-Saw"
 		]
 	},
@@ -280,25 +279,25 @@ PZI_Bots.RandomLoadouts <- {
 
 		[SLOT_PRIMARY] = [
 
-			"The Huntsman",
-			"The Fortified Compound",
-			"The Sydney Sleeper",
-			"The Machina",
+			"The Huntsman"
+			"The Fortified Compound"
+			"The Sydney Sleeper"
+			"The Machina"
 			"The Hitman's Heatmaker"
 		],
 
 		[SLOT_SECONDARY] = [
 
-			"The Cleaner's Carbine",
-			"Jarate",
-			"Darwin's Danger Shield",
+			"The Cleaner's Carbine"
+			"Jarate"
+			"Darwin's Danger Shield"
 			"The Cozy Camper"
 		],
 
 		[SLOT_MELEE] = [
 
-			"The Bushwacka",
-			"The Tribalman's Shiv",
+			"The Bushwacka"
+			"The Tribalman's Shiv"
 			"The Shahanshah"
 		]
 	},
@@ -308,18 +307,18 @@ PZI_Bots.RandomLoadouts <- {
 
 		[SLOT_PRIMARY] = [
 
-			"The Ambassador",
-			"The L'etranger",
-			"The Enforcer",
-			"The Diamondback",
+			"The Ambassador"
+			"The L'etranger"
+			"The Enforcer"
+			"The Diamondback"
 		],
 
 		[SLOT_MELEE] = [
 
-			"You Eternal Reward",
-			"The Wanga Prick",
-			"The Big Earner",
-			"The Conniver's Kunai",
+			"You Eternal Reward"
+			"The Wanga Prick"
+			"The Big Earner"
+			"The Conniver's Kunai"
 			"The Black Rose"
 		]
 	},
