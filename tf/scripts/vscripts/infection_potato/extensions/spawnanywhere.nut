@@ -573,6 +573,8 @@ PZI_EVENT( "player_death", "SpawnAnywhere_PlayerDeath", function( params ) {
             if ( scope = spitball.GetScriptScope() && "m_hOwner" in scope && scope.m_hOwner == player )
                 EntFireByHandle( spitball, "Kill", null, -1, null, null )
     }
+
+    EntFire( "tf_ragdoll", "Kill" )
 })
 
 

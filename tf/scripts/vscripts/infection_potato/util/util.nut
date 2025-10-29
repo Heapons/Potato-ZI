@@ -268,7 +268,7 @@ function PZI_Util::_OnDestroy() {
 function PZI_Util::EntityManager() {
 
 	// strip out leftover nulls
-	EntShredder = EntShredder.filter( @(_, ent) ent && ent.IsValid() )
+	EntShredder = EntShredder.filter( @( _, ent ) ent && ent.IsValid() )
 
 	// give everything a common targetname and EntFire kill it
 	local queue = "___ENTSHREDDER___QUEUED"

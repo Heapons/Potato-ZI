@@ -1086,6 +1086,9 @@ function PZI_Bots::ShouldKickBot( bot ) {
 
 function PZI_Bots::BotRemoveThink() {
 
+	if ( !self || !self.IsValid() )
+		return 1.0
+
 	if ( !self.HasBotAttribute( REMOVE_ON_DEATH ) )
 		self.AddBotAttribute( REMOVE_ON_DEATH )
 
@@ -1097,6 +1100,7 @@ function PZI_Bots::BotRemoveThink() {
 		self.SetTeam( TEAM_SPECTATOR )
 		EntFire( "tf_ammo_pack", "Kill" )
 	}
+
 	return 1.0
 }
 
@@ -1187,7 +1191,7 @@ function PZI_Bots::AllocateBots( count = PZI_Bots.MAX_BOTS ) {
 	// hide bot join messages in chat
 	local node = CreateByClassname( "point_commentary_node" )
 	DispatchSpawn( node )
-	EntFire( "point_commentary_node", "Kill", null, 7 )
+	EntFire( "point_commentary_node", "Kill", null, 5 )
 
 	PZI_Util.ValidatePlayerTables()
 
