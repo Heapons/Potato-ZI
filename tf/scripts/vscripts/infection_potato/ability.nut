@@ -12,75 +12,72 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 // ZombieEngie EMP Grenade Ability |------------------------------------------------------ //
 /////////////////////////////////////////////////////////////////////////////////////////////
-::ENGIE_EMP_LIFETIME               <- 3.5;   // How long the EMP lasts for once thrown  //
-// --------------------------------------------------------------------------------------- //
-::ENGIE_EMP_BUILDING_DISABLE_TIME  <- 6.5;   // how long is a hit buildable disabled    //
-::ENGIE_EMP_BUILDING_DISABLE_RANGE <- 500;   // range from grenade explode to disable   //
-::ENGIE_EMP_BUILDING_FLAT_DMG      <- 110;   // how much damage is dealt to buildables  //
-// --------------------------------------------------------------------------------------- //
-::ENGIE_EMP_THROW_DIST_FROM_EYES   <- -20;   // distance from eyes to spawn grenade     //
-::ENGIE_EMP_THROW_FORCE            <- 1500;  // initial force to apply to nade          //
-// --------------------------------------------------------------------------------------- //
-::ENGIE_EMP_INITIAL_FLASH_RATE     <- 0.85;  // initial delay between each flash        //
-::ENGIE_EMP_FLASH_RATE_DECAY_FAC   <- 0.7;   // amnt delay reduced between flashes      //
-// --------------------------------------------------------------------------------------- //
-::ENGIE_EMP_SCREENSHAKE_AMP        <- 500;   // amplitude of grenade screenshake        //
-::ENGIE_EMP_SCREENSHAKE_FREQ       <- 500;   // frequency of grenade screenshake        //
-::ENGIE_EMP_SCREENSHAKE_DUR        <- 1;     // duration of grenade screenshake         //
-::ENGIE_EMP_SCREENSHAKE_RAD        <- 1000;  // duration of grenade screenshake         //
-::ENGIE_EMP_MINIROOT_LEN           <- 0.25;  //                                         //
-::ENGIE_EMP_FIRST_HIT_RANGE        <- 88;    //                                         //
-::ENGIE_EMP_FIRST_HIT_DMG_PERCENT  <- 0.25;  //                                         //
-// --------------------------------------------------------------------------------------- //
+
+::ENGIE_EMP_LIFETIME               <- 3.5  // How long the EMP lasts for once thrown
+::ENGIE_EMP_BUILDING_DISABLE_TIME  <- 6.5  // how long is a hit buildable disabled
+::ENGIE_EMP_BUILDING_DISABLE_RANGE <- 500  // range from grenade explode to disable
+::ENGIE_EMP_BUILDING_FLAT_DMG      <- 110  // how much damage is dealt to buildables
+::ENGIE_EMP_THROW_DIST_FROM_EYES   <- -20  // distance from eyes to spawn grenade
+::ENGIE_EMP_THROW_FORCE            <- 1500 // initial force to apply to nade
+::ENGIE_EMP_INITIAL_FLASH_RATE     <- 0.85 // initial delay between each flash
+::ENGIE_EMP_FLASH_RATE_DECAY_FAC   <- 0.7  // amnt delay reduced between flashes
+::ENGIE_EMP_SCREENSHAKE_AMP        <- 500  // amplitude of grenade screenshake
+::ENGIE_EMP_SCREENSHAKE_FREQ       <- 500  // frequency of grenade screenshake
+::ENGIE_EMP_SCREENSHAKE_DUR        <- 1    // duration of grenade screenshake
+::ENGIE_EMP_SCREENSHAKE_RAD        <- 1000 // duration of grenade screenshake
+::ENGIE_EMP_MINIROOT_LEN           <- 0.25
+::ENGIE_EMP_FIRST_HIT_RANGE        <- 88 
+::ENGIE_EMP_FIRST_HIT_DMG_PERCENT  <- 0.25
+
 /////////////////////////////////////////////////////////////////////////////////////////////
 // ZombieSniper Spit Ability |------------------------------------------------------------ //
 /////////////////////////////////////////////////////////////////////////////////////////////
-::SNIPER_SPIT_THROW_DIST           <- 50;    // distance from eyes to spawn spit ball   //
-::SNIPER_SPIT_THROW_FORCE          <- 2000;  // initial force to apply to spit ball     //
-::SNIPER_SPIT_HIT_PLAYER_Z_DIST    <- 300;   // initial force to apply to spit ball     //
-::SNIPER_SPIT_HIT_WORLD_Z_DIST     <- 100;   // initial force to apply to spit ball     //
-// --------------------------------------------------------------------------------------- //
-::SNIPER_SPIT_MASS                 <- 0.1;   // spit ball mass ( for base physprop )      //
-// --------------------------------------------------------------------------------------- //
-::SNIPER_SPIT_ZONE_DAMAGE          <- 25.0;  // damage per tick from spit zone          //
-::SNIPER_SPIT_POP_DAMAGE           <- 45.0;  // dmg to players in zone when first pop   //
-::SNIPER_SPIT_MIN_SURFACE_PERCENT  <- 75;    // min surface hit % for spit zone to form //
-::SNIPER_SPIT_HITBOX_SIZE          <- 5;     // size in hu of spitball hitbox           //
-// --------------------------------------------------------------------------------------- //
-::SNIPER_SPIT_OVERLOAD_START_TIME  <- 3.5;   // how many seconds til overload           //
-::SNIPER_SPIT_LIFETIME             <- 2.5;   // how many seconds til overload           //
-::SNIPER_SPIT_MAX_CHANNEL_TIME     <- 5;     // max time spitball can be held for       //
-::SPIT_ZONE_LIFETIME               <- 5;     // how many seconds the zone stays down    //
-::SPIT_ZONE_RADIUS                 <- 130;   // hammer units radius of spit zone damage //
-// --------------------------------------------------------------------------------------- //
+::SNIPER_SPIT_THROW_DIST           <- 50   // distance from eyes to spawn spit ball
+::SNIPER_SPIT_THROW_FORCE          <- 200  // initial force to apply to spit ball
+::SNIPER_SPIT_HIT_PLAYER_Z_DIST    <- 300  // initial force to apply to spit ball
+::SNIPER_SPIT_HIT_WORLD_Z_DIST     <- 100  // initial force to apply to spit ball
+::SNIPER_SPIT_MASS                 <- 0.1   // spit ball mass ( for base physprop )
+::SNIPER_SPIT_ZONE_DAMAGE          <- 25.0  // damage per tick from spit zone
+::SNIPER_SPIT_POP_DAMAGE           <- 45.0  // dmg to players in zone when first pop
+::SNIPER_SPIT_MIN_SURFACE_PERCENT  <- 75    // min surface hit % for spit zone to form
+::SNIPER_SPIT_HITBOX_SIZE          <- 5     // size in hu of spitball hitbox
+::SNIPER_SPIT_OVERLOAD_START_TIME  <- 3.5   // how many seconds til overload
+::SNIPER_SPIT_LIFETIME             <- 2.5   // how many seconds til overload
+::SNIPER_SPIT_MAX_CHANNEL_TIME     <- 5    // max time spitball can be held for
+::SPIT_ZONE_LIFETIME               <- 5    // how many seconds the zone stays down
+::SPIT_ZONE_RADIUS                 <- 130   // hammer units radius of spit zone damage
+
 /////////////////////////////////////////////////////////////////////////////////////////////
 // ZombieSpy Reveal Ability |------------------------------------------------------------- //
 /////////////////////////////////////////////////////////////////////////////////////////////
-::SPY_REVEAL_RANGE               <- 1000;  // Maximum distance for player to be hit     //
-::SPY_REVEAL_LENGTH              <- 20;    // how long players are revealed for ( sec )   //
-::SPY_RECLOAK_TIME               <- 3;     // how long before spy becomes cloaked again //
-// --------------------------------------------------------------------------------------- //
+::SPY_REVEAL_RANGE               <- 1000  // Maximum distance for player to be hit
+::SPY_REVEAL_LENGTH              <- 20    // how long players are revealed for ( sec )
+::SPY_RECLOAK_TIME               <- 3     // how long before spy becomes cloaked again
+::SPY_REVEAL_SCREENSHAKE_AMP     <- 750   // amplitude of reveal screenshake
+::SPY_REVEAL_SCREENSHAKE_FREQ    <- 450   // frequency of reveal screenshake
+::SPY_REVEAL_SCREENSHAKE_DUR     <- 1     // duration of reveal screenshake
+
 /////////////////////////////////////////////////////////////////////////////////////////////
 // ZombieMedic Heal Ability |------------------------------------------------------------- //
 /////////////////////////////////////////////////////////////////////////////////////////////
-::MEDIC_HEAL_RANGE                 <- 275;   // Maximum distance for player to be hit   //
-::MEDIC_HEAL_RATE                  <- 0.5;   // time in sec between each heal tick      //
+::MEDIC_HEAL_RANGE                 <- 275;   // Maximum distance for player to be hit
+::MEDIC_HEAL_RATE                  <- 0.5;   // time in sec between each heal tick
+
 /////////////////////////////////////////////////////////////////////////////////////////////
 // ZombieDemo Charge Ability |------------------------------------------------------------ //
 /////////////////////////////////////////////////////////////////////////////////////////////
-// DEMOMAN_CHARGE_DAMAGE              = 275;   //                                          //
-::DEMOMAN_CHARGE_BASE_DAMAGE            <- 100;   //                                    //
-::DEMOMAN_CHARGE_DAMAGE_PER_PLAYER_MULT <- 1.35;  //                                    //
-::DEMOMAN_CHARGE_RADIUS                 <- 200;   //                                    //
-::DEMOMAN_CHARGE_INVULN_TIME            <- 1.4;   //                                    //
-::DEMOMAN_CHARGE_FORCE                  <- 650;  //                                     //
-::DEMOMAN_CHARGE_FORCE_UPWARD_MULT      <- 1.5;   //                                    //
+// DEMOMAN_CHARGE_DAMAGE              = 275;
+::DEMOMAN_CHARGE_BASE_DAMAGE            <- 100
+::DEMOMAN_CHARGE_DAMAGE_PER_PLAYER_MULT <- 1.35
+::DEMOMAN_CHARGE_RADIUS                 <- 200
+::DEMOMAN_CHARGE_INVULN_TIME            <- 1.4
+::DEMOMAN_CHARGE_FORCE                  <- 650
+::DEMOMAN_CHARGE_FORCE_UPWARD_MULT      <- 1.5
+
 /////////////////////////////////////////////////////////////////////////////////////////////
 // generic zombie stuff      |------------------------------------------------------------ //
 /////////////////////////////////////////////////////////////////////////////////////////////
-::ZOMBIE_BOOST_SPEED_DEBUFF        <- 0.85;  //                                         //
-// --------------------------------------------------------------------------------------- //
-/////////////////////////////////////////////////////////////////////////////////////////////
+::ZOMBIE_BOOST_SPEED_DEBUFF        <- 0.85
 
 class CZombieAbility {
 
@@ -92,10 +89,10 @@ class CZombieAbility {
     m_arrAttribs         =   [ ]
     m_arrTFConds         =   [ ]
 
-    function GetAbilityType     ()  { return m_iAbilityType; }
-    function GetAbilityOwner    ()  { return m_hAbilityOwner; }
-    function GetAbilityCooldown ()  { return m_fAbilityCooldown; }
-    function GetAbilityName     ()  { return m_szAbilityName; }
+    function GetAbilityType     ()  { return m_iAbilityType }
+    function GetAbilityOwner    ()  { return m_hAbilityOwner }
+    function GetAbilityCooldown ()  { return m_fAbilityCooldown }
+    function GetAbilityName     ()  { return m_szAbilityName }
 
     function LockAbility() {
 
@@ -139,7 +136,7 @@ class CSpyReveal extends CZombieAbility {
             start_active  =  "0",
             targetname    =  "ZombieSpy_Revealer_pfx",
             origin        =  m_hAbilityOwner.GetOrigin(),
-        } )
+        })
 
         m_hAbilityOwner.SetForcedTauntCam  ( 1 )
 
@@ -158,10 +155,10 @@ class CSpyReveal extends CZombieAbility {
         ScreenShake        ( m_hAbilityOwner.GetOrigin(), 15.0, 150.0, 1.0, 500, 0, false )
         EntFireByHandle    ( _d.m_hTempEntity, "SetParent", "!activator", 0, m_hAbilityOwner, m_hAbilityOwner )
 
-        local sound = format( SFX_SPY_REVEAL_ONCAST, RandomInt( 1, 3 ) )
-        PrecacheSound( sound )
+        local _szRevealSound = format( SFX_SPY_REVEAL_ONCAST, RandomInt( 1, 3 ) )
+        PrecacheSound( _szRevealSound )
         EmitSoundEx({
-            sound_name = sound
+            sound_name = _szRevealSound
             sound_level = 100
             volume = 1
             entity = m_hAbilityOwner
@@ -185,6 +182,7 @@ class CSpyReveal extends CZombieAbility {
 
         // apply reveal effect
         local _arrPlayersInRange_len = _arrPlayersInRange.len()
+
         for ( local i = 0; i < _arrPlayersInRange_len; i++ ) {
 
             local _hNextPlayer = _arrPlayersInRange[ i ]
@@ -201,12 +199,18 @@ class CSpyReveal extends CZombieAbility {
             // spy reveal simply enables m_bGlowEnabled on players
             SetPropBool ( _hNextPlayer, "m_bGlowEnabled", true )
 
+            // play the reveal sound to the revealed player
+            EmitSoundEx({ sound_name = _szRevealSound entity = _hNextPlayer filter_type = RECIPIENT_FILTER_SINGLE_PLAYER })
+
             // stagger glow removal times so the players blink out at random times ( looks cool )
             _hNextPlayer.SetNextActTime ( ZOMBIE_KILL_GLOW, RandomFloat( 5, 7.5 ) )
-            if ( !( "m_iFlags" in _scNext ) ) 
+            if ( !( "m_iFlags" in _scNext ) )
                 _scNext.m_iFlags <- 0
             _scNext.m_iFlags         <- ( _scNext.m_iFlags | ZBIT_REVEALED_BY_SPY )
         }
+
+        // screenshake for the reveal effect
+        ScreenShake( m_hAbilityOwner.GetOrigin(), SPY_REVEAL_SCREENSHAKE_AMP, SPY_REVEAL_SCREENSHAKE_FREQ, SPY_REVEAL_SCREENSHAKE_DUR, SPY_REVEAL_RANGE, SHAKE_START, true )
 
         return
     }
@@ -231,14 +235,14 @@ class CSoldierJump extends CZombieAbility {
 
         local _sc = m_hAbilityOwner.GetScriptScope()
 
-        local sound = format( SFX_SOLDIER_POUNCE, RandomInt( 1, 4 ) )
+        local _szPounceSound = format( SFX_SOLDIER_POUNCE, RandomInt( 1, 4 ) )
 
-        PrecacheSound( sound )
+        PrecacheSound( _szPounceSound )
 
-        EmitSoundEx({ 
-            sound_name = sound
+        EmitSoundEx({
+            sound_name = _szPounceSound
             sound_level = 100
-            entity = m_hAbilityOwner 
+            entity = m_hAbilityOwner
         })
 
         local _hPlayerVM    =   GetPropEntity( m_hAbilityOwner, "m_hViewModel" )
@@ -263,6 +267,7 @@ class CSoldierJump extends CZombieAbility {
         return
     }
 }
+
 // --------------------------------- //
 //           MEDIC ABILITY           //
 // --------------------------------- //
@@ -349,6 +354,7 @@ class CMedicHeal extends CZombieAbility {
     }
 
 }
+
 // --------------------------------- //
 //          SNIPER ABILITY           //
 // --------------------------------- //
@@ -381,10 +387,10 @@ class CSniperSpitball extends CZombieAbility {
         _d.m_fTimeAbilityCastStarted <- Time()
 
         _d.m_iFlags = ( _d.m_iFlags | ZBIT_SNIPER_CHARGING_SPIT )
-        EmitSoundEx({ 
-            sound_name = SFX_ZOMBIE_SPIT_START 
+        EmitSoundEx({
+            sound_name = SFX_ZOMBIE_SPIT_START
             sound_level = 100
-            entity = m_hAbilityOwner 
+            entity = m_hAbilityOwner
         })
 
         m_hAbilityOwner.GetActiveWeapon().AddAttribute( "move speed penalty", 0.5, -1 )
@@ -461,10 +467,10 @@ class CSniperSpitball extends CZombieAbility {
 
         m_hAbilityOwner.GetActiveWeapon().RemoveAttribute( "move speed penalty" )
 
-        EmitSoundEx({ 
-            sound_name = SFX_ZOMBIE_SPIT_END 
+        EmitSoundEx({
+            sound_name = SFX_ZOMBIE_SPIT_END
             sound_level = 100
-            entity = m_hAbilityOwner 
+            entity = m_hAbilityOwner
         })
 
         _d.m_iFlags = ( _d.m_iFlags & ~ZBIT_SNIPER_CHARGING_SPIT )
@@ -515,13 +521,13 @@ class CEngineerSapperNade extends CZombieAbility {
 
         local _d = m_hAbilityOwner.GetScriptScope()
 
-        local sound = format( SFX_ENGI_EMP, RandomInt( 1, 4 ) )
+        local _szEMPSound = format( SFX_ENGI_EMP, RandomInt( 1, 4 ) )
 
-        PrecacheSound( sound )
+        PrecacheSound( _szEMPSound )
 
         EmitSoundEx({
 
-            sound_name = sound
+            sound_name = _szEMPSound
             sound_level = 100
             entity = m_hAbilityOwner
         })
@@ -644,13 +650,13 @@ class CDemoCharge extends CZombieAbility {
         // m_hAbilityOwner.GiveZombieFXWearable()
         m_hAbilityOwner.GiveZombieCosmetics()
 
-        local sound = format( SFX_DEMO_CHARGE_RAMP, RandomInt( 1, 3 ) )
+        local _szRampSound = format( SFX_DEMO_CHARGE_RAMP, RandomInt( 1, 3 ) )
 
-        PrecacheSound( sound )
+        PrecacheSound( _szRampSound )
         EmitSoundEx({
 
-            sound_name = sound
-            entity = m_hAbilityOwner 
+            sound_name = _szRampSound
+            entity = m_hAbilityOwner
         })
 
         // todo - array
@@ -681,28 +687,28 @@ class CDemoCharge extends CZombieAbility {
 
         local _sc = m_hAbilityOwner.GetScriptScope()
 
-        local sound = format( SFX_DEMO_CHARGE, RandomInt( 1, 3 ) )
+        local _szChargeSound = format( SFX_DEMO_CHARGE, RandomInt( 1, 3 ) )
 
-        PrecacheSound( sound )
+        PrecacheSound( _szChargeSound )
 
         EmitSoundEx({
 
-            sound_name = sound
-            sound_level = 100
-            entity = m_hAbilityOwner
+            sound_name  = _szChargeSound
+            sound_level = 175
+            entity      = m_hAbilityOwner
         })
 
         _sc.m_iFlags  <- ( _sc.m_iFlags | ZBIT_MUST_EXPLODE )
 
-        m_hAbilityOwner.AddCond    ( TF_COND_SHIELD_CHARGE )
-        m_hAbilityOwner.RemoveCond ( TF_COND_RADIUSHEAL )
+        m_hAbilityOwner.AddCond( TF_COND_SHIELD_CHARGE )
+        m_hAbilityOwner.RemoveCond( TF_COND_RADIUSHEAL )
         // m_hAbilityOwner.AddCondEx  ( TF_COND_INVULNERABLE_USER_BUFF, 0.298, m_hAbilityOwner )
-        m_hAbilityOwner.AddEventToQueue   ( EVENT_DEMO_CHARGE_EXIT, 1.5 )
+        m_hAbilityOwner.AddEventToQueue( EVENT_DEMO_CHARGE_EXIT, 1.5 )
 
-        m_hAbilityOwner.RemoveCustomAttribute ( "no_jump" )
-        m_hAbilityOwner.RemoveCustomAttribute ( "no_duck" )
-        m_hAbilityOwner.RemoveCustomAttribute ( "no_attack" )
-        m_hAbilityOwner.RemoveCustomAttribute ( "move speed penalty" )
+        m_hAbilityOwner.RemoveCustomAttribute( "no_jump" )
+        m_hAbilityOwner.RemoveCustomAttribute( "no_duck" )
+        m_hAbilityOwner.RemoveCustomAttribute( "no_attack" )
+        m_hAbilityOwner.RemoveCustomAttribute( "move speed penalty" )
         return
     }
 
@@ -713,15 +719,14 @@ class CDemoCharge extends CZombieAbility {
 
         local _d = m_hAbilityOwner.GetScriptScope()
 
-        m_hAbilityOwner.RemoveCond  ( TF_COND_SHIELD_CHARGE )
-        m_hAbilityOwner.RemoveCond  ( TF_COND_INVULNERABLE_USER_BUFF )
-        m_hAbilityOwner.RemoveCond  ( TF_COND_TAUNTING )
+        m_hAbilityOwner.RemoveCond( TF_COND_SHIELD_CHARGE )
+        m_hAbilityOwner.RemoveCond( TF_COND_INVULNERABLE_USER_BUFF )
+        m_hAbilityOwner.RemoveCond( TF_COND_TAUNTING )
 
         PutAbilityOnCooldown()
 
-        _d.m_iFlags            <- ( _d.m_iFlags & ~ZBIT_MUST_EXPLODE )
-        _d.m_iFlags            <- ( _d.m_iFlags & ~ZBIT_DEMOCHARGE )
-        _d.m_tblEventQueue     <- { }
+        _d.m_iFlags        = _d.m_iFlags & ( ~ZBIT_MUST_EXPLODE | ~ZBIT_DEMOCHARGE )
+        _d.m_tblEventQueue = { }
 
         DemomanExplosionPreCheck( m_hAbilityOwner.GetOrigin(),
                                   DEMOMAN_CHARGE_BASE_DAMAGE,

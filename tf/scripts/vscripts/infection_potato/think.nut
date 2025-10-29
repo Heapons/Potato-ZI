@@ -37,6 +37,9 @@ function PZI_PlayerThink() {
 
             self.AddCond( TF_COND_CRITBOOSTED )
 
+            // always glow last survivor unless we're disguised/cloaked
+            SetPropBool( self, "m_bGlowEnabled", !self.GetDisguiseTarget() && !self.IsFullyInvisible() )
+
             // disable Cloak and Dagger's movement-based invis for last survivor
             if ( !self.IsEFlagSet( EFL_NO_MEGAPHYSCANNON_RAGDOLL ) && self.GetPlayerClass() == TF_CLASS_SPY ) {
 
@@ -258,10 +261,10 @@ function PZI_PlayerThink() {
 
         if ( m_iFlags & ZBIT_ZOMBIE ) {
 
-            local _flNextPrimaryAttack   =   GetPropFloat  ( m_hZombieWep, "m_flNextPrimaryAttack" )
-            local _flTimeWeaponIdle      =   GetPropFloat  ( m_hZombieWep, "m_flTimeWeaponIdle" )
-            local _buttons               =   GetPropInt    ( self, "m_nButtons" )
-            local _bCanCast              =   self.CanDoAct ( ZOMBIE_ABILITY_CAST )
+            local _flNextPrimaryAttack   =   GetPropFloat( m_hZombieWep, "m_flNextPrimaryAttack" )
+            local _flTimeWeaponIdle      =   GetPropFloat( m_hZombieWep, "m_flTimeWeaponIdle" )
+            local _buttons               =   GetPropInt( self, "m_nButtons" )
+            local _bCanCast              =   self.CanDoAct( ZOMBIE_ABILITY_CAST )
             local _bPressingAttack2      =   _buttons & IN_ATTACK2
             local _iClassnum             =   self.GetPlayerClass()
             local _bDeathQueued          =   false
@@ -272,32 +275,19 @@ function PZI_PlayerThink() {
 
             SetPropFloat( m_hZombieWep, "m_flNextSecondaryAttack", FLT_MAX )
             SetPropFloat( m_hZombieWep, "m_flNextPrimaryAttack", m_fTimeNextViewpunch )
-
-            if ( self.InCond( TF_COND_CRITBOOSTED_PUMPKIN ) ) {
-
-                self.RemoveCond( TF_COND_CRITBOOSTED_PUMPKIN )
-            }
+            self.RemoveCond( TF_COND_CRITBOOSTED_PUMPKIN )
 
             if ( self.GetPlayerClass() == TF_CLASS_PYRO ) {
 
                 local _bRemovedLiquid = false
 
-                if ( self.InCond( TF_COND_GAS ) ) {
+                foreach ( cond in [ TF_COND_URINE, TF_COND_MAD_MILK, TF_COND_GAS ] ) {
 
-                    _bRemovedLiquid = true
-                    self.RemoveCond( TF_COND_GAS )
-                }
+                    if ( self.InCond( cond ) ) {
 
-                if ( self.InCond( TF_COND_URINE ) ) {
-
-                    _bRemovedLiquid = true
-                    self.RemoveCond( TF_COND_URINE )
-                }
-
-                if ( self.InCond( TF_COND_MAD_MILK ) ) {
-
-                    _bRemovedLiquid = true
-                    self.RemoveCond( TF_COND_MAD_MILK )
+                        _bRemovedLiquid = true
+                        self.RemoveCond( cond )
+                    }
                 }
 
                 // probably safe to use the extinguish sound since
@@ -306,19 +296,13 @@ function PZI_PlayerThink() {
                     EmitSoundOnClient( "TFPlayer.FlameOut", self )
             }
 
-            if ( _bPressingAttack2 && !_bCanCast ) {
-
-                if ( ( m_iFlags & ZBIT_HASNT_HEARD_DENY_SFX ) &&
-                     ( m_iCurrentAbilityType != ZABILITY_PASSIVE ) ) {
+            if ( _bPressingAttack2 && !_bCanCast && _sc.m_iCurrentAbilityType != ZABILITY_PASSIVE && m_iFlags & ZBIT_HASNT_HEARD_DENY_SFX ) {
 
                     EmitSoundOnClient( "Player.UseDeny", self )
-                    m_iFlags = ( m_iFlags & ~ZBIT_HASNT_HEARD_DENY_SFX )
-                }
+                    m_iFlags = m_iFlags & ~ZBIT_HASNT_HEARD_DENY_SFX
             }
-            else if ( !_bPressingAttack2 && !_bCanCast ) {
-
-                m_iFlags = ( m_iFlags | ZBIT_HASNT_HEARD_DENY_SFX )
-            }
+            else
+                m_iFlags = m_iFlags | ZBIT_HASNT_HEARD_DENY_SFX
 
             if ( self.CanDoAct( ZOMBIE_ABILITY_CAST ) && ( m_iFlags & ZBIT_HASNT_HEARD_READY_SFX ) ) {
 
@@ -330,7 +314,7 @@ function PZI_PlayerThink() {
 
                 if ( ( GetPropInt( self, "m_Shared.m_iAirDash" ) > 0 )  && !( m_iFlags & ZBIT_SCOUT_HAS_TRIPLE_JUMPED ) ) {
 
-                    SetPropInt ( self, "m_Shared.m_iAirDash", 0 )
+                    SetPropInt( self, "m_Shared.m_iAirDash", 0 )
                     m_iFlags = ( m_iFlags | ZBIT_SCOUT_HAS_TRIPLE_JUMPED )
                 }
 
@@ -688,9 +672,9 @@ function PZI_PlayerThink() {
 
         if ( m_iFlags & ( ZBIT_REVEALED_BY_SPY ) && self.CanDoAct( ZOMBIE_KILL_GLOW ) ) {
 
-            SetPropBool         ( self, "m_bGlowEnabled", false )
-            self.SetNextActTime ( ZOMBIE_KILL_GLOW, ACT_LOCKED )
-            m_iFlags          = ( m_iFlags & ~ZBIT_REVEALED_BY_SPY )
+            SetPropBool( self, "m_bGlowEnabled", false )
+            self.SetNextActTime( ZOMBIE_KILL_GLOW, ACT_LOCKED )
+            m_iFlags = ( m_iFlags & ~ZBIT_REVEALED_BY_SPY )
         }
 
         // clear imcookin from player once they leave zombie spit

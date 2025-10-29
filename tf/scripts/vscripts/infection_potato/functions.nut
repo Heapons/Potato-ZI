@@ -122,49 +122,45 @@ function CreateExplosion( _vecLocation, _flDmg, _flRange, _hInflictor, _flForceM
 
     local _hBomb = SpawnEntityFromTable( "tf_generic_bomb", {
 
-        explode_particle = "mvm_loot_explosion",
-        sound            = "Halloween.Merasmus_Hiding_Explode",
-        damage           = _flDmg.tostring(),
-        radius           = _flRange.tostring(),
-        friendlyfire     = "0",
-        vscripts     = " "
+        targetname       = "__pzi_zombie_demo_bomb"
+        vscripts         = " "
+        explode_particle = "mvm_loot_explosion"
+        sound            = "Halloween.Merasmus_Hiding_Explode"
+        damage           = _flDmg
+        radius           = _flRange
+        TeamNum          = TEAM_ZOMBIE
+        friendlyfire     = false
     } )
 
     local _hPfxEnt = SpawnEntityFromTable( "info_particle_system", {
 
-        effect_name  = FX_DEMOGUTS,
-        start_active = "0",
-        targetname   = "ZombieDemo_Explosion_PFX_Ent",
-        origin       = _vecLocation,
+        targetname   = "__pzi_zombie_demo_pfx_ent"
         vscripts     = " "
-    } )
+        effect_name  = FX_DEMOGUTS
+        start_active = false
+        origin       = _vecLocation
+    })
 
-    _hPfxEnt.GetScriptScope     ().m_flKillTime <- ( Time() + 2.0 ).tofloat()
+    SetPropBool( _hPfxEnt, STRING_NETPROP_PURGESTRINGS, true )
+    SetPropBool( _hBomb, STRING_NETPROP_PURGESTRINGS, true )
 
-    AddThinkToEnt( _hPfxEnt, "KillMeThink" )
+    _hPfxEnt.AcceptInput( "Start", null, null, null )
 
-    _hBomb.GetScriptScope     ().m_flKillTime <- ( Time() + 0.1 ).tofloat()
-    _hBomb.GetScriptScope     ().m_hOwner     <- _hInflictor
+    // kill pfx ent after 2 seconds
+    EntFireByHandle( _hPfxEnt, "Kill", null, 2.0, null, null )
 
-    ::DispatchSpawn( _hPfxEnt )
+    EmitSoundOn( "Breakable.MatFlesh", _hBomb )
+    EmitSoundOn( "Halloween.Merasmus_Hiding_Explode", _hBomb )
 
-    EntFireByHandle ( _hPfxEnt, "Start",    "", -1, null, null )
-
-    SetPropInt      ( _hBomb, "m_iTeamNum", TEAM_ZOMBIE )
-    EmitSoundOn     ( "Breakable.MatFlesh", _hBomb )
-    EmitSoundOn     ( "Halloween.Merasmus_Hiding_Explode", _hBomb )
-
-    ::DispatchSpawn( _hBomb )
-
-    _hBomb.SetTeam       ( TEAM_ZOMBIE )
-    _hBomb.SetAbsOrigin     ( _vecLocation )
-    _hBomb.SetOwner      ( _hInflictor )
-    // KnockbackPlayer( _hBomb, _hInflictor, _flForceMultiplier, _flUpwardForce, Vector( 400, 400, 400 ), true )
-
-    // EntFireByHandle ( _hBomb,   "Detonate", "", -1, _hInflictor, _hInflictor )
+    _hBomb.SetOwner( _hInflictor )
+    _hBomb.SetAbsOrigin( _vecLocation )
     _hBomb.KeyValueFromString( "classname", KILLICON_DEMOMAN_BOOM )
     _hBomb.TakeDamage( 1, DMG_CLUB, _hInflictor )
     _hInflictor.TakeDamage( 1, DMG_NEVERGIB, _hInflictor )
+
+    // kill bomb after 0.1 seconds
+    // EntFireByHandle( _hBomb, "Kill", null, 0.1, null, null )
+
     // _hInflictor.TakeDamageEx( _hBomb, _hInflictor, null, Vector( _flForceMultiplier, _flForceMultiplier, _flForceMultiplier * _flUpwardForce ), _hInflictor.GetOrigin(), _flDmg, DMG_CLUB )
     return
 }
@@ -731,22 +727,22 @@ function CTFPlayer_GiveZombieWeapon() {
     ::DispatchSpawn( _zombieArms )
 
     // Zombie Arm Viewmodel Netprops // ------------------------------------------------- //
-    SetPropEntity ( _zombieArms, "m_hWeaponAssociatedWith",                    _zombieWep )
-    SetPropInt    ( _zombieArms, "m_iViewModelIndex",  arrZombieArmVMPath[ _playerClass ] )
-    SetPropInt    ( _zombieArms, STRING_NETPROP_MODELINDEX,      arrZombieArmVMPath[ _playerClass ] )
-    SetPropBool   ( _zombieArms, STRING_NETPROP_ATTACH,                       true )
-    SetPropBool   ( _zombieArms, STRING_NETPROP_INIT,         true )
-    SetPropEntity ( _zombieArms, "m_hOwnerEntity",                                   this )
+    SetPropEntity( _zombieArms, "m_hWeaponAssociatedWith", _zombieWep )
+    SetPropInt( _zombieArms, "m_iViewModelIndex", arrZombieArmVMPath[ _playerClass ] )
+    SetPropInt( _zombieArms, STRING_NETPROP_MODELINDEX, arrZombieArmVMPath[ _playerClass ] )
+    SetPropBool( _zombieArms, STRING_NETPROP_ATTACH, true )
+    SetPropBool( _zombieArms, STRING_NETPROP_INIT, true )
+    SetPropEntity( _zombieArms, "m_hOwnerEntity", this )
     // ---------------------------------------------------------------------------------- //
 
     // Zombie Weapon Netprops // -------------------------------------------------------- //
-    SetPropEntity ( _zombieWep,  "m_hExtraWearableViewModel",                 _zombieArms )
-    SetPropInt    ( _zombieWep,  "m_iViewModelIndex",  arrZombieArmVMPath[ _playerClass ] )
-    SetPropInt    ( _zombieWep,  STRING_NETPROP_MODELINDEX,      arrZombieArmVMPath[ _playerClass ] )
-    SetPropInt    ( _zombieWep,  "m_nRenderMode",                       kRenderTransColor )
-    SetPropInt    ( _zombieWep,  "m_clrRender",                                         0 )
-    SetPropBool   ( _zombieWep,  STRING_NETPROP_INIT,         true )
-    SetPropEntity ( _zombieWep,  "m_hOwnerEntity",                                   this )
+    SetPropEntity( _zombieWep,  "m_hExtraWearableViewModel", _zombieArms )
+    SetPropInt( _zombieWep, "m_iViewModelIndex", arrZombieArmVMPath[ _playerClass ] )
+    SetPropInt( _zombieWep, STRING_NETPROP_MODELINDEX, arrZombieArmVMPath[ _playerClass ] )
+    SetPropInt( _zombieWep, "m_nRenderMode", kRenderTransColor )
+    SetPropInt( _zombieWep, "m_clrRender", 0 )
+    SetPropBool( _zombieWep, STRING_NETPROP_INIT, true )
+    SetPropEntity( _zombieWep, "m_hOwnerEntity", this )
     // ---------------------------------------------------------------------------------- //
 
     this.EquipWearableViewModel  ( _zombieArms )
@@ -754,10 +750,10 @@ function CTFPlayer_GiveZombieWeapon() {
     _sc.m_hZombieWep  <- _zombieWep
     _sc.m_hZombieArms <- _zombieArms
 
-    _hPlayerVM.SetModelSimple           ( arrZombieViewModelPath[ _playerClass ] )
-    _sc.m_hZombieWep.SetCustomViewModel ( arrZombieViewModelPath[ _playerClass ] )
+    _hPlayerVM.SetModelSimple( arrZombieViewModelPath[ _playerClass ] )
+    _sc.m_hZombieWep.SetCustomViewModel( arrZombieViewModelPath[ _playerClass ] )
 
-    this.Weapon_Switch ( _zombieWep )
+    this.Weapon_Switch( _zombieWep )
     return
 }
 
@@ -824,19 +820,7 @@ function CTFPlayer_AbilityStateToString() {
     if ( !this.IsAlive() || _sc.m_fTimeNextCast == ACT_LOCKED )
         return "off.vtf"
 
-    local _bCanCast = ( _sc.m_fTimeNextCast <= Time() )
-
-    switch ( _bCanCast ) {
-
-        case true:
-            return "on.vtf"
-            break
-        default:
-            return "off.vtf"
-            break
-    }
-
-    return "off.vtf"
+    return ( _sc.m_fTimeNextCast <= Time() ) ? "on.vtf" : "off.vtf"
 }
 
 function CTFPlayer_BuildZombieHUDString() {
@@ -845,60 +829,35 @@ function CTFPlayer_BuildZombieHUDString() {
 
 	// if ( !_sc ) return
 
-    if ( !_sc.m_hZombieAbility ) {
+    Assert( _sc.m_hZombieAbility && _sc.m_hZombieAbility.IsValid(), "BuildZombieHUDString: m_hZombieAbility is null/invalid!" )
 
-        _sc.m_szCurrentHUDString = ""
-        return
-    }
+    if ( !_sc.m_hZombieAbility )
+        return _sc.m_szCurrentHUDString = ""
 
-    if ( _sc.m_fTimeNextCast == ACT_LOCKED ) {
-
-        if ( _sc.m_hZombieAbility.m_iAbilityType == ZABILITY_PASSIVE ) {
-
-            _sc.m_szCurrentHUDString = STRING_UI_PASSIVE
-            return
-        }
-        else {
-
-            _sc.m_szCurrentHUDString = STRING_UI_CASTING
-        }
-
-        return
-    }
+    if ( _sc.m_fTimeNextCast == ACT_LOCKED )
+        return _sc.m_szCurrentHUDString = _sc.m_hZombieAbility.m_iAbilityType == ZABILITY_PASSIVE ? STRING_UI_PASSIVE : STRING_UI_CASTING
 
     local _flSecondsUntilAbility = ( _sc.m_fTimeNextCast - Time() )
-    local _szMessage             = ""
 
-    if ( _flSecondsUntilAbility < 0 ) {
+    if ( _flSecondsUntilAbility < 0 )
+        return _sc.m_szCurrentHUDString = STRING_UI_READY
 
-        _sc.m_szCurrentHUDString = STRING_UI_READY
-    }
-    else {
+    local _szMessage = STRING_UI_READY_IN
+    local _nWholeSeconds = _flSecondsUntilAbility.tointeger()
+    local _nDecimalPart  = _flSecondsUntilAbility - _nWholeSeconds
 
-        local _nWholeSeconds = _flSecondsUntilAbility.tointeger()
-        local _nDecimalPart  = ( _flSecondsUntilAbility - floor( _flSecondsUntilAbility ) )
+    _szMessage += _nWholeSeconds
 
-        // todo: need to figure out localized strings and rewrite this
-        _szMessage += format( "%s %d", "Ready in", _nWholeSeconds )
+    if ( _nDecimalPart <= 0.8 )
+        _szMessage += "."
 
-        if ( _nDecimalPart <= 0.8 ) {
+    if ( _nDecimalPart <= 0.6 )
+        _szMessage += "."
 
-            _szMessage += "."
-        }
+    if ( _nDecimalPart <= 0.2 )
+        _szMessage += "."
 
-        if ( _nDecimalPart <= 0.6 ) {
-
-            _szMessage += "."
-        }
-
-        if ( _nDecimalPart <= 0.2 ) {
-
-            _szMessage += "."
-        }
-
-        _sc.m_szCurrentHUDString = _szMessage
-        return
-    }
+    _sc.m_szCurrentHUDString = _szMessage
 }
 
 function CTFPlayer_ZombieInitialTooltip() {

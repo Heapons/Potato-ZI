@@ -1681,20 +1681,24 @@ function PZI_Util::SetPlayerClassRespawnAndTeleport( player, playerclass, locati
 }
 
 function PZI_Util::PlaySoundOnClient( player, name, volume = 1.0, pitch = 100 ) {
-	EmitSoundEx( {
-		sound_name = name,
+
+	EmitSoundEx({
+
+		sound_name = name
 		volume = volume
-		pitch = pitch,
-		entity = player,
+		pitch = pitch
+		entity = player
 		filter_type = RECIPIENT_FILTER_SINGLE_PLAYER
-	} )
+	})
 }
 
 function PZI_Util::PlaySoundOnAllClients( name ) {
-	EmitSoundEx( {
-		sound_name = name,
+
+	EmitSoundEx({
+
+		sound_name = name
 		filter_type = RECIPIENT_FILTER_GLOBAL
-	} )
+	})
 }
 
 function PZI_Util::StopAndPlayMVMSound( player, soundscript, delay ) {
@@ -1713,6 +1717,40 @@ function PZI_Util::StopAndPlayMVMSound( player, soundscript, delay ) {
 	ScriptEntFireSafe( player, "self.EmitSound( mvmsound );", delay + SINGLE_TICK )
 }
 
+function PZI_Util::CharReplace( str, findwhat, replace, firstonly = false ) {
+
+	local returnstring = ""
+
+	if ( typeof findwhat == "string" )
+		findwhat = findwhat[0]
+	
+	if ( typeof replace == "integer" )
+		replace = replace.tochar()
+
+	// one-liner version
+	// local strlen = str.len()
+	// ( array(strlen, "").apply( @(i, c) str[i] == findwhat ? replace : c ) ).apply( @(c) returnstring += c.tochar() )
+
+	// alternate
+	// local charlist = array(strlen, "").apply( @(c, i) str[i] == findwhat ? replace : c )
+
+	foreach( i, c in str ) {
+
+		if ( c == findwhat ) {
+
+			returnstring += replace
+
+			if ( firstonly )
+				return returnstring + str.slice( i + 1 )
+
+			continue
+		}
+		returnstring += c.tochar()
+	}
+
+	return returnstring
+}
+
 function PZI_Util::StringReplace( str, findwhat, replace ) {
 
 	local returnstring = ""
@@ -1721,10 +1759,15 @@ function PZI_Util::StringReplace( str, findwhat, replace ) {
 
 	local start = 0
 	local previndex = 0
-	while ( start < str.len() ) {
+	local str_len = str.len()
+
+	while ( start < str_len ) {
+
 		local index = str.find( findwhat, start )
+
 		if ( index == null ) {
-			if ( start < str.len() - 1 )
+
+			if ( start < str_len - 1 )
 				splitlist.append( str.slice( start ) )
 			break
 		}
@@ -1735,8 +1778,10 @@ function PZI_Util::StringReplace( str, findwhat, replace ) {
 		previndex = start
 	}
 
+	local last_index = splitlist.len() - 1
 	foreach ( index, s in splitlist ) {
-		if ( index < splitlist.len() - 1 )
+
+		if ( index < last_index )
 			returnstring += s + replace
 		else
 			returnstring += s
