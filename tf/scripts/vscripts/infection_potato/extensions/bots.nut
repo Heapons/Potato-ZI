@@ -542,7 +542,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 				if ( cls[10] == 'l' && wep.animset[0] == 'h' )
 					wep_ent.AddAttribute( "active health degen", -2.0, -1.0 )
 				
-				else if ( wep.slot[1] == 'r' && bot.GetPlayerClass() == TF_CLASS_PYRO )
+				else if ( wep.item_slot[1] == 'r' && bot.GetPlayerClass() == TF_CLASS_PYRO )
 					wep_ent.AddAttribute( "mult airblast refire time", 3.0, -1 )
 
 				PZI_Util.KillOnDeath( bot, wep_ent )
