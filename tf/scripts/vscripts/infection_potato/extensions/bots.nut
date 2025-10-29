@@ -234,7 +234,7 @@ PZI_Bots.RandomLoadouts <- {
 		[SLOT_PRIMARY] = [
 
 			"The Rescue Ranger"
-			"The Frontier Justie"
+			"The Frontier Justice"
 			"The Pomson 6000"
 			"The Widowmaker"
 			"Panic Attack Shotgun"
