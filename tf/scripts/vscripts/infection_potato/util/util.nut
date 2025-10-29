@@ -2636,11 +2636,9 @@ PZI_EVENT( "teamplay_round_start", "UtilRoundStart", function ( params ) {
 	SetPropBool( PZI_Util.GameRules, "m_bIsInTraining", false )
 	PZI_Util.ResetConvars()
 
-	foreach( table in ["kill_on_spawn", "kill_on_death"] )
+	foreach( table in [ "kill_on_spawn", "kill_on_death" ] )
 		foreach ( player, wearables in PZI_Util[ table ] )
-			foreach ( wearable in wearables )
-				if ( wearable && wearable.IsValid() )
-					EntFireByHandle( wearable, "Kill", null, -1, null, null )
+			PZI_Util.EntShredder.extend( wearables )
 
 	PZI_Util.kill_on_spawn.clear()
 	PZI_Util.kill_on_death.clear()

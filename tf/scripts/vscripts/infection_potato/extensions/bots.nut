@@ -20,7 +20,7 @@ PZI_Bots.MAX_BOTS_PER_MAP <- {
     ctf_pressure        = 50
     ctf_sawmill         = 40
     ctf_turbine         = 32
-    
+
     cp_ambush_event     = 60
     cp_coldfront        = 50
     cp_conifer          = 60
@@ -53,7 +53,7 @@ PZI_Bots.MAX_BOTS_PER_MAP <- {
 	koth_synthetic_event = 32
 	koth_toxic          = 18
 	koth_undergrove	    = 32
-	
+
 	plr_cutter		    = 45
 	plr_hacksaw_event   = 40
 	plr_hightower_event = 18
@@ -541,6 +541,9 @@ PZI_Bots.PZI_BotBehavior <- class {
 				// this means low HP bots can potentially hp drain and die but whatever
 				if ( cls[10] == 'l' && wep.animset[0] == 'h' )
 					wep_ent.AddAttribute( "active health degen", -2.0, -1.0 )
+				
+				else if ( wep.slot[1] == 'r' && bot.GetPlayerClass() == TF_CLASS_PYRO )
+					wep_ent.AddAttribute( "mult airblast refire time", 3.0, -1 )
 
 				PZI_Util.KillOnDeath( bot, wep_ent )
 			}
@@ -1033,7 +1036,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 
 		if ( lookat )
 			LookAt( look_pos, turnrate_min, turnrate_max )
-		
+
 		if ( path_debug ) {
 
 			DebugDrawLine( bot.GetOrigin(), point, 255, 100, 0, false, 0.1 )
@@ -1140,7 +1143,7 @@ function PZI_Bots::ThinkTable::BotQuotaManager() {
 		// kick a bot and check again next think
 		foreach ( _bot in doomed_bots.keys() ) {
 
-			// local kick = ShouldKickBot( kickme ) 
+			// local kick = ShouldKickBot( kickme )
 			// printl( kickme + " : " + kick )
 			if ( !ShouldKickBot( _bot ) )
 				continue
@@ -1582,12 +1585,12 @@ PZI_EVENT( "player_spawn", "PZI_Bots_PostInventoryApplication", function( params
 		bot.SetMission( mission, true )
 
 		// scope.PZI_BotBehavior.GiveRandomLoadout()
-		PZI_Util.ScriptEntFireSafe( bot, " if ( self.GetTeam() == TEAM_HUMAN ) PZI_BotBehavior.GiveRandomLoadout()", 5.0 )
+		PZI_Util.ScriptEntFireSafe( bot, "if ( self.GetTeam() == TEAM_HUMAN ) PZI_BotBehavior.GiveRandomLoadout()", 5.0 )
 	}
 
 	// give bots infinite ammo
-	PZI_Util.ScriptEntFireSafe( bot, "self.AddCustomAttribute( `ammo regen`, 9999.0, -1 )" , 1.0 )
-	PZI_Util.ScriptEntFireSafe( bot, "self.AddCustomAttribute( `metal regen`, 9999.0, -1 )", 1.0 )
+	PZI_Util.ScriptEntFireSafe( bot, "self.AddCustomAttribute( `ammo regen`, 9999.0, -1 )" , 5.0 )
+	PZI_Util.ScriptEntFireSafe( bot, "self.AddCustomAttribute( `metal regen`, 9999.0, -1 )", 5.0 )
 
 	local b = scope.PZI_BotBehavior
 
@@ -1629,14 +1632,12 @@ PZI_EVENT( "player_spawn", "PZI_Bots_PostInventoryApplication", function( params
 
 					if ( b.path_debug )
 						new_area.DebugDrawFilled( 255, 255, 0, 50, 2.0, true, 0.0 )
-					
-					printl( ( center - b.cur_pos ).LengthSqr() )
 
-					// 256 hu^2 
+					// 256 hu^2
 					if ( ( center - b.cur_pos ).LengthSqr() <= 65535.0 ) {
 
 						if ( b.path_debug ) {
-							
+
 							printf( "bot %s moved to '%s'\n", bot.tostring(), center.ToKVString() )
 							bot.SetAbsOrigin( center + Vector( 0, 0, 20 ) )
 						}
