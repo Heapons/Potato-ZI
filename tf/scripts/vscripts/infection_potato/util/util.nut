@@ -1922,6 +1922,7 @@ function PZI_Util::RoundWin( team = 2 ) {
 
 	EntFire( "tf_wea*", "Kill" )
 	EntFire( "tf_viewmodel*", "Kill" )
+	EntFire( "pd_dispenser", "Kill" )
 	ScriptEntFireSafe("player", @"
 
 		SetPropString( self, `m_iszScriptThinkFunction`, `` )
