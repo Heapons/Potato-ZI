@@ -736,7 +736,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 		cur_eye_fwd = cur_eye_ang.Forward()
 		time = Time()
 
-		if ( threat && !threat.IsValid() )
+		if ( !threat || !threat.IsValid() )
 			return threat = null, threat_pos = Vector()
 
 		threat_pos  = threat.GetOrigin()
