@@ -572,6 +572,9 @@ PZI_Bots.PZI_BotBehavior <- class {
 
 		local tolerance = 0.5736 // cos( 110/2 )
 
+		if (!target || !target.IsValid())
+			return false
+
 		local delta = target.GetOrigin() - cur_eye_pos
 		delta.Norm()
 		if ( cur_eye_fwd.Dot( target ) >= tolerance )
