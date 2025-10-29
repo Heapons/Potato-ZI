@@ -229,7 +229,7 @@ function PrecacheThink() {
     if ( !result )
         return 1
 
-    printf( "PRECACHING RESOURCES (%d / %d)\n", result, getconsttable().len() )
+    // printf( "PRECACHING RESOURCES (%d / %d)\n", result, getconsttable().len() )
     return -1
 }
 dummy.GetScriptScope().PrecacheThink <- PrecacheThink

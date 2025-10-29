@@ -141,9 +141,6 @@ function CreateExplosion( _vecLocation, _flDmg, _flRange, _hInflictor, _flForceM
         origin       = _vecLocation
     })
 
-    SetPropBool( _hPfxEnt, STRING_NETPROP_PURGESTRINGS, true )
-    SetPropBool( _hBomb, STRING_NETPROP_PURGESTRINGS, true )
-
     _hPfxEnt.AcceptInput( "Start", null, null, null )
 
     // kill pfx ent after 2 seconds
@@ -829,10 +826,10 @@ function CTFPlayer_BuildZombieHUDString() {
 
 	// if ( !_sc ) return
 
-    Assert( _sc.m_hZombieAbility && _sc.m_hZombieAbility.IsValid(), "BuildZombieHUDString: m_hZombieAbility is null/invalid!" )
+    Assert( _sc.m_hZombieAbility, "BuildZombieHUDString: m_hZombieAbility is null!" )
 
-    if ( !_sc.m_hZombieAbility )
-        return _sc.m_szCurrentHUDString = ""
+    // if ( !ability )
+    //     return _sc.m_szCurrentHUDString = ""
 
     if ( _sc.m_fTimeNextCast == ACT_LOCKED )
         return _sc.m_szCurrentHUDString = _sc.m_hZombieAbility.m_iAbilityType == ZABILITY_PASSIVE ? STRING_UI_PASSIVE : STRING_UI_CASTING
@@ -842,7 +839,7 @@ function CTFPlayer_BuildZombieHUDString() {
     if ( _flSecondsUntilAbility < 0 )
         return _sc.m_szCurrentHUDString = STRING_UI_READY
 
-    local _szMessage = STRING_UI_READY_IN
+    local _szMessage = "Ready In "
     local _nWholeSeconds = _flSecondsUntilAbility.tointeger()
     local _nDecimalPart  = _flSecondsUntilAbility - _nWholeSeconds
 

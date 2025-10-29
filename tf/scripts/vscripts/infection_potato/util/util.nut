@@ -276,12 +276,11 @@ function PZI_Util::EntityManager() {
 
 	foreach( i, ent in EntShredder ) {
 
-		if ( ent.GetName() != "" )
-			PZI_GameStrings.StringTable[ ent.GetName() ] <- ent.GetScriptId()
+		PZI_GameStrings.StringTable[ ent.GetScriptId() ] <- ent.GetName()
 
 		SetPropString( ent, STRING_NETPROP_NAME, queue )
 
-		if ( _len < 150 && !( i % 10 ) )
+		if ( _len < 150 && !( i % 50 ) )
 			yield EntFire( queue, "Kill" ), true
 	}
 
@@ -289,7 +288,7 @@ function PZI_Util::EntityManager() {
 }
 
 local gen = PZI_Util.EntityManager()
-resume gen
+
 function PZI_Util::ThinkTable::EntityManagerThink() {
 
 	if ( !EntShredder.len() )
@@ -743,10 +742,7 @@ function PZI_Util::GiveWearableItem( player, item_id, model = null ) {
 	player.RemoveEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
 
 	// add wearable to global table for removal on death/respawn
-	if (player.entindex() in PZI_Util.kill_on_spawn)
-		PZI_Util.kill_on_spawn[ player ].append( wearable )
-	else
-		PZI_Util.kill_on_spawn[ player ] <- [ wearable ]
+	KillOnSpawn( player, wearable )
 
 	return wearable
 }
@@ -779,10 +775,7 @@ function PZI_Util::CreateWearable( player, model, bonemerge = true, attachment =
 	SetParentLocalOrigin( wearable, player, attachment )
 
 	if ( auto_destroy )
-		if (player.entindex() in PZI_Util.kill_on_death)
-			PZI_Util.kill_on_death[ player ].append( wearable )
-		else
-			PZI_Util.kill_on_death[ player ] <- [ wearable ]
+		KillOnDeath( player, wearable )
 
 	return wearable
 }
@@ -1076,6 +1069,9 @@ function PZI_Util::PointScriptTemplate( targetname = null, onspawn = null ) {
 }
 
 function PZI_Util::AttachParticle( ent, particle, attachment_name ) {
+
+	if ( !TriggerParticle || !TriggerParticle.IsValid() )
+		TriggerParticle = PZI_Util.TriggerParticle
 
 	SetPropString( TriggerParticle, "m_iszParticleName", particle )
 	SetPropString( TriggerParticle, "m_iszAttachmentName", attachment_name )
@@ -1619,6 +1615,22 @@ function PZI_Util::RemovePlayerWearables( player ) {
 	return
 }
 
+function PZI_Util::KillOnDeath( player, entity ) {
+
+	if ( player.entindex() in PZI_Util.kill_on_death )
+		PZI_Util.kill_on_death[ player ].append( entity )
+	else
+		PZI_Util.kill_on_death[ player ] <- [ entity ]
+}
+
+function PZI_Util::KillOnSpawn( player, entity ) {
+
+	if ( player.entindex() in PZI_Util.kill_on_spawn )
+		PZI_Util.kill_on_death[ player ].append( entity )
+	else
+		PZI_Util.kill_on_death[ player ] <- [ entity ]
+}
+
 function PZI_Util::GiveWeapon( player, class_name, item_id ) {
 
 	if ( typeof item_id == "string" && class_name == "tf_wearable" ) {
@@ -1912,10 +1924,12 @@ function PZI_Util::RoundWin( team = 2 ) {
 	EntFire( "tf_viewmodel*", "Kill" )
 	ScriptEntFireSafe("player", @"
 
-		self.TerminateScriptScope()
+		SetPropString( self, `m_iszScriptThinkFunction`, `` )
 		self.AcceptInput(`DispatchEffect`, `ParticleEffectStop`, null, null )
 		SetPropInt(self, `m_nRenderMode`, kRenderTransColor )
 		SetPropInt(self, `m_clrRender`, 0 )
+		SetPropBool( self, `m_bGlowEnabled`, false )
+		self.TerminateScriptScope()
 	")
 }
 
@@ -2651,10 +2665,12 @@ PZI_EVENT( "player_death", "UtilPlayerDeath", function ( params ) {
 
 	local player = GetPlayerFromUserID( params.userid )
 
-	if ( player in PZI_Util.kill_on_death )
-		foreach ( wearable in PZI_Util.kill_on_death[ player ] )
-			if ( wearable && wearable.IsValid() )
-				EntFireByHandle( wearable, "Kill", null, -1, null, null )
+	if ( player in PZI_Util.kill_on_death ) {
+
+		PZI_Util.EntShredder.extend( PZI_Util.kill_on_death[ player ] )
+		PZI_Util.kill_on_death[ player ].clear()
+	}
+
 
 }, EVENT_WRAPPER_UTIL )
 

@@ -308,17 +308,17 @@ PZI_Bots.RandomLoadouts <- {
 		[SLOT_PRIMARY] = [
 
 			"The Ambassador"
-			"The L'Etranger"
+			"L'Etranger"
 			"The Enforcer"
 			"The Diamondback"
 		],
 
 		[SLOT_MELEE] = [
 
-			"You Eternal Reward"
+			"Your Eternal Reward"
 			"The Wanga Prick"
 			"The Big Earner"
-			"The Conniver's Kunai"
+			"Conniver's Kunai"
 			"The Black Rose"
 		]
 	},
@@ -436,9 +436,6 @@ PZI_Bots.PZI_BotBehavior <- class {
 
 		bot.AddEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
 
-		if ( !( bot in PZI_Util.kill_on_death ) )
-			PZI_Util.kill_on_death[ bot ] <- []
-
 		foreach ( slot, wepinfo in loadouts ) {
 
 			local wepname = wepinfo[ RandomInt( 0, wepinfo.len() - 1 ) ]
@@ -465,10 +462,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 				if ( cls[10] == 'l' && wep.animset[0] == 'h' )
 					wep_ent.AddAttribute( "active health degen", -2.0, -1.0 )
 
-				if ( bot in PZI_Util.kill_on_death )
-					PZI_Util.kill_on_death[ bot ].append( wep_ent )
-				else
-					PZI_Util.kill_on_death[ bot ] <- [ wep_ent ]
+				PZI_Util.KillOnDeath( bot, wep_ent )
 			}
 		}
 
@@ -479,10 +473,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 
 			SwitchToFirstValidWeapon( activator )
 
-			if ( !(activator in kill_on_death) )
-				kill_on_death[ activator ] <- []
-
-			ForEachItem( activator, @( item ) PZI_Util.kill_on_death[ activator ].append( item ) )
+			ForEachItem( activator, @( item ) KillOnDeath( activator, item ) )
 
 			activator.RemoveEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
 
@@ -530,19 +521,19 @@ PZI_Bots.PZI_BotBehavior <- class {
 
 	function IsThreatVisible( target ) 		{ return threat_visible = ( IsInFieldOfView( target ) && IsVisible( target ) ), threat_visible }
 
-	function GetThreatDistance( target ) 	{ return ( target.GetOrigin() - bot.GetOrigin() ).Length() }
+	function GetThreatDistance( target ) 	{ return ( ( target.GetOrigin() || Vector() ) - bot.GetOrigin() ).Length() }
 
-    function GetThreatDistance2D( target ) 	{ return ( target.GetOrigin() - bot.GetOrigin() ).Length2D() }
+    function GetThreatDistance2D( target ) 	{ return ( ( target.GetOrigin() || Vector() ) - bot.GetOrigin() ).Length2D() }
 
-	function GetThreatDistanceSqr( target ) { return ( target.GetOrigin() - bot.GetOrigin() ).LengthSqr() }
+	function GetThreatDistanceSqr( target ) { return ( ( target.GetOrigin() || Vector() ) - bot.GetOrigin() ).LengthSqr() }
 
 	function IsCurThreatVisible() 			{ return threat_visible = ( IsInFieldOfView( threat ) && IsVisible( threat ) ), threat_visible }
 
-	function GetCurThreatDistance() 		{ return ( threat_pos - cur_pos ).Length() }
+	function GetCurThreatDistance() 		{ return ( ( threat_pos || Vector() ) - cur_pos ).Length() }
 
-	function GetCurThreatDistanceSqr() 		{ return ( threat_pos - cur_pos ).LengthSqr() }
+	function GetCurThreatDistanceSqr() 		{ return ( ( threat_pos || Vector() ) - cur_pos ).LengthSqr() }
 
-	function GetCurThreatDistanceSqr2D() 	{ return ( threat_pos - cur_pos ).Length2DSqr() }
+	function GetCurThreatDistanceSqr2D() 	{ return ( ( threat_pos || Vector() ) - cur_pos ).Length2DSqr() }
 
 	function FindClosestThreat( min_dist, must_be_visible = true ) {
 
@@ -985,6 +976,9 @@ function PZI_Bots::ShouldKickBot( bot ) {
 		return true
 
 	local scope = bot.GetScriptScope()
+
+	if ( !( "PZI_BotBehavior" in scope ) )
+		return true
 
 	local b = scope.PZI_BotBehavior
 
@@ -1475,6 +1469,15 @@ PZI_EVENT( "player_spawn", "PZI_Bots_PostInventoryApplication", function( params
 			bot.SetMission( NO_MISSION, true )
 	}
 
+	// kill bots with a random delay
+	// this staggers the bots internal thinks
+	// causing less hitching/performance spikes
+	if ( !bGameStarted && !("__pzi_firstkill" in scope) && bot.GetTeam() == TEAM_HUMAN ) {
+
+		scope.__pzi_firstkill <- true
+		PZI_Util.ScriptEntFireSafe( bot, "PZI_Util.KillPlayer( self )", RandomFloat( 0.2, 1.6 ) )
+	}
+
 	else if ( bot.GetTeam() == TEAM_ZOMBIE || cls == TF_CLASS_PYRO || cls == TF_CLASS_SPY )
 		bot.SetMission( MISSION_SPY, true )
 
@@ -1509,34 +1512,55 @@ PZI_EVENT( "player_spawn", "PZI_Bots_PostInventoryApplication", function( params
 		b.OnUpdate()
 
 		// lazy unstuck behavior, just teleport the bot somewhere safe
-		if ( b.locomotion.GetStuckDuration() > 15.0 ) {
 
-			local area = bot.GetLastKnownArea()
+		local stucktime = b.locomotion.GetStuckDuration()
 
-			if ( !area ) {
+		if ( stucktime > 5.0 ) {
 
-				local areas = {}
+			local area = bot.GetLastKnownArea() || GetNearestNavArea( bot.GetOrigin(), 192.0, false, false )
 
-				GetNavAreasInRadius( bot.GetOrigin(), 192.0, areas )
+			if ( b.path_debug ) {
 
-				if ( areas.len() )
-					area = areas.values()[ RandomInt( 0, areas.len() - 1 ) ]
+				SetPropBool( bot, "m_bGlowEnabled", !!stucktime )
+				printf( "bot %s STUCK!\n pos: %s\n stuck time: %.2f\n last known area: '%s'\n", bot.tostring(), bot.GetOrigin().ToKVString(), stucktime, ""+area )
 			}
 
-			// still no nearby nav, just kill and respawn
+			// no nearby nav, just kill and respawn
 			if ( !area )
-				return PZI_Util.KillPlayer( bot ), 1
+				PZI_Util.KillPlayer( bot )
 
-			for ( local navdir = 0; navdir < NUM_DIRECTIONS; navdir++ )
+			else {
 
-				if ( area.GetAdjacentArea( navdir, 1 ) ) {
+				for ( local navdir = 0; navdir < NUM_DIRECTIONS; navdir++ ) {
 
-					bot.SetAbsOrigin( area.GetAdjacentArea( navdir, 1 ).GetCenter() )
-					b.locomotion.ClearStuckStatus( "Moved to new nav area" )
-					break
+					local new_area = area.GetRandomAdjacentArea( navdir )
 
+					if ( !new_area || PZI_Nav.SafeNavAreas.values().find( new_area ) == null )
+						continue
+
+					local center = new_area.GetCenter()
+
+					if ( b.path_debug )
+						new_area.DebugDrawFilled( 255, 255, 0, 50, 2.0, true, 0.0 )
+					
+					printl( ( center - b.cur_pos ).LengthSqr() )
+
+					// 256 hu^2 
+					if ( ( center - b.cur_pos ).LengthSqr() <= 65535.0 ) {
+
+						if ( b.path_debug ) {
+							
+							printf( "bot %s moved to '%s'\n", bot.tostring(), center.ToKVString() )
+							bot.SetAbsOrigin( center + Vector( 0, 0, 20 ) )
+						}
+							new_area.DebugDrawFilled( 255, 0, 255, 80, 5.0, true, 0.0 )
+
+						b.locomotion.ClearStuckStatus( "Moved to new nav area" )
+						b.UpdatePath( b.threat_pos, true )
+						break
+					}
 				}
-
+			}
 			// area.MarkAsBlocked( TEAM_ZOMBIE )
 		}
 	}

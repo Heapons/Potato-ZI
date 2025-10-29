@@ -296,7 +296,7 @@ function PZI_PlayerThink() {
                     EmitSoundOnClient( "TFPlayer.FlameOut", self )
             }
 
-            if ( _bPressingAttack2 && !_bCanCast && _sc.m_iCurrentAbilityType != ZABILITY_PASSIVE && m_iFlags & ZBIT_HASNT_HEARD_DENY_SFX ) {
+            if ( _bPressingAttack2 && !_bCanCast && m_iCurrentAbilityType != ZABILITY_PASSIVE && m_iFlags & ZBIT_HASNT_HEARD_DENY_SFX ) {
 
                     EmitSoundOnClient( "Player.UseDeny", self )
                     m_iFlags = m_iFlags & ~ZBIT_HASNT_HEARD_DENY_SFX

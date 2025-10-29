@@ -101,20 +101,21 @@ function PZI_GameStrings::PurgeString( str ) {
 
 function PZI_GameStrings::StringFixGenerator() {
 
+    // these weird redundant checks are due to delayed execution quirks.
     if ( !( "PZI_GameStrings" in ROOT ) )
         return
 
     local PurgeString = PZI_GameStrings.PurgeString
 
     local i = 1
-    foreach ( k, v in ( clone StringTable ) ) {
+    foreach ( k, v in StringTable ) {
 
         PurgeString( k )
         PurgeString( v )
 
     //    printl( format( "GAME STRINGS : %s : %s : %d", k.tostring(), v ? v.tostring() : "null", i ) )
         if ( !( i % 4 ) )
-            yield k || true
+            yield true
 
         i++
     }
@@ -214,5 +215,5 @@ function PZI_GameStrings::PurgeAllStrings() {
     StringTable["PZI_GameStrings.StringTable[self.GetScriptId()] <- null"] <- "SetPropBool( self, STRING_NETPROP_PURGESTRINGS, true )"
 }
 
-foreach ( event in [ "teamplay_round_start", "teamplay_setup_finished" ] )
-    PZI_EVENT( event, format( "GameStrings%s", event ), @( _ ) PZI_GameStrings.PurgeAllStrings() )
+PZI_EVENT( "teamplay_round_start", "GameStringsRoundStart", @( _ ) PZI_GameStrings.PurgeAllStrings() )
+PZI_EVENT( "teamplay_setup_finished", "GameStringsSetupFinished", @( _ ) PZI_GameStrings.PurgeAllStrings() )

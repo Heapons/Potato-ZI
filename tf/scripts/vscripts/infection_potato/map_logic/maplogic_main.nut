@@ -169,17 +169,20 @@ local gamemode_funcs = {
 
         PZI_Util.ScriptEntFireSafe( "item_teamflag", @"
 
-            self.AddFlag( FL_DONTTOUCH )
-            self.DisableDraw()
             AddOutput( self, `OnPickup`, `item_teamflag`, `ForceResetSilent`, null, 0, -1 )
 
             self.ValidateScriptScope()
+
+            self.SetModelSimple( `models/empty.mdl` )
+            self.DisableDraw()
+            self.AddFlag( FL_DONTTOUCH )
 
             // move me around to make bots move around the map more.
             function FlagMoveThink() {
 
                 self.SetAbsOrigin( PZI_Nav.GetRandomSafeArea().GetCenter() )
                 self.AcceptInput( `ForceResetSilent`, null, null, null )
+                SetPropBool( self, `m_bGlowEnabled`, false )
                 return 10.0
             }
 
@@ -534,6 +537,9 @@ PZI_EVENT( "player_spawn", "PZI_MapLogic_PlayerSpawn", function ( params ) {
 
     local player = GetPlayerFromUserID( params.userid )
     PZI_Util.ScriptEntFireSafe( "__pzi_respawnoverride", "self.SetSize( Vector( -9999, -9999, -9999 ), Vector( 9999, 9999, 9999 ) )", -1 )
+
+    EntFire( "tf_gamerules", "SetBlueTeamRespawnWaveTime", ""+BASE_RESPAWN_TIME, -1 )
+
     EntFire( "__pzi_respawnoverride", "SetRespawnTime", ""+BASE_RESPAWN_TIME, -1 )
     EntFire( "__pzi_respawnoverride", "StartTouch", "!activator", -1, player )
 

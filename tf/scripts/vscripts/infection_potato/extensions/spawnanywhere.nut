@@ -50,11 +50,26 @@ function PZI_SpawnAnywhere::SetGhostMode( player ) {
 
     player.AddHudHideFlags( CONST.HIDEHUD_GHOST )
 
-    for ( local child = player.FirstMoveChild(); child; child = child.NextMovePeer() )
-        if ( child instanceof CEconEntity )
+    for ( local child = player.FirstMoveChild(); child; child = child.NextMovePeer() ) {
+
+        if ( child instanceof CEconEntity ) {
+            
+            // botkillers, etc
+            local extra_wearable = GetPropEntity( child, "m_hExtraWearable" )
+            local extra_wearable_vm = GetPropEntity( child, "m_hExtraWearableViewModel" )
+
+            if ( extra_wearable )
+                EntFireByHandle( extra_wearable, "Kill", null, -1, null, null )
+            
+            if ( extra_wearable_vm )
+                EntFireByHandle( extra_wearable_vm, "Kill", null, -1, null, null )
+
             EntFireByHandle( child, "Kill", "", -1, null, null )
-        else
-            child.DisableDraw()
+            continue
+        }
+
+        child.DisableDraw()
+    }
 
     PZI_Util.ScriptEntFireSafe( player, "self.AddCustomAttribute( `dmg taken increased`, 0, -1 )", -1 )
     PZI_Util.ScriptEntFireSafe( player, "self.AddCustomAttribute( `move speed bonus`, 5, -1 )", -1 )
@@ -73,29 +88,37 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
 
     local scope = PZI_Util.GetEntScope( player )
 
-    if ( "GhostThink" in scope.ThinkTable )
+    if ( "ThinkTable" in scope && "GhostThink" in scope.ThinkTable )
         delete scope.ThinkTable.GhostThink
 
-    //should already be invis but whatever
+    // should already be invis but whatever
     SetPropInt( player, "m_nRenderMode", kRenderTransColor )
     SetPropInt( player, "m_clrRender", 0 )
 
-    player.SetAbsOrigin( origin + Vector( 0, 0, 20 ) )
-
+    // force player to duck
+    // mitigates some stuck spots
     SetPropInt( player, "m_afButtonForced", IN_DUCK )
     SetPropBool( player, "m_Local.m_bDucked", true )
     player.AddFlag( FL_DUCKING|FL_ATCONTROLS )
 
+    // teleport player to our summon location
+    player.SetAbsOrigin( origin + Vector( 0, 0, 20 ) )
     player.SetAbsVelocity( Vector() )
+
     player.AcceptInput( "SetForcedTauntCam", "1", null, null )
-    player.AddCustomAttribute( "no_jump", 1, -1 )
-    player.GiveZombieEyeParticles()
+    SetPropFloat( player, "m_flNextPrimaryAttack", Time() + 2.0 )
+    SetPropFloat( player, "m_flNextSecondaryAttack", Time() + 2.0 )
+    player.GiveZombieEyeParticles() // TODO: doesn't work
     EntFire("spawn_hint_" + player.entindex(), "Kill")
 
     scope.m_iFlags = scope.m_iFlags | ZBIT_PENDING_ZOMBIE
 
     local playercls = player.GetPlayerClass()
 
+    /**************************************************************************
+     * SKELETON                                                               *
+     * ANIMATION BASE FOR PLAYING SKELETON SUMMON ANIMATIONS ON PLAYER MODELS *
+     **************************************************************************/
     local dummy_skeleton = CreateByClassname( "funCBaseFlex" )
 
     dummy_skeleton.SetModel( SNIPER_SKELETON )
@@ -117,6 +140,10 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
     dummy_skeleton.ResetSequence( dummy_skeleton.LookupSequence( spawn_seq_name ) )
     dummy_skeleton.SetPlaybackRate( SUMMON_ANIM_MULT )
 
+    /***********************************************
+     * DUMMY PLAYER                                *
+     * PLAYER MODEL TO BONEMERGE ONTO THE SKELETON *
+     ***********************************************/
     local dummy_player = CreateByClassname( "funCBaseFlex" )
 
     dummy_player.SetModel( format( "models/player/%s.mdl", PZI_Util.Classes[playercls] ) )
@@ -128,7 +155,10 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
     dummy_scope.dummy_player <- dummy_player
     // CTFPlayer.GiveZombieEyeParticles.call( dummy_player )
 
-    // attach the zombie cosmetics to a dummy prop
+    /***********************************************
+     * FAKE WEARABLES                              *
+     * Attach zombie cosmetics to our dummy player *
+     ***********************************************/
     local fakewearable = CreateByClassname( "prop_dynamic_ornament" )
     fakewearable.SetModel( arrZombieCosmeticModelStr[playercls] )
     fakewearable.SetSkin( 1 )
@@ -136,6 +166,9 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
     fakewearable.AcceptInput( "SetAttached", "!activator", dummy_player, dummy_player )
     dummy_scope.fakewearable <- fakewearable
 
+    /*********************
+     * PLAYER ATTRIBUTES *
+     *********************/
     player.RemoveCustomAttribute( "dmg taken increased" )
     player.SetHealth( 1 )
     player.RemoveHudHideFlags( CONST.HIDEHUD_GHOST )
@@ -146,12 +179,16 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
 
     PZI_Util.ScriptEntFireSafe( player, "self.AddCond( TF_COND_HALLOWEEN_QUICK_HEAL )", SUMMON_HEAL_DELAY )
 
+    /*******************************************************
+     * PRE-SPAWN                                           *
+     * remove the quick heal cond when we're at max health *
+     *******************************************************/
     function SummonPreSpawn() {
 
         if ( player.GetHealth() >= player.GetMaxHealth() * SUMMON_MAX_OVERHEAL_MULT ) {
 
             player.RemoveCond( TF_COND_HALLOWEEN_QUICK_HEAL )
-            delete this.ThinkTable.SummonPreSpawn
+            delete ThinkTable.SummonPreSpawn
         }
     }
 
@@ -163,8 +200,12 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
 
     player.AddCustomAttribute( lastattrib[0], lastattrib[1], lastattrib[2] )
 
+    /************************
+     * BEGIN SPAWN SEQUENCE *
+     ************************/
     function SpawnPlayer() {
-
+        
+        // kill dummy if we're not mid-round, player is invalid or dead
         if ( !bGameStarted || !player || !player.IsValid() || !player.IsAlive() ) {
 
             if ( fakewearable && fakewearable.IsValid() )
@@ -173,6 +214,10 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
             self.Kill()
             return
         }
+
+        // update dummy position to match player
+        self.SetAbsOrigin( player.GetOrigin() )
+        self.SetAbsAngles( QAngle( 0, player.EyeAngles().y, 0 ) )
 
         // animation finished, "spawn" player
         if ( GetPropFloat( self, "m_flCycle" ) >= 0.99 ) {
