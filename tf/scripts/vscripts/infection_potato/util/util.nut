@@ -1934,8 +1934,8 @@ function PZI_Util::RoundWin( team = 2 ) {
 		SetPropInt(self, `m_nRenderMode`, kRenderTransColor )
 		SetPropInt(self, `m_clrRender`, 0 )
 		SetPropBool( self, `m_bGlowEnabled`, false )
-		self.TerminateScriptScope()
 	")
+	EntFire( "player", "TerminateScriptScope", null, 0.1 )
 }
 
 function PZI_Util::GetWeaponMaxAmmo( player, wep ) {

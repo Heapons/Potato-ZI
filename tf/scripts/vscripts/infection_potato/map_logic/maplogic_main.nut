@@ -1,4 +1,4 @@
-PZI_CREATE_SCOPE( "__PZI_MapLogic", "PZI_MapLogic" )
+PZI_CREATE_SCOPE( "__PZI_MapLogic", "PZI_MapLogic", null, "PZI_MapLogicThink" )
 
 // Strip all logic from all maps to replace with ZI logic
 SetValue( "mp_autoteambalance", 0 )
@@ -478,6 +478,13 @@ local setup_finished_relay_table = {
     "OnSpawn#8" : "func_respawnroom,SetInactive,,0,-1"
     "OnSpawn#9" : "func_regenerate,Kill,,0,-1"
 }
+
+function PZI_MapLogic::ThinkTable::KillWastefulEnts() {
+    
+    // face flexes/animations for vo/pain feedback
+    EntFire( "instanced_scripted_scene", "RunScriptCode", "SetPropBool( self, STRING_NETPROP_PURGESTRINGS, true ); self.Kill()" )
+}
+
 PZI_EVENT( "teamplay_round_start", "PZI_MapLogic_RoundStart", function ( params ) {
 
     if ( GAMEMODE in gamemode_funcs )

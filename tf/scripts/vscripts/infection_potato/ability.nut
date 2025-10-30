@@ -134,7 +134,7 @@ class CSpyReveal extends CZombieAbility {
 
             effect_name   =  FX_EMITTER_FX,
             start_active  =  "0",
-            targetname    =  "ZombieSpy_Revealer_pfx",
+            targetname    =  "__pzi_spy_reveal_pfx_" + m_hAbilityOwner.entindex(),
             origin        =  m_hAbilityOwner.GetOrigin(),
         })
 
@@ -290,11 +290,11 @@ class CMedicHeal extends CZombieAbility {
 
         _d.m_hTempEntity <- SpawnEntityFromTable( "info_particle_system", {
 
-            effect_name   =  FX_MEDIC_HEAL,
-            start_active  =  "0",
-            targetname    =  "__pzi_zspy_revealer" + m_hAbilityOwner.entindex(),
-            origin        =  m_hAbilityOwner.GetOrigin(),
-        } )
+            effect_name   =  FX_MEDIC_HEAL
+            start_active  =  "0"
+            targetname    =  "__pzi_zmedic_heal_pfx" + m_hAbilityOwner.entindex()
+            origin        =  m_hAbilityOwner.GetOrigin()
+        })
 
         m_hAbilityOwner.ClearZombieEntity( "m_hZombieFXWearable" )
         m_hAbilityOwner.ClearZombieEntity( "m_hZombieWearable" )

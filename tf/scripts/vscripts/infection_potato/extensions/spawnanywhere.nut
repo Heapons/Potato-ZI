@@ -146,7 +146,7 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
      ***********************************************/
     local dummy_player = CreateByClassname( "funCBaseFlex" )
 
-    dummy_player.SetModel( format( "models/player/%s.mdl", PZI_Util.Classes[playercls] ) )
+    dummy_player.SetModelSimple( format( "models/player/%s.mdl", PZI_Util.Classes[playercls] ) )
     dummy_player.SetAbsOrigin( origin )
     dummy_player.SetSkin( player.GetSkin() + (player.GetPlayerClass() == TF_CLASS_SPY ? 22 : 4) )
     dummy_player.AcceptInput( "SetParent", "!activator", dummy_skeleton, dummy_skeleton )
@@ -160,7 +160,7 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
      * Attach zombie cosmetics to our dummy player *
      ***********************************************/
     local fakewearable = CreateByClassname( "prop_dynamic_ornament" )
-    fakewearable.SetModel( arrZombieCosmeticModelStr[playercls] )
+    fakewearable.SetModelSimple( arrZombieCosmeticModelStr[playercls] )
     fakewearable.SetSkin( 1 )
     ::DispatchSpawn( fakewearable )
     fakewearable.AcceptInput( "SetAttached", "!activator", dummy_player, dummy_player )
