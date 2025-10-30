@@ -1260,7 +1260,15 @@ function PZI_Bots::AllocateBots( count = PZI_Bots.MAX_BOTS ) {
 
 		", inc + 5.0, null, null )
 	}
-	EntFire( "point_commentary_node", "Kill", null, 1 )
+	node.ValidateScriptScope()
+	node.GetScriptScope().time <- Time() + 2.0
+	function CommentaryNodeKill() {
+
+		if ( Time() > time ) {
+			return self.Kill(), 1
+	}
+	node.GetScriptScope().CommentaryNodeKill <- CommentaryNodeKill
+	AddThinkToEnt( node, "CommentaryNodeKill" )
 
 	return generator
 }
