@@ -1,7 +1,7 @@
 // add extensions to this table.
 // extensions will be loaded in the order they are defined.
 ::PZI_ACTIVE_EXTENSIONS <- [
-    {"infection_potato/extensions/"    : [ "damageradiusmult", "spawnanywhere", "bots" ] }
+    { "infection_potato/extensions/" : [ "damageradiusmult", "spawnanywhere", "bots" ] }
 ]
 
 ::ROOT <- getroottable()
