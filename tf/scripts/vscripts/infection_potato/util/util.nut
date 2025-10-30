@@ -1650,7 +1650,8 @@ function PZI_Util::GiveWeapon( player, class_name, item_id ) {
 	// remove existing weapon in same slot
 	for ( local i = 0, old; i < SLOT_COUNT; i++ ) {
 
-		if ( old = GetPropEntityArray( player, STRING_NETPROP_MYWEAPONS, i ) && old.GetSlot() == weapon.GetSlot() ) {
+		old = GetPropEntityArray( player, STRING_NETPROP_MYWEAPONS, i )
+		if ( old && old.GetSlot() == weapon.GetSlot() ) {
 
 			SetPropEntityArray( player, STRING_NETPROP_MYWEAPONS, weapon, i )
 
