@@ -538,8 +538,8 @@ PZI_EVENT( "player_death", "Infection_PlayerDeath", function( params ) {
                 // return // don't add time to the round timer if it's a payload map
 
             PlayGlobalBell()
-            EntFire( "team_round_timer", "AddTime", ADDITIONAL_SEC_PER_PLAYER.tostring() )
-            _sc.m_bCanAddTime <- false
+            EntFire( "team_round_timer", "AddTime", ""+ADDITIONAL_SEC_PER_PLAYER )
+            _sc.m_bCanAddTime = false
 
             return
         }
@@ -573,15 +573,15 @@ PZI_EVENT( "player_death", "Infection_PlayerDeath", function( params ) {
 
                         if ( _hNextPlayer && _hNextPlayer.GetTeam() == TEAM_HUMAN && _hNextPlayer != _hPlayer ) {
 
-                            KnockbackPlayer           ( _hPlayer, _hNextPlayer, 210, 0.85, true )
-                            _hNextPlayer.TakeDamageEx ( _hKillicon, _hPlayer, _hPlayer.GetActiveWeapon(), Vector(), _hPlayer.GetOrigin(), 10, ( DMG_CLUB | DMG_PREVENT_PHYSICS_FORCE ) )
+                            KnockbackPlayer( _hPlayer, _hNextPlayer, 210, 0.85, true )
+                            _hNextPlayer.TakeDamageEx( _hKillicon, _hPlayer, _hPlayer.GetActiveWeapon(), Vector(), _hPlayer.GetOrigin(), 10, ( DMG_CLUB | DMG_PREVENT_PHYSICS_FORCE ) )
                         }
                     }
 
                     _hKillicon.Destroy()
 
-                    EmitSoundOn            ( SFX_PYRO_FIREBOMB, _hPlayer )
-                    PZI_Util.DispatchEffect ( _hPlayer, "fireSmokeExplosion_track" )
+                    EmitSoundOn( SFX_PYRO_FIREBOMB, _hPlayer )
+                    PZI_Util.DispatchEffect( _hPlayer, "fireSmokeExplosion_track" )
                 }
 
             }
