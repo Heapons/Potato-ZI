@@ -1648,18 +1648,19 @@ function PZI_Util::GiveWeapon( player, class_name, item_id ) {
 	SetPropBool( weapon, STRING_NETPROP_PURGESTRINGS, true )
 
 	// remove existing weapon in same slot
-	local old = GetItemInSlot( player, weapon.GetSlot() )
+	for ( local i = 0, old; i < SLOT_COUNT; i++ ) {
 
-	if ( old && old.IsValid() ) {
+		if ( old = GetPropEntityArray( player, STRING_NETPROP_MYWEAPONS, i ) && old.GetSlot() == weapon.GetSlot() ) {
 
-		SetPropBool( old, STRING_NETPROP_PURGESTRINGS, true )
-		old.Kill()
+			SetPropEntityArray( player, STRING_NETPROP_MYWEAPONS, weapon, i )
+
+			player.Weapon_Equip( weapon )
+			player.Weapon_Switch( weapon )
+
+			PZI_Util.EntShredder.append( old )
+			return weapon
+		}
 	}
-
-	player.Weapon_Equip( weapon )
-	player.Weapon_Switch( weapon )
-
-	return weapon
 }
 
 function PZI_Util::IsEntityClassnameInList( entity, list ) {
