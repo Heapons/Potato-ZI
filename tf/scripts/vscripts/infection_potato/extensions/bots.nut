@@ -1264,7 +1264,7 @@ function PZI_Bots::AllocateBots( count = PZI_Bots.MAX_BOTS ) {
 	node.GetScriptScope().time <- Time() + 2.0
 	function CommentaryNodeKill() {
 
-		if ( Time() > time ) {
+		if ( Time() > time )
 			return self.Kill(), 1
 	}
 	node.GetScriptScope().CommentaryNodeKill <- CommentaryNodeKill
