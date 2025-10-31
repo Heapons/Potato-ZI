@@ -25,9 +25,9 @@ if ( !( "ConstantNamingConvention" in ROOT ) )
 // overwrite this function to avoid conflicts with e.g. pl_spineyard
 function ClearGameEventCallbacks()
 {
-	foreach ( callbacks in [GameEventCallbacks, ScriptEventCallbacks, ScriptHookCallbacks] )
+	foreach ( callbacks in [ GameEventCallbacks, ScriptEventCallbacks, ScriptHookCallbacks ] )
 		foreach ( event_name, scopes in callbacks )
-			scopes = scopes.filter( @( i, scope ) !scope || scope == ROOT || ( "self" in scope && scope.self.GetName() != "__pzi_eventwrapper" ) )
+			callbacks[event_name] = scopes.filter( @( i, scope ) !scope || scope == ROOT || ( "___active_scopes___" in ROOT && !( scope in ___active_scopes___ ) ) )
 }
 
 // String caches
