@@ -289,7 +289,10 @@ function ShouldZombiesWin( _hPlayer ) {
                     if ( !_hNextPlayer || _hNextPlayer == _hPlayer )
                         continue
 
-                    ClientPrint( null, HUD_PRINTTALK, format( STRING_UI_CHAT_LAST_SURV_GREEN, NetName( _hNextPlayer ), STRING_UI_CRITS ) )
+                    local _sc = _hNextPlayer.GetScriptScope()
+
+                    if ( !("m_bLastManStanding" in _sc) || !_sc.m_bLastManStanding )
+                        ClientPrint( null, HUD_PRINTTALK, format( STRING_UI_CHAT_LAST_SURV_GREEN, NetName( _hNextPlayer ), STRING_UI_CRITS ) )
 
                     _hNextPlayer.GetScriptScope().m_bLastManStanding <- true
                     _hNextPlayer.GetScriptScope().m_bLastThree       <- false
