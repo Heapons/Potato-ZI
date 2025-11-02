@@ -1,6 +1,6 @@
 PZI_CREATE_SCOPE( "__pzi_bots", "PZI_Bots", "PZI_BotEnt", "PZI_BotGlobalThink" )
 
-PZI_Bots.MAX_BOTS   	  		 <- 50
+PZI_Bots.MAX_BOTS   	  		 <- 40
 PZI_Bots.FILL_MODE 				 <- 1 // see tf_bot_quota_mode, 0 1 2 = normal fill match
 PZI_Bots.MAX_DOOMED_TIME  		 <- 60.0
 PZI_Bots.MIN_KICK_URGENCY 		 <- 2 // min bot diff before we do something beyond REMOVE_ON_DEATH
@@ -36,6 +36,7 @@ PZI_Bots.MAX_BOTS_PER_MAP <- {
     cp_fulgur           = 50
     cp_granary          = 40
     cp_gorge            = 32
+    cp_gorge_event      = 32
     cp_gravelpit        = 32
     cp_junction_final   = 24
     cp_manor_event      = 40
