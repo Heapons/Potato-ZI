@@ -1424,7 +1424,7 @@ function CTFPlayer_AlreadyInSpit() {
 
     local _sc = this.GetScriptScope()
 
-	if ( !_sc ) return
+	if ( !_sc || !("m_bStandingOnSpit" in _sc) ) return
 
     return _sc.m_bStandingOnSpit
 }
@@ -1434,7 +1434,7 @@ function CTFPlayer_GetLinkedSpitPoolEnt() {
    // printl( "Getting linked spit pool entity from player..." )
     local _sc = this.GetScriptScope()
 
-    if ( !_sc || !_sc.m_bStandingOnSpit )
+    if ( !_sc || !("m_bStandingOnSpit" in _sc) || !_sc.m_bStandingOnSpit )
         return
 
     if ( _sc.m_hLinkedSpitPool && _sc.m_hLinkedSpitPool.IsValid() )
@@ -1445,7 +1445,7 @@ function CTFPlayer_SetLinkedSpitPoolEnt( _hSpitPool ) {
 
     local _sc = this.GetScriptScope()
 
-    if ( !_sc || !_hSpitPool || !_hSpitPool.IsValid() )
+    if ( !_sc || !("m_bStandingOnSpit" in _sc) || !_sc.m_bStandingOnSpit || !_hSpitPool || !_hSpitPool.IsValid() )
         return
 
    // printl( "Setting linked spit pool entity for player..." )
@@ -1459,7 +1459,7 @@ function CTFPlayer_ClearSpitStatus() {
 
     local _sc = this.GetScriptScope()
 
-	if ( !_sc ) return
+	if ( !_sc || !("m_bStandingOnSpit" in _sc) ) return
 
    // printl( "Clearing spit status for player..." )
 
