@@ -266,12 +266,6 @@ function ShouldZombiesWin( _hPlayer ) {
 
         return
     }
-
-    if ( _iValidSurvivors == 3 ) {
-
-        ClientPrint( null, HUD_PRINTTALK, format( STRING_UI_CHAT_LAST_SURV_YELLOW, _iValidSurvivors, STRING_UI_MINI_CRITS ) )
-    }
-
     // check if zombies have killed enough survivors to win
     if ( _iValidSurvivors <= MAX_SURVIVORS_FOR_ZOMBIE_WIN ) {
 
@@ -317,6 +311,9 @@ function ShouldZombiesWin( _hPlayer ) {
 
                     _hNextPlayer.GetScriptScope().m_bLastThree <- true
                     _hNextPlayer.AddCond( TF_COND_OFFENSEBUFF )
+
+                    if ( !("m_bLastThree" in _sc) || !_sc.m_bLastThree )
+                        ClientPrint( null, HUD_PRINTTALK, format( STRING_UI_CHAT_LAST_SURV_YELLOW, _iValidSurvivors, STRING_UI_MINI_CRITS ) )
                     continue
                 }
             }
