@@ -1391,6 +1391,9 @@ function PZI_Bots::GenericSpecial( bot ) {
 
 	function GenericSpecialThink() {
 
+		if ( bot.GetFlags() & FL_ATCONTROLS )
+			return
+
 		local threat = b.threat
 
 		if ( !threat || !threat.IsValid() )
@@ -1413,6 +1416,9 @@ function PZI_Bots::SoldierZombie( bot ) {
 
 	function SoldierZombieThink() {
 
+		if ( bot.GetFlags() & FL_ATCONTROLS )
+			return
+
 		local buttons = GetPropInt( bot, "m_nButtons" )
 
 		if ( !GetPropEntity( bot, "m_hGroundEntity" ) && buttons & IN_BACK ) {
@@ -1432,6 +1438,9 @@ function PZI_Bots::MedicZombie( bot ) {
 
 	// heal nearby teammates
     function MedicZombieThink() {
+
+		if ( bot.GetFlags() & FL_ATCONTROLS )
+			return
 
 		for (local player; player = FindByClassnameWithin( player, "player", bot.GetOrigin(), MEDIC_HEAL_RANGE );)
 			if ( player.GetTeam() == TEAM_ZOMBIE && player.GetHealth() < player.GetMaxHealth() * 0.85 )
@@ -1453,6 +1462,9 @@ function PZI_Bots::EngineerZombie( bot ) {
 	bot[ b.threat ? "SetBehaviorFlag" : "ClearBehaviorFlag" ]( 511 )
 
     function EngineerZombieThink() {
+
+		if ( bot.GetFlags() & FL_ATCONTROLS )
+			return
 
 		if ( bot.IsBehaviorFlagSet( 511 ) && b.threat && b.threat.IsValid() )
 			return
