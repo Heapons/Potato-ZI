@@ -1057,13 +1057,13 @@ function PZI_Util::PointScriptTemplate( targetname = null, onspawn = null ) {
 	local template_scope = GetEntScope( template )
 	template_scope.ents <- []
 
-	template_scope.__EntityMakerResult <- { entities = template_scope.ents }.setdelegate( {
+	template_scope.__EntityMakerResult <- { entities = template_scope.ents }.setdelegate({
 
 		function _newslot( _, value ) {
 
 			entities.append( value )
 		}
-	} )
+	})
 
 	if ( onspawn )
 		template_scope.PostSpawn <- onspawn.bindenv( template_scope )

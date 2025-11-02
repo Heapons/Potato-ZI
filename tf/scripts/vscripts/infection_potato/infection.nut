@@ -546,7 +546,6 @@ PZI_EVENT( "player_death", "Infection_PlayerDeath", function( params ) {
 
         if ( _hPlayerTeam == TEAM_ZOMBIE ) { // zombie has died
 
-
             // Kill all dropped ammo packs, we replaced health drops with ammo drops
             EntFire( "tf_ammo_pack", "Kill" )
 
@@ -555,7 +554,7 @@ PZI_EVENT( "player_death", "Infection_PlayerDeath", function( params ) {
 
             else if ( _iClassNum == TF_CLASS_SNIPER ) {
 
-                if ( _sc.m_hZombieAbility )
+                if ( _sc.m_hZombieAbility && _sc.m_hZombieAbility.IsValid() )
                     _sc.m_hZombieAbility.CreateSpitball( true )
             }
 
