@@ -91,9 +91,6 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
     if ( "ThinkTable" in scope && "GhostThink" in scope.ThinkTable )
         delete scope.ThinkTable.GhostThink
 
-    if ( !( "m_iFlags" in scope ) )
-        return
-
     // should already be invis but whatever
     SetPropInt( player, "m_nRenderMode", kRenderTransColor )
     SetPropInt( player, "m_clrRender", 0 )
@@ -114,7 +111,7 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
     player.GiveZombieEyeParticles() // TODO: doesn't work
     EntFire("spawn_hint_" + player.entindex(), "Kill")
 
-    scope.m_iFlags = scope.m_iFlags | ZBIT_PENDING_ZOMBIE
+    scope.m_iFlags <- scope.m_iFlags | ZBIT_PENDING_ZOMBIE
 
     local playercls = player.GetPlayerClass()
 
