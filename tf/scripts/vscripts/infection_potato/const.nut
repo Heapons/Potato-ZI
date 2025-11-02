@@ -50,13 +50,13 @@ const GLOBAL_BELL_DELAY                = 3;     // delay in seconds for death be
 // --------------------------------------------------------------------------------------- //
 // Damage Multiplier values for Zombie weapons                                             //
 // --------------------------------------------------------------------------------------- //
-const ZSCOUT_DMG_MULTI                 = 1;     // Scout    Zombie Damage Multiplier       //
+const ZSCOUT_DMG_MULTI                 = 0.7;     // Scout    Zombie Damage Multiplier       //
 const ZSNIPER_DMG_MULTI                = 1;     // Sniper   Zombie Damage Multiplier       //
 const ZSOLDIER_DMG_MULTI               = 1;     // Soldier  Zombie Damage Multiplier       //
 const ZDEMOMAN_DMG_MULTI               = 1;     // Demoman  Zombie Damage Multiplier       //
 const ZMEDIC_DMG_MULTI                 = 1;     // Medic    Zombie Damage Multiplier       //
 const ZHEAVY_DMG_MULTI                 = 2.2;   // Heavy    Zombie Damage Multiplier       //
-const ZPYRO_DMG_MULTI                  = 0.7;   // Pyro     Zombie Damage Multiplier       //
+const ZPYRO_DMG_MULTI                  = 0.8;   // Pyro     Zombie Damage Multiplier       //
 const ZSPY_DMG_MULTI                   = 1;     // Spy      Zombie Damage Multiplier       //
 const ZENGINEER_DMG_MULTI              = 1;     // Engineer Zombie Damage Multiplier       //
 const ZOMBIE_PASSIVE_HEALING           = true;  // enable Zombie Passive Healing           //
