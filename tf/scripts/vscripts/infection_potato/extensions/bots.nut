@@ -550,18 +550,15 @@ PZI_Bots.PZI_BotBehavior <- class {
 			}
 		}
 
-		PZI_Util.ScriptEntFireSafe( "__pzi_util", @"
+		PZI_Util.ScriptEntFireSafe( bot, @"
 
-			if ( !activator || !activator.IsValid() )
-				return
+			PZI_Util.SwitchToFirstValidWeapon( self )
 
-			SwitchToFirstValidWeapon( activator )
+			PZI_Util.ForEachItem( self, @( item ) PZI_Util.KillOnDeath( self, item ) )
 
-			ForEachItem( activator, @( item ) KillOnDeath( activator, item ) )
+			self.RemoveEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
 
-			activator.RemoveEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
-
-		", 12.0, bot )
+		", 12.0, null, null, false )
 	}
 
 	function IsLookingTowards( target, cos_tolerance ) {
