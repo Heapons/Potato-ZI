@@ -521,12 +521,16 @@ function PZI_PlayerThink() {
             // zombie melee attack behaviour                                         //
             // --------------------------------------------------------------------- //
 
-            local _hPlayerVM          =   GetPropEntity              ( self, "m_hViewModel" )
-            local _attackSeq          =   _hPlayerVM.LookupSequence  ( "attack" )
-            local _refSeq             =   _hPlayerVM.LookupSequence  ( "ref" )
-            local _specialSeq         =   _hPlayerVM.LookupSequence  ( "special" )
-            local _drawSeq            =   _hPlayerVM.LookupSequence  ( "draw" )
-            local _idleSeq            =   _hPlayerVM.LookupSequence  ( "idle" )
+            local _hPlayerVM          =   GetPropEntity( self, "m_hViewModel" )
+
+            if ( !_hPlayerVM || !_hPlayerVM.IsValid() )
+                return
+
+            local _attackSeq          =   _hPlayerVM.LookupSequence( "attack" )
+            local _refSeq             =   _hPlayerVM.LookupSequence( "ref" )
+            local _specialSeq         =   _hPlayerVM.LookupSequence( "special" )
+            local _drawSeq            =   _hPlayerVM.LookupSequence( "draw" )
+            local _idleSeq            =   _hPlayerVM.LookupSequence( "idle" )
             local _bAttackedThisTick  =   false
 
             if ( ( _buttons & IN_ATTACK ) ) {
@@ -542,7 +546,6 @@ function PZI_PlayerThink() {
                     local _angFirstViewPunch = QAngle( -2, RandomFloat( -3, 3 ), 0 )
 
                     _bAttackedThisTick  =  true
-                    local _attackSeq    =  _hPlayerVM.LookupSequence ( "attack" )
 
                     _hPlayerVM.ResetSequence ( _attackSeq )
                     self.ViewPunch           ( _angFirstViewPunch )
@@ -641,7 +644,6 @@ function PZI_PlayerThink() {
 
                 EmitSoundOnClient( SFX_ABILITY_USE, self )
 
-                local _attackSeq   =   _hPlayerVM.LookupSequence( "attack" )
                 _hPlayerVM.ResetSequence ( _attackSeq )
 
                 m_hZombieAbility.AbilityCast()

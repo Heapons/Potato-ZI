@@ -150,10 +150,10 @@ class CSpyReveal extends CZombieAbility {
         m_hAbilityOwner.AddEventToQueue( EVENT_KILL_TEMP_ENTITY, 2 ); // todo - const
         m_hAbilityOwner.AddEventToQueue( EVENT_PUT_ABILITY_ON_CD, INSTANT )
 
-        EmitSoundOn        ( "WeaponMedigun.HealingWorld", _d.m_hTempEntity )
-        EntFireByHandle    ( _d.m_hTempEntity, "Start", "", 0, null, null )
-        ScreenShake        ( m_hAbilityOwner.GetOrigin(), 15.0, 150.0, 1.0, 500, 0, false )
-        EntFireByHandle    ( _d.m_hTempEntity, "SetParent", "!activator", 0, m_hAbilityOwner, m_hAbilityOwner )
+        EmitSoundOn( "WeaponMedigun.HealingWorld", _d.m_hTempEntity )
+        EntFireByHandle( _d.m_hTempEntity, "Start", "", 0, null, null )
+        ScreenShake( m_hAbilityOwner.GetOrigin(), 15.0, 150.0, 1.0, 500, 0, false )
+        EntFireByHandle( _d.m_hTempEntity, "SetParent", "!activator", 0, m_hAbilityOwner, m_hAbilityOwner )
 
         local _szRevealSound = format( SFX_SPY_REVEAL_ONCAST, RandomInt( 1, 3 ) )
         PrecacheSound( _szRevealSound )
