@@ -1435,12 +1435,10 @@ function CTFPlayer_GetLinkedSpitPoolEnt() {
     local _sc = this.GetScriptScope()
 
     if ( !_sc || !_sc.m_bStandingOnSpit )
-        return null
+        return
 
     if ( _sc.m_hLinkedSpitPool && _sc.m_hLinkedSpitPool.IsValid() )
         return _sc.m_hLinkedSpitPool
-
-    return null
 }
 
 function CTFPlayer_SetLinkedSpitPoolEnt( _hSpitPool ) {
@@ -1483,7 +1481,7 @@ function CTFPlayer_GetWeaponHandle( _szWeaponClassname ) {
             return _hNextWeapon
     }
 
-    return null
+    return
 }
 
 // --------------------------------------------------------------------------------------- //
