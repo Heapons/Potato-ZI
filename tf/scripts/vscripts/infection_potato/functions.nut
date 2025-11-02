@@ -960,7 +960,7 @@ function CTFPlayer_CanDoAct( _iAct ) {
 
         case ZOMBIE_ABILITY_CAST:
 
-            if ( this.CheckIfLoser() )
+            if ( !( "m_fTimeNextCast" in _sc ) || this.CheckIfLoser() )
                 return false
 
             _temp = _sc.m_fTimeNextCast

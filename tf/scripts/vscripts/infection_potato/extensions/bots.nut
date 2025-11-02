@@ -1358,7 +1358,8 @@ function PZI_Bots::GenericZombie( bot, threat_type = "closest" ) {
 			b.FindPathToThreat()
 			b.MoveToThreat()
 
-			if ( b.GetCurThreatDistanceSqr() > 1048576.0 ) { // 1024^2
+			// 1024^2
+			if ( b.GetCurThreatDistanceSqr() > 1048576.0 && !FindByClassnameNearest( "player", b.cur_pos, 512.0 ) ) {
 
 				bot.AddCondEx( TF_COND_SPEED_BOOST, 1.0, bot )
 
