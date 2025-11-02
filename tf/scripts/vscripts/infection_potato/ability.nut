@@ -465,7 +465,10 @@ class CSniperSpitball extends CZombieAbility {
         _sc.m_vecHitPosition     <- Vector( 0, 0, 0 )
         _sc.m_vecPlaneNormal     <- Vector( 0, 0, 0 )
 
-        m_hAbilityOwner.GetActiveWeapon().RemoveAttribute( "move speed penalty" )
+        local _hActiveWep = m_hAbilityOwner.GetActiveWeapon()
+
+        if ( _hActiveWep )
+            _hActiveWep.RemoveAttribute( "move speed penalty" )
 
         EmitSoundEx({
             sound_name = SFX_ZOMBIE_SPIT_END

@@ -578,7 +578,7 @@ PZI_EVENT( "player_death", "SpawnAnywhere_PlayerDeath", function( params ) {
     // we died in ghost mode.
     if ( !GetPropInt( player, "m_clrRender" ) ) {
 
-        EntFireByHandle( GetPropEntity( player, "m_hRagdoll"), "Kill", null, -1, null, null )
+        EntFireByHandle( GetPropEntity( player, "m_hRagdoll"), "Kill", null, 0.1, null, null )
         PZI_Util.ScriptEntFireSafe( player, "self.ForceRespawn()", 0.1 )
     }
 })
