@@ -393,7 +393,11 @@ class CSniperSpitball extends CZombieAbility {
             entity = m_hAbilityOwner
         })
 
-        m_hAbilityOwner.GetActiveWeapon().AddAttribute( "move speed penalty", 0.5, -1 )
+        local _hActiveWep = m_hAbilityOwner.GetActiveWeapon()
+
+        if ( _hActiveWep && _hActiveWep.IsValid() )
+            _hActiveWep.AddAttribute( "move speed penalty", 0.5, -1 )
+
         return
     }
 
@@ -467,7 +471,7 @@ class CSniperSpitball extends CZombieAbility {
 
         local _hActiveWep = m_hAbilityOwner.GetActiveWeapon()
 
-        if ( _hActiveWep )
+        if ( _hActiveWep && _hActiveWep.IsValid() )
             _hActiveWep.RemoveAttribute( "move speed penalty" )
 
         EmitSoundEx({
@@ -508,7 +512,10 @@ class CEngineerSapperNade extends CZombieAbility {
         SetPropFloat ( _d.m_hZombieWep, "m_flNextPrimaryAttack",   FLT_MAX )
         SetPropFloat ( _d.m_hZombieWep, "m_flNextSecondaryAttack", FLT_MAX )
 
-        m_hAbilityOwner.GetActiveWeapon().AddAttribute( "move speed penalty", 0.5, -1 )
+        local _hActiveWep = m_hAbilityOwner.GetActiveWeapon()
+
+        if ( _hActiveWep && _hActiveWep.IsValid() )
+            _hActiveWep.AddAttribute( "move speed penalty", 0.5, -1 )
 
         EmitSoundOnClient ( "Weapon_GrenadeLauncher.DrumStop", m_hAbilityOwner )
 
@@ -612,7 +619,11 @@ class CEngineerSapperNade extends CZombieAbility {
 
     function ExitRoot() {
 
-        m_hAbilityOwner.GetActiveWeapon().RemoveAttribute( "move speed penalty" )
+        local _hActiveWep = m_hAbilityOwner.GetActiveWeapon()
+
+        if ( _hActiveWep && _hActiveWep.IsValid() )
+            _hActiveWep.RemoveAttribute( "move speed penalty" )
+
         PutAbilityOnCooldown()
         return
     }
