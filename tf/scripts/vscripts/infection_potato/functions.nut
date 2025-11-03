@@ -1428,9 +1428,7 @@ function CTFPlayer_AlreadyInSpit() {
 
     local _sc = this.GetScriptScope()
 
-	if ( !_sc ) return
-
-    return _sc.m_bStandingOnSpit
+    return _sc && "m_bStandingOnSpit" in _sc && _sc.m_bStandingOnSpit
 }
 
 function CTFPlayer_GetLinkedSpitPoolEnt() {

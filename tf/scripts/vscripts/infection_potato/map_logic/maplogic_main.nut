@@ -31,7 +31,7 @@ LocalTime(LOCALTIME)
 	region					  = ""
 	password 				  = ""
 	classes					  = ""
-    domain 					  = ""
+    domain 					  = GetStr( "sv_downloadurl" )
 	campaign_name 			  = "Other Gamemodes"
 	status 					  = "Eating your brains..."
 	// in_protected_match		  = false
@@ -295,8 +295,8 @@ PZI_Util.ScriptEntFireSafe("__pzi_util", @"
 	SERVER_DATA.server_key	= GetServerKey( server_name )
 	SERVER_DATA.region		= GetServerRegion( server_name )
 
-    if ( GetStr(`sv_downloadurl`) != `` )
-        SERVER_DATA.domain 	    = GetStr(`sv_downloadurl`).slice( 7, GetStr( `sv_downloadurl` ).find( `/gameassets` ) )
+    if ( 7 in SERVER_DATA.domain )
+        SERVER_DATA.domain = SERVER_DATA.domain.slice( 7, SERVER_DATA.domain.find( `/gameassets` ) )
 
 	if ( SERVER_DATA.domain == `ustx.potato.tf` )
 		SERVER_DATA.domain += `:22443`
