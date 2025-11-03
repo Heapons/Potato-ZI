@@ -570,9 +570,9 @@ PZI_EVENT( "player_death", "SpawnAnywhere_PlayerDeath", function( params ) {
         // player.ForceRespawn()
 
         // both engi and sniper drop a projectile on death, kill this if we die in ghost/summon mode
-        for ( local spitball, scope; spitball = FindByClassnameWithin( spitball, "prop_physics_override", player.GetOrigin(), 128 ); )
-            if ( scope = spitball.GetScriptScope() && "m_hOwner" in scope && scope.m_hOwner == player )
-                EntFireByHandle( spitball, "Kill", null, -1, null, null )
+        for ( local proj, scope; proj = FindByClassnameWithin( proj, "prop_physics_override", player.GetOrigin(), 128 ); )
+            if ( scope = proj.GetScriptScope() && "m_hOwner" in scope && scope.m_hOwner == player )
+                EntFireByHandle( proj, "Kill", null, -1, null, null )
     }
 
     // we died in ghost mode.
