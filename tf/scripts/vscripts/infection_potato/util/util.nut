@@ -257,7 +257,7 @@ PZI_Util.DeflectableProjectiles <- {
 
 function PZI_Util::_OnDestroy() {
 
-	ResetConvars( false )
+	try { ResetConvars( false ) } catch( _ ) {}
 
 	local gen = EntityManager()
 
