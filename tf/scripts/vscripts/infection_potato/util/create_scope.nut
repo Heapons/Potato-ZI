@@ -171,7 +171,7 @@ function PZI_CREATE_SCOPE( name = "", namespace = null, entity_ref = null, think
         // String passed, set up think table and assume we're defining the actual function later
 		ent_scope.ThinkTable <- {}
 
-		compilestring( format( "function %s() { foreach( func in ThinkTable ) func.call( this ); return -1 }", think_func ) ).call( ent_scope )
+		compilestring( format( "function %s() { foreach( func in ThinkTable ) func(); return -1 }", think_func ) ).call( ent_scope )
 
 		AddThinkToEnt( ent, think_func )
 	}
