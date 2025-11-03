@@ -554,8 +554,7 @@ PZI_EVENT( "player_death", "Infection_PlayerDeath", function( params ) {
 
             else if ( _iClassNum == TF_CLASS_SNIPER && !( _hPlayer.GetFlags() & FL_ATCONTROLS ) ) {
 
-                if ( _sc.m_hZombieAbility && _sc.m_hZombieAbility.IsValid() )
-                    _sc.m_hZombieAbility.CreateSpitball( true )
+                _sc.m_hZombieAbility.CreateSpitball( true )
             }
 
             else if ( _iClassNum == TF_CLASS_PYRO ) {

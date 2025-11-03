@@ -556,8 +556,6 @@ PZI_Bots.PZI_BotBehavior <- class {
 
 			PZI_Util.ForEachItem( self, @( item ) PZI_Util.KillOnDeath( self, item ) )
 
-			self.RemoveEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
-
 		", 12.0, null, null, false )
 	}
 
@@ -1693,6 +1691,12 @@ PZI_EVENT( "player_spawn", "PZI_Bots_PostInventoryApplication", function( params
 
 	if ( cls != TF_CLASS_MEDIC )
 		PZI_Bots.GenericZombie( bot, "closest" )
+})
+
+PZI_EVENT( "teamplay_setup_finished", "PZI_Bots_TeamplaySetupFinished", function( params ) {
+
+	foreach ( bot in PZI_Util.SurvivorArray )
+		bot.RemoveEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
 })
 
 PZI_EVENT( "player_builtobject", "PZI_Bots_PlayerBuildObject", function( params ) {
