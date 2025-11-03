@@ -266,6 +266,13 @@ function ShouldZombiesWin( _hPlayer ) {
 
         return
     }
+
+    if ( _iValidSurvivors == 3 ) {
+
+        if ( flTimeLastBell + 10.0 < Time() )
+            ClientPrint( null, HUD_PRINTTALK, format( STRING_UI_CHAT_LAST_SURV_YELLOW, _iValidSurvivors, STRING_UI_MINI_CRITS ) )
+    }
+
     // check if zombies have killed enough survivors to win
     if ( _iValidSurvivors <= MAX_SURVIVORS_FOR_ZOMBIE_WIN ) {
 
@@ -285,7 +292,7 @@ function ShouldZombiesWin( _hPlayer ) {
 
                     local _sc = _hNextPlayer.GetScriptScope()
 
-                    if ( !("m_bLastManStanding" in _sc) || !_sc.m_bLastManStanding )
+                    if ( flTimeLastBell + 10.0 < Time() )
                         ClientPrint( null, HUD_PRINTTALK, format( STRING_UI_CHAT_LAST_SURV_GREEN, NetName( _hNextPlayer ), STRING_UI_CRITS ) )
 
                     _hNextPlayer.GetScriptScope().m_bLastManStanding <- true
@@ -311,9 +318,6 @@ function ShouldZombiesWin( _hPlayer ) {
 
                     _hNextPlayer.GetScriptScope().m_bLastThree <- true
                     _hNextPlayer.AddCond( TF_COND_OFFENSEBUFF )
-
-                    if ( !("m_bLastThree" in _sc) || !_sc.m_bLastThree )
-                        ClientPrint( null, HUD_PRINTTALK, format( STRING_UI_CHAT_LAST_SURV_YELLOW, _iValidSurvivors, STRING_UI_MINI_CRITS ) )
                     continue
                 }
             }
@@ -888,9 +892,9 @@ function CTFPlayer_InitializeZombieHUD() {
     local userid = GetPlayerUserID( this )
 
     // previous checks apparently don't work, just kill by targetname
-    // for ( local ent = worldspawn, name ; ent = FindByClassname( ent, "game_text"); )
-    //     if ( ( name = ent.GetName() ), startswith( name, "__pzi" ) && endswith( name, userid.tostring() ) )
-    //         EntFire( name, "Kill" )
+    for ( local ent = worldspawn, name ; ent = FindByClassname( ent, "game_text"); )
+        if ( ( name = ent.GetName() ), startswith( name, "__pzi" ) && endswith( name, userid.tostring() ) )
+            EntFire( name, "Kill" )
 
     local _hAbilityHUDText = SpawnEntityFromTable( "game_text", {
 
@@ -1424,7 +1428,7 @@ function CTFPlayer_AlreadyInSpit() {
 
     local _sc = this.GetScriptScope()
 
-	if ( !_sc || !("m_bStandingOnSpit" in _sc) ) return
+	if ( !_sc ) return
 
     return _sc.m_bStandingOnSpit
 }
@@ -1434,7 +1438,7 @@ function CTFPlayer_GetLinkedSpitPoolEnt() {
    // printl( "Getting linked spit pool entity from player..." )
     local _sc = this.GetScriptScope()
 
-    if ( !_sc || !("m_bStandingOnSpit" in _sc) || !_sc.m_bStandingOnSpit )
+    if ( !_sc || !_sc.m_bStandingOnSpit )
         return
 
     if ( _sc.m_hLinkedSpitPool && _sc.m_hLinkedSpitPool.IsValid() )
@@ -1445,7 +1449,7 @@ function CTFPlayer_SetLinkedSpitPoolEnt( _hSpitPool ) {
 
     local _sc = this.GetScriptScope()
 
-    if ( !_sc || !("m_bStandingOnSpit" in _sc) || !_sc.m_bStandingOnSpit || !_hSpitPool || !_hSpitPool.IsValid() )
+    if ( !_sc || !_hSpitPool || !_hSpitPool.IsValid() )
         return
 
    // printl( "Setting linked spit pool entity for player..." )
@@ -1459,7 +1463,7 @@ function CTFPlayer_ClearSpitStatus() {
 
     local _sc = this.GetScriptScope()
 
-	if ( !_sc || !("m_bStandingOnSpit" in _sc) ) return
+	if ( !_sc ) return
 
    // printl( "Clearing spit status for player..." )
 
