@@ -1590,6 +1590,7 @@ PZI_EVENT( "player_spawn", "PZI_Bots_PostInventoryApplication", function( params
 		// non engineers/medics have a rare chance to use sniper AI
 		// (periodically right click and melee when enemies are close)
 		
+		local mission = NO_MISSION
 		switch ( cls ) {
 
 			case TF_CLASS_ENGINEER:
