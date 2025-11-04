@@ -111,7 +111,9 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
     player.GiveZombieEyeParticles() // TODO: doesn't work
     EntFire("spawn_hint_" + player.entindex(), "Kill")
     
-    if ( "m_iFlags" in scope )
+    if ( !("m_iFlags" in scope) )
+        scope.m_iFlags <- ZBIT_PENDING_ZOMBIE
+    else
         scope.m_iFlags = scope.m_iFlags | ZBIT_PENDING_ZOMBIE
 
     local playercls = player.GetPlayerClass()
