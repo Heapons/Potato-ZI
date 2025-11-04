@@ -36,6 +36,7 @@ function PZI_SpawnAnywhere::SetGhostMode( player ) {
 
     SetPropInt( player, "m_nRenderMode", kRenderTransColor )
     SetPropInt( player, "m_clrRender", 0 )
+    player.DisableDraw() // makes bots stop targeting us
 
     SetPropInt( player, "m_afButtonDisabled", IN_ATTACK2 )
 
@@ -233,6 +234,7 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
 
             SetPropInt( player, "m_nRenderMode", kRenderNormal )
             SetPropInt( player, "m_clrRender", 0xFFFFFFFF )
+            player.EnableDraw()
             player.AcceptInput( "SetForcedTauntCam", "0", null, null )
 
             player.RemoveCustomAttribute( "no_jump" )
@@ -368,6 +370,7 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
 
         SetPropInt( player, "m_nRenderMode", kRenderNormal )
         SetPropInt( player, "m_clrRender", 0xFFFFFFFF )
+        player.EnableDraw()
     }
 
     // teleport to a random nav square on spawn
@@ -464,6 +467,8 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
             mask   = CONST.TRACEMASK
             ignore = player
         }
+        
+        player.AcceptInput( "DispatchEffect", "ParticleEffectStop", null, null )
 
         TraceLineEx( nav_trace )
 
