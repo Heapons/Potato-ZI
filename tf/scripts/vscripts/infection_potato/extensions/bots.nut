@@ -1565,14 +1565,12 @@ PZI_EVENT( "player_spawn", "PZI_Bots_PostInventoryApplication", function( params
 	scope.m_fTimeLastHit <- Time()
 	bot.RemoveOutOfCombat()
 
-	if ( cls == TF_CLASS_MEDIC ) {
+	bot.SetMission( NO_MISSION, true )
+	if ( cls == TF_CLASS_MEDIC && bot.GetTeam() == TEAM_HUMAN && RandomInt( 0, 2 ) ) {
 
 		// tf_bot_reevaluate_class_in_spawnroom falls apart with large numbers of bots.
 		// 66% chance the medic bots will switch to a random class
-		if ( bot.GetTeam() == TEAM_HUMAN && RandomInt( 0, 2 ) )
-			PZI_Util.ForceChangeClass( bot, RandomInt( 1, 9 ) )
-		else
-			bot.SetMission( NO_MISSION, true )
+		PZI_Util.ForceChangeClass( bot, RandomInt( 1, 9 ) )
 	}
 
 	// kill bots with a random delay
@@ -1591,12 +1589,21 @@ PZI_EVENT( "player_spawn", "PZI_Bots_PostInventoryApplication", function( params
 
 		// non engineers/medics have a rare chance to use sniper AI
 		// (periodically right click and melee when enemies are close)
-		local mission = NO_MISSION
+		
+		switch ( cls ) {
 
-		if ( cls == TF_CLASS_ENGINEER || cls == TF_CLASS_SPY )
-			mission = cls == TF_CLASS_ENGINEER ? MISSION_ENGINEER : MISSION_SPY
-		else if ( !RandomInt( 0, 10 ) )
-			mission = MISSION_SNIPER
+			case TF_CLASS_ENGINEER:
+				mission = MISSION_ENGINEER
+				break
+
+			case TF_CLASS_SPY:
+				mission = MISSION_SPY
+				break
+
+			default:
+				mission = NO_MISSION
+				break
+		}
 
 		bot.SetMission( mission, true )
 
