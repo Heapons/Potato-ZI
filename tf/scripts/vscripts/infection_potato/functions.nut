@@ -1012,7 +1012,7 @@ function CTFPlayer_CanDoAct( _iAct ) {
     }
 }
 
-function CTFPlayer_ProcessEventQueue(  ) {
+function CTFPlayer_ProcessEventQueue() {
 
     local _sc = this.GetScriptScope()
 
@@ -1122,11 +1122,11 @@ function CTFPlayer_ProcessEventQueue(  ) {
                 break
 
             default:
-                _sc.m_tblEventQueue.rawdelete( _nearestEvent )
+                delete _sc.m_tblEventQueue[ _nearestEvent ]
                 return
         }
 
-        _sc.m_tblEventQueue.rawdelete( _nearestEvent )
+        delete _sc.m_tblEventQueue[ _nearestEvent ]
     }
 
     return

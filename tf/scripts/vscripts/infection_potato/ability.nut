@@ -834,11 +834,11 @@ class CPyroBlast extends CZombieAbility {
         local _vecAngEye    = m_hAbilityOwner.EyeAngles()
 
         // spawn the dragon's fury projectile
-        local _BallOfFlames = SpawnEntityFromTable( "tf_projectile_BallOfFire", {
+        local _BallOfFlames = SpawnEntityFromTable( "tf_projectile_balloffire", {
 
-            basevelocity = _vecAngFwd,
-            teamnum      = m_hAbilityOwner.GetTeam(),
-            origin       = _vecAngOrigin,
+            basevelocity = _vecAngFwd
+            teamnum      = m_hAbilityOwner.GetTeam()
+            origin       = _vecAngOrigin
             angles       = _vecAngEye
         } )
 

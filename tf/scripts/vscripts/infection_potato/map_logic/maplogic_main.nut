@@ -548,12 +548,12 @@ PZI_EVENT( "teamplay_round_start", "PZI_MapLogic_RoundStart", function ( params 
 
 PZI_EVENT( "teamplay_setup_finished", "PZI_MapLogic_SetupFinished", @ ( params ) SpawnEntityFromTable( "logic_relay", setup_finished_relay_table ) )
 
-PZI_EVENT( "post_inventory_application", "PZI_MapLogic_PlayerSpawn", function ( params ) {
+PZI_EVENT( "player_spawn", "PZI_MapLogic_PlayerSpawn", function ( params ) {
 
     local player = GetPlayerFromUserID( params.userid )
 
-    if ( player.IsEFlagSet( EFL_IS_BEING_LIFTED_BY_BARNACLE ) )
-        return
+    // if ( player.IsEFlagSet( EFL_IS_BEING_LIFTED_BY_BARNACLE ) )
+        // return
 
     PZI_Util.ScriptEntFireSafe( "__pzi_respawnoverride", "self.SetSize( Vector( -9999, -9999, -9999 ), Vector( 9999, 9999, 9999 ) )", -1 )
     EntFire( "__pzi_respawnoverride", "SetRespawnTime", ""+BASE_RESPAWN_TIME, -1 )
