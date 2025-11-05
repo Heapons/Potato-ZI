@@ -2716,7 +2716,7 @@ PZI_EVENT( "post_inventory_application", "UtilPostInventoryApplication", functio
 	// fill out player tables if empty
 	local tbl = "All"
 
-	if ( !PZI_Util[ tbl ].len() ) {
+	if ( !PZI_Util.PlayerTables[ tbl ].len() ) {
 
 		for ( local i = 1, player; i <= MAX_CLIENTS; player = PlayerInstanceFromIndex( i ), i++ ) {
 
