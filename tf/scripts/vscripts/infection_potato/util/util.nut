@@ -979,8 +979,8 @@ function PZI_Util::ForEachEnt( identifier = null, filter = null, callback = null
 		// special case for players
 		if ( identifier == "player" && findby == "FindByClassname" ) {
 
-			if ( PlayerArray.len() )
-				entlist.extend( PlayerArray )
+			if ( PlayerTables.All.keys().len() )
+				entlist.extend( PlayerTables.All.keys() )
 
 			// we should at least have the bots in this list.
 			if ( IsMannVsMachineMode() && entlist.len() < GetInt( "tf_mvm_max_invaders" ) )
@@ -2714,7 +2714,7 @@ PZI_EVENT( "post_inventory_application", "UtilPostInventoryApplication", functio
 				EntFireByHandle( wearable, "Kill", null, -1, null, null )
 
 	// fill out player tables if empty
-	local tbl = "PlayerTable"
+	local tbl = "All"
 
 	if ( !PZI_Util[ tbl ].len() ) {
 

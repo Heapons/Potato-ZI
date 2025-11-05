@@ -622,7 +622,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 		local closest_threat = null
 		local closest_threat_dist = min_dist
 
-		foreach ( player in PZI_Util.PlayerArray ) {
+		foreach ( player in PZI_Util.PlayerTables.All.keys() ) {
 
 			if ( !player || !player.IsValid() )
 				continue
@@ -647,7 +647,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 	function CollectThreats( maxdist = INT_MAX, disguised = false, invisible = false, alive = true ) {
 
 		local threatarray = []
-		foreach ( player in PZI_Util.PlayerArray ) {
+		foreach ( player in PZI_Util.PlayerTables.All.keys() ) {
 
 			if ( !player || !player.IsValid() )
 				continue
@@ -1703,7 +1703,7 @@ PZI_EVENT( "player_spawn", "PZI_Bots_PostInventoryApplication", function( params
 
 PZI_EVENT( "teamplay_setup_finished", "PZI_Bots_TeamplaySetupFinished", function( params ) {
 
-	foreach ( bot in PZI_Util.SurvivorArray )
+	foreach ( bot in PZI_Util.PlayerTables.Survivors.keys() )
 		bot.RemoveEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
 })
 

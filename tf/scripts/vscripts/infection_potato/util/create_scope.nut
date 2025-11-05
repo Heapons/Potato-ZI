@@ -51,7 +51,7 @@
  *                                                                                                   *
  *     function ChangeAllPlayerTeams( team = TEAM_SPECTATOR ) {                                      *
  *                                                                                                   *
- *         foreach ( player in PZI_Util.PlayerArray )                                                *
+ *         foreach ( player in PZI_Util.PlayerTables.All.keys() )                                                *
  *             player.ForceChangeTeam( team, true )                                                  *
  *     }                                                                                             *
  * }                                                                                                 *
@@ -59,7 +59,7 @@
  * //alternative syntax                                                                              *
  * function MyExtension::PlayerHandler::FindPlayerByName( name ) {                                   *
  *                                                                                                   *
- *     foreach ( player in PZI_Util.PlayerArray )                                                    *
+ *     foreach ( player in PZI_Util.PlayerTables.All.keys() )                                                    *
  *         if ( Convars.GetClientConvarValue( "name", player.entindex() ) == name )                  *
  *             return player                                                                         *
  * }                                                                                                 *

@@ -62,7 +62,7 @@ function PlayerCount( _team = -1 ) {
     // return playerCount
 
     PZI_Util.ValidatePlayerTables()
-    return (PZI_Util.PlayerArray.filter( @(i, player) _team == -1 || player.GetTeam() == _team ) ).len()
+    return ( PZI_Util.PlayerTables.All.keys().filter( @( _, player ) _team == -1 || player.GetTeam() == _team ) ).len()
 }
 
 function PlayGlobalBell( _bForce = false ) {
@@ -174,7 +174,7 @@ function _GetAllPlayers( team = null ) {
 
 function GetAllPlayers( team = null ) {
 
-    foreach ( player in PZI_Util.PlayerArray )
+    foreach ( player in PZI_Util.PlayerTables.All.keys() )
         if ( player && ( team == null || player.GetTeam() == team ) )
             yield player
 
@@ -184,7 +184,7 @@ function GetAllPlayers( team = null ) {
 function GetRandomPlayers( _howMany = 1, team = null ) {
 
     local u = PZI_Util
-    local _playerArr =  u.PlayerArray
+    local _playerArr =  u.PlayerTables.All.keys()
 
     if ( team != null && team > TEAM_SPECTATOR )
         _playerArr = u[ u.PLAYER_TABLES[ team == TEAM_HUMAN ? TEAM_HUMAN : TEAM_ZOMBIE ] ].keys()

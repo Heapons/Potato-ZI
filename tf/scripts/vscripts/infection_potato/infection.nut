@@ -459,7 +459,7 @@ PZI_EVENT( "teamplay_restart_round", "Infection_RestartRound", function( params 
 
     PZI_Util.ValidatePlayerTables()
 
-    foreach ( _hNextPlayer in PZI_Util.PlayerArray ) {
+    foreach ( _hNextPlayer in PZI_Util.PlayerTables.All.keys() ) {
 
         _hNextPlayer.ResetInfectionVars()
         _hNextPlayer.ClearZombieEntities()
