@@ -292,11 +292,11 @@ function ShouldZombiesWin( _hPlayer ) {
 
                     local _sc = _hNextPlayer.GetScriptScope()
 
-                    if ( flTimeLastBell + 10.0 < Time() )
+                    if ( !_sc.m_bLastManStanding )
                         ClientPrint( null, HUD_PRINTTALK, format( STRING_UI_CHAT_LAST_SURV_GREEN, NetName( _hNextPlayer ), STRING_UI_CRITS ) )
 
-                    _hNextPlayer.GetScriptScope().m_bLastManStanding <- true
-                    _hNextPlayer.GetScriptScope().m_bLastThree       <- false
+                    _sc.m_bLastManStanding <- true
+                    _sc.m_bLastThree       <- false
 
                     if ( _hNextPlayer.GetPlayerClass() == TF_CLASS_SOLDIER || _hNextPlayer.GetPlayerClass() == TF_CLASS_DEMOMAN ) {
 
