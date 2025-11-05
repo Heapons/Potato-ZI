@@ -587,7 +587,7 @@ function PZI_Util::CountAlivePlayers( countbots = false, printout = false ) {
 
 	PZI_Util.ValidatePlayerTables()
 
-	local player_array = PlayerTables[ countbots ? "Bots" : "NoBots" ]
+	local player_array = PlayerTables[ countbots ? "Bots" : "NoBots" ].keys()
 
 	foreach ( player in player_array )
 		if ( player.IsAlive() )
