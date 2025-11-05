@@ -295,10 +295,6 @@ PZI_Util.ScriptEntFireSafe("__pzi_util", @"
 	SERVER_DATA.server_key	= GetServerKey( server_name )
 	SERVER_DATA.region		= GetServerRegion( server_name )
 
-    SERVER_DATA.domain = GetStr( `sv_downloadurl` )
-    if ( 7 in SERVER_DATA.domain )
-        SERVER_DATA.domain = SERVER_DATA.domain.slice( 7, SERVER_DATA.domain.find( `/gameassets` ) )
-
 	if ( SERVER_DATA.domain == `ustx.potato.tf` )
 		SERVER_DATA.domain += `:22443`
 
@@ -372,6 +368,7 @@ local function SetupRoundTimer() {
     {
         function TimerThink()
         {
+            base_timestamp = GetPropFloat( timer, "m_flTimeRemaining" )
             local time_left = (base_timestamp - Time()).tointeger()
             if ( !(time_left % 10) )
             {
@@ -386,6 +383,10 @@ local function SetupRoundTimer() {
                 SERVER_DATA.wave = time_left
                 SERVER_DATA.server_name = GetStr("hostname")
                 SERVER_DATA.server_tags = GetStr("sv_tags")
+
+                SERVER_DATA.domain = GetStr( "sv_downloadurl" )
+                if ( 7 in SERVER_DATA.domain )
+                    SERVER_DATA.domain = SERVER_DATA.domain.slice( 7, SERVER_DATA.domain.find( "/gameassets" ) )
 
                 if ( SERVER_DATA.server_key == "" )
                     SERVER_DATA.server_key = PZI_Util.GetServerKey( SERVER_DATA.server_name )
