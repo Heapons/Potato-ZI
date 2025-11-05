@@ -187,7 +187,7 @@ function GetRandomPlayers( _howMany = 1, team = null ) {
     local _playerArr =  u.PlayerTables.All.keys()
 
     if ( team != null && team > TEAM_SPECTATOR )
-        _playerArr = u[ u.PLAYER_TABLES[ team == TEAM_HUMAN ? TEAM_HUMAN : TEAM_ZOMBIE ] ].keys()
+        _playerArr = u[ u.PlayerTables[ team == TEAM_HUMAN ? TEAM_HUMAN : TEAM_ZOMBIE ] ].keys()
 
     local _arrLen = _playerArr.len()
 
