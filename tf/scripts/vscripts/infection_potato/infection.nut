@@ -316,8 +316,8 @@ PZI_EVENT( "teamplay_setup_finished", "Infection_SetupFinished", function( param
 
     // local _szZombieNetNames  =  ""
     local _zombieArr = []
-    if ( PZI_Util.BotArray.len() >= _numStartingZombies )
-        _zombieArr = PZI_Util.BotArray.slice( 0, _numStartingZombies )
+    if ( PZI_Util.PlayerTables.Bots.len() >= _numStartingZombies )
+        _zombieArr = PZI_Util.PlayerTables.Bots.keys().slice( 0, _numStartingZombies )
     else
         _zombieArr = GetRandomPlayers( _numStartingZombies, TEAM_HUMAN )
 

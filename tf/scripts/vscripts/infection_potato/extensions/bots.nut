@@ -13,27 +13,27 @@ PZI_Bots.MAX_BOTS_PER_MAP <- {
     arena_byre          = 18
 
     ctf_2fort           = 32
-    ctf_applejack       = 50
+    ctf_applejack       = 40
     ctf_doublecross     = 40
     ctf_haarp           = 32
     ctf_landfall        = 40
-    ctf_pressure        = 50
+    ctf_pressure        = 40
     ctf_sawmill         = 40
     ctf_turbine         = 32
 
-    cp_ambush_event     = 60
-    cp_coldfront        = 50
-    cp_conifer          = 60
+    cp_ambush_event     = 40
+    cp_coldfront        = 40
+    cp_conifer          = 40
     cp_cowerhouse       = 40
     cp_darkmarsh        = 40
     cp_degrootkeep      = 18
     cp_degrootkeep_rats = 18
-    cp_dustbowl         = 50
-    cp_egypt_final      = 65
+    cp_dustbowl         = 40
+    cp_egypt_final      = 45
     cp_fastlane         = 40
-    cp_foundry          = 50
+    cp_foundry          = 40
     cp_freight_final1   = 40
-    cp_fulgur           = 50
+    cp_fulgur           = 40
     cp_granary          = 40
     cp_gorge            = 32
     cp_gorge_event      = 32
@@ -41,8 +41,8 @@ PZI_Bots.MAX_BOTS_PER_MAP <- {
     cp_junction_final   = 24
     cp_manor_event      = 40
     cp_snowplow         = 40
-    cp_well             = 50
-    cp_yukon            = 50
+    cp_well             = 40
+    cp_yukon            = 32
 
 	koth_probed		    = 32
     koth_sawmill        = 40
@@ -63,13 +63,13 @@ PZI_Bots.MAX_BOTS_PER_MAP <- {
 	pl_badwater			= 40
 	pl_barnblitz		= 40
 	pl_borneo			= 40
-	pl_breadspace		= 65
+	pl_breadspace		= 45
 	pl_cactuscanyon		= 24
 	pl_coal_event		= 40
-	pl_goldrush			= 50
-	pl_enclosure		= 50
-	pl_fifthcurve_event	= 50
-	pl_frontier_final	= 50
+	pl_goldrush			= 40
+	pl_enclosure		= 45
+	pl_fifthcurve_event	= 40
+	pl_frontier_final	= 40
 	pl_hasslecastle		= 40
 	pl_hoodoo_final		= 45
 	pl_millstone_event	= 45
@@ -77,13 +77,13 @@ PZI_Bots.MAX_BOTS_PER_MAP <- {
 	pl_rumford_event	= 40
 	pl_sludgepit_event	= 40
 	pl_snowycoast		= 40
-	pl_spineyard		= 50
+	pl_spineyard		= 40
 	pl_terror_event		= 40
 	pl_thundermountain	= 32
 	pl_swiftwater_final1 = 40
 	pl_precipice_event_final = 40
 
-    tc_hydro            = 65
+    tc_hydro            = 45
 }
 
 if ( MAPNAME in PZI_Bots.MAX_BOTS_PER_MAP )
@@ -1111,8 +1111,8 @@ function PZI_Bots::ThinkTable::BotQuotaManager() {
 		return
 
 	PZI_Util.ValidatePlayerTables()
-	local bots   = PZI_Util.BotArray
-	local humans = PZI_Util.HumanArray
+	local bots   = PZI_Util.PlayerTables.Bots.keys()
+	local humans = PZI_Util.PlayerTables.Survivors.keys()
 	local cur_bots = bots.len() - doomed_bots.len()
 
 	if ( ( !generator || !generator.IsValid() ) )
@@ -1189,7 +1189,7 @@ function PZI_Bots::AllocateBots( count = PZI_Bots.MAX_BOTS ) {
 
 	PZI_Util.ValidatePlayerTables()
 
-	if ( PZI_Util.BotArray.len() >= MAX_BOTS )
+	if ( PZI_Util.PlayerTables.Bots.len() >= MAX_BOTS )
 		return
 
 	// TODO
@@ -1204,7 +1204,7 @@ function PZI_Bots::AllocateBots( count = PZI_Bots.MAX_BOTS ) {
 	if ( j >= MAX_BOTS )
 		return
 
-	local max = count - PZI_Util.BotArray.len()
+	local max = count - PZI_Util.PlayerTables.Bots.len()
 
 	if ( max <= 0 )
 		return
@@ -1213,7 +1213,7 @@ function PZI_Bots::AllocateBots( count = PZI_Bots.MAX_BOTS ) {
 		return
 
 	else if ( FILL_MODE )
-		max = FILL_MODE == 2 ? PZI_Util.Max( 0, MAX_BOTS * PZI_Util.HumanArray.len() ) : max - PZI_Util.HumanArray.len()
+		max = FILL_MODE == 2 ? PZI_Util.Max( 0, MAX_BOTS * PZI_Util.PlayerTables.Survivors.len() ) : max - PZI_Util.PlayerTables.Survivors.len()
 
 	generator = CreateByClassname( "bot_generator" )
 	generator.KeyValueFromString( "targetname", "__pzi_bot_generator_" + generator.entindex() )
@@ -1234,7 +1234,7 @@ function PZI_Bots::AllocateBots( count = PZI_Bots.MAX_BOTS ) {
 
 		self.AcceptInput( "RemoveBots", null, null, null )
 
-		foreach( bot in PZI_Util.BotArray ) {
+		foreach( bot in PZI_Util.PlayerTables.Bots.keys() ) {
 
 			doomed_bots[ bot ] <- 0.0
 			local scope = bot.GetScriptScope()
@@ -1544,7 +1544,7 @@ PZI_EVENT( "player_spawn", "PZI_Bots_PostInventoryApplication", function( params
 
     local bot = GetPlayerFromUserID( params.userid )
 
-    if ( !IsPlayerABot( bot ) || bot.IsEFlagSet( EFL_IS_BEING_LIFTED_BY_BARNACLE ) )
+    if ( !bot.IsBotOfType( TF_BOT_TYPE ) || bot.IsEFlagSet( EFL_IS_BEING_LIFTED_BY_BARNACLE ) )
 		return
 
 	if ( bot.GetDifficulty() != EXPERT )
@@ -1719,7 +1719,7 @@ PZI_EVENT( "player_death", "PZI_Bots_PlayerDeath", function( params ) {
 
 	local bot = GetPlayerFromUserID( params.userid )
 
-	if ( !IsPlayerABot( bot ) )
+	if ( !bot.IsBotOfType( TF_BOT_TYPE ) )
 		return
 	if ( bot.HasBotAttribute( REMOVE_ON_DEATH ) )
 		if ( bot in PZI_Bots.doomed_bots )
@@ -1740,7 +1740,7 @@ PZI_EVENT( "player_hurt", "PZI_Bots_PlayerHurt", function( params ) {
 
     local player = GetPlayerFromUserID( params.userid )
 
-    if ( !IsPlayerABot( player ) || player.GetHealth() - params.damageamount <= 0 )
+    if ( !player.IsBotOfType( TF_BOT_TYPE ) || player.GetHealth() - params.damageamount <= 0 )
 		return
 
 	local attacker = GetPlayerFromUserID( params.attacker )

@@ -275,7 +275,7 @@ function PZI_SpawnAnywhere::CreateNest( player, origin = null ) {
     nest.KeyValueFromInt( "health", NEST_EXPLODE_HEALTH )
     nest.KeyValueFromFloat( "damage", NEST_EXPLODE_DAMAGE )
     nest.KeyValueFromFloat( "radius", NEST_EXPLODE_RADIUS )
-    nest.KeyValueFromString( "targetname", "__pzi_spawn_nest_" + PZI_Util.PlayerTable[ player ] )
+    nest.KeyValueFromString( "targetname", "__pzi_spawn_nest_" + PZI_Util.PlayerTables.All[ player ] )
     nest.KeyValueFromString( "explode_particle", NEST_EXPLODE_PARTICLE )
     nest.KeyValueFromString( "sound", NEST_EXPLODE_SOUND )
     SetPropBool( nest, STRING_NETPROP_PURGESTRINGS, true )
@@ -302,7 +302,7 @@ function PZI_SpawnAnywhere::CreateNest( player, origin = null ) {
 
     function NestScope::NestGenerator() {
 
-        foreach ( player in PZI_Util.HumanArray ) {
+        foreach ( player in PZI_Util.PlayerTables.Survivors.keys() ) {
 
             local player_origin = player.GetOrigin()
 
@@ -321,7 +321,7 @@ function PZI_SpawnAnywhere::CreateNest( player, origin = null ) {
 
     function NestScope::NestThink() {
 
-        if ( !PZI_Util.HumanArray.len() )
+        if ( !PZI_Util.PlayerTables.Survivors.len() )
             return 1
 
         if ( health != GetPropInt( nest, "m_iHealth" ) ) {
@@ -407,7 +407,7 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
     PZI_SpawnAnywhere.SetGhostMode( player )
 
     // make bots behave like mvm spy bots
-    if ( IsPlayerABot( player ) ) {
+    if ( player.IsBotOfType( TF_BOT_TYPE ) ) {
 
         PZI_Util.ScriptEntFireSafe( player, @"
 

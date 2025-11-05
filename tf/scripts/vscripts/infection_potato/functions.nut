@@ -1233,7 +1233,7 @@ function CTFPlayer_ResetInfectionVars() {
     _sc.m_iCurrentAbilityType   <- 0
     _sc.m_iAbilityState         <- 0
 
-    PZI_Util.AddThink( this, PZI_PlayerThink )
+    PZI_Util.AddThink( this, ZIPlayerThink )
 
     return true
 }

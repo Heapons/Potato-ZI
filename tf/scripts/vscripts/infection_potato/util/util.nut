@@ -2,19 +2,14 @@
 
 PZI_CREATE_SCOPE( "__pzi_util", "PZI_Util", null, "PZI_UtilThink" )
 
-PZI_Util.PlayerTable   <- {}
-PZI_Util.BotTable 	   <- {}
-PZI_Util.SurvivorTable <- {}
-PZI_Util.HumanTable    <- {}
-PZI_Util.ZombieTable   <- {}
+PZI_Util.PlayerTables <- {
 
-PZI_Util.PlayerArray   <- []
-PZI_Util.BotArray 	   <- []
-PZI_Util.SurvivorArray <- []
-PZI_Util.HumanArray    <- []
-PZI_Util.ZombieArray   <- []
-
-PZI_Util.PLAYER_TABLES <- [ "PlayerTable", "BotTable", "SurvivorTable", "ZombieTable", "HumanTable" ]
+	All		  = {}
+	Bots      = {}
+	NoBots    = {}
+	Survivors = {}
+	Zombies   = {}
+}
 
 PZI_Util.kill_on_spawn <- {} // wearables to delete on player spawn
 PZI_Util.kill_on_death <- {} // wearables to delete on player death
@@ -448,7 +443,7 @@ function PZI_Util::ForceChangeClass( player, classindex = 1 ) {
 function PZI_Util::PlayerClassCount() {
 
 	local classes = array( TF_CLASS_COUNT_ALL, 0 )
-	foreach ( player in HumanArray )
+	foreach ( player in PlayerTables.Survivors.keys() )
 		classes[player.GetPlayerClass()]++
 	return classes
 }
@@ -592,7 +587,7 @@ function PZI_Util::CountAlivePlayers( countbots = false, printout = false ) {
 
 	PZI_Util.ValidatePlayerTables()
 
-	local player_array = countbots ? BotArray : HumanArray
+	local player_array = PlayerTables[ countbots ? "Bots" : "NoBots" ]
 
 	foreach ( player in player_array )
 		if ( player.IsAlive() )
@@ -741,7 +736,7 @@ function PZI_Util::GiveWearableItem( player, item_id, model = null ) {
 
 	// avoid infinite loops from post_inventory_application hooks
 	player.AddEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
-	SendGlobalGameEvent( "post_inventory_application",  { userid = PlayerTable[ player ] } )
+	SendGlobalGameEvent( "post_inventory_application",  { userid = PlayerTables.AllPlayers[ player ] } )
 	player.RemoveEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
 
 	// add wearable to global table for removal on death/respawn
@@ -1859,7 +1854,7 @@ function PZI_Util::SilentDisguise( player, target = null, tfteam = TF_TEAM_PVE_I
 	function FindTargetPlayer( passcond ) {
 
 		local target
-		foreach( potentialtarget in HumanArray ) {
+		foreach( potentialtarget in PlayerTables.Survivors.keys() ) {
 
 			if ( potentialtarget == player || !passcond( potentialtarget ) ) continue
 
@@ -2044,7 +2039,8 @@ function PZI_Util::KillPlayer( player ) {
 }
 
 function PZI_Util::KillAllBots() {
-	foreach ( bot in BotArray )
+
+	foreach ( bot in PlayerTables.Bots.keys() )
 		if ( bot.IsAlive() )
 			KillPlayer( bot )
 }
@@ -2393,25 +2389,28 @@ function PZI_Util::ResetConvars( hide_chat_message = true ) {
 		EntFireByHandle( hide_fcvar_notify, "Kill", "", -1, null, null )
 }
 
-function PZI_Util::RegisterPlayer( player, tbl = "PlayerTable" ) {
+function PZI_Util::RegisterPlayer( player, tbl = "All" ) {
 
 	player.ValidateScriptScope()
 	local userid = GetPlayerUserID( player )
 
-	if ( !( player in PlayerTable ) )
-		PlayerTable[ player ] <- userid
+	if ( !( player in PlayerTables[ tbl ] ) )
+		PlayerTables[ tbl ][ player ] <- userid
 
-	tbl = PLAYER_TABLES[ IsPlayerABot( player ) ? 1 : 4 ]
+	if ( tbl != "All" )
+		return
 
-	if ( !( player in this[ tbl ] ) )
-		this[ tbl ][ player ] <- userid
+	tbl = PlayerTables[ player.IsBotOfType( TF_BOT_TYPE ) ? "Bots" : "NoBots" ]
+
+	if ( !( player in tbl ) )
+		tbl[ player ] <- userid
 
 	if ( player.GetTeam() > TEAM_SPECTATOR ) {
 
-		tbl = PLAYER_TABLES[ player.GetTeam() ]
+		tbl = PlayerTables[ player.GetTeam() == TEAM_HUMAN ? "Survivors" : "Zombies" ]
 
-		if ( !( player in PZI_Util[ tbl ] ) )
-			this[ tbl ][ player ] <- userid
+		if ( !( player in tbl ) )
+			tbl[ player ] <- userid
 	}
 }
 
@@ -2419,11 +2418,8 @@ function PZI_Util::ValidatePlayerTables() {
 
 	local function playervalidate( player, _ ) { return player && player.IsValid() }
 
-	foreach( tbl in PLAYER_TABLES ) {
-
-		this[ tbl ] = this[ tbl ].filter( playervalidate )
-		this[ tbl.slice( 0, -5 ) + "Array" ] = this[ tbl ].keys()
-	}
+	foreach( tbl in PlayerTables )
+		PlayerTables[ tbl ] = PlayerTables[ tbl ].filter( playervalidate )
 }
 
 function PZI_Util::KVStringToVectorOrQAngle( str, angles = false, startidx = 0 ) {
@@ -2685,7 +2681,7 @@ PZI_EVENT( "player_disconnect", "UtilPlayerDisconnect", function ( params ) {
 
 	local u = PZI_Util
 
-	foreach( tbl in u.PLAYER_TABLES )
+	foreach( tbl in u.PlayerTables )
 		if ( player in u[ tbl ] )
 			delete u[ tbl ][ player ]
 	

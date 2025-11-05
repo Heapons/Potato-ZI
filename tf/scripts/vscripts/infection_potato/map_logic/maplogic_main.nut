@@ -84,8 +84,8 @@ local gamemode_funcs = {
         }
 
         // grab the tracks and cart entity from the watcher
-        // NOTE: this crashes the game for many reasons!
-        // bot logic and other things try to read team_train_watcher properties with no NULL checks!
+        // NOTE: deleting stuff related to team_train_watcher crashes the game for many reasons!
+        // bot logic and other things try to read team_train_watcher properties and get NULL ptrs for missing tracks etc.
 
         local cart_stuff = []
         for ( local watcher, cart; watcher = FindByClassname( watcher, "team_train_watcher" ); ) {
@@ -335,12 +335,18 @@ local function GetGamemode() {
 
 local GAMEMODE = GetGamemode()
 
-local function SetupRoundTimer() {
+function PZI_MapLogic::GetRoundTimer( replace = true ) {
 
-    for (local timer; timer = FindByClassname(timer, "team_round_timer");)
-        EntFireByHandle(timer, "Kill", null, -1, null, null)
+    local timer
 
-    local timer = SpawnEntityFromTable( "team_round_timer", {
+    if ( !replace )
+        while ( timer = FindByName( timer, "__pzi_timer" ) )
+            return timer
+
+    for ( local _timer; _timer = FindByClassname( _timer, "team_round_timer" ); )
+        EntFireByHandle( _timer, "Kill", null, -1, null, null )
+
+    timer = SpawnEntityFromTable( "team_round_timer", {
 
         targetname          = "__pzi_timer"
         vscripts            = " "
@@ -396,14 +402,14 @@ local function SetupRoundTimer() {
 
                 local players = array(2, 0)
                 local spectators = 0
-                foreach (player, userid in PZI_Util.PlayerTable)
-                {
-                    if (!player || !player.IsValid())
+                foreach ( player, userid in PZI_Util.PlayerTables.All ) {
+
+                    if ( !player || !player.IsValid() )
                         continue
 
                     if ( player.GetTeam() == TEAM_SPECTATOR )
                         spectators++
-                    else if ( !IsPlayerABot( player ) )
+                    else if ( !player.IsBotOfType( TF_BOT_TYPE ) )
                         players[player.GetTeam() == TEAM_HUMAN ? 0 : 1]++
                 }
 
@@ -445,7 +451,7 @@ local function SetupRoundTimer() {
     return timer
 }
 
-local timer = SetupRoundTimer()
+local timer = GetRoundTimer()
 
 local doors = ["func_door*", "func_areaportal*"]
 local cls   = ["prop_dynamic", "func_brush"]
@@ -521,7 +527,7 @@ PZI_EVENT( "teamplay_round_start", "PZI_MapLogic_RoundStart", function ( params 
 
     EntFireByHandle( _relay, "Trigger", null, -1, null, null )
 
-    timer = SetupRoundTimer()
+    timer = GetRoundTimer()
 
     // Disables most huds
     SetPropInt( PZI_Util.GameRules, "m_nHudType", 2 )

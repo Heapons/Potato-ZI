@@ -164,49 +164,31 @@ class CSpyReveal extends CZombieAbility {
             entity = m_hAbilityOwner
         })
 
-        local _hPlayer            = null
-        local _arrPlayersInRange  = []
-
         // get all of the players in range
-        while ( _hPlayer = FindByClassnameWithin( _hPlayer, "player", m_hAbilityOwner.GetOrigin(), ( SPY_REVEAL_RANGE ) ) ) {
+        for( local _hPlayer; _hPlayer = FindByClassnameWithin( _hPlayer, "player", m_hAbilityOwner.GetOrigin(), ( SPY_REVEAL_RANGE ) ); ) {
 
             // red ( survivor ) team only
             if ( _hPlayer && _hPlayer.GetTeam() != TEAM_ZOMBIE ) {
 
-                _arrPlayersInRange.append( _hPlayer )
+                // spy reveal simply enables m_bGlowEnabled on players
+                // moved above m_hAbilityOwner check to also glow the spy
+                SetPropBool ( _hPlayer, "m_bGlowEnabled", true )
+
+                _hPlayer.RemoveCond(  TF_COND_DISGUISED   )
+                _hPlayer.RemoveCond(  TF_COND_DISGUISING  )
+                _hPlayer.RemoveCond(  TF_COND_STEALTHED   )
+
+                local _sc = _hPlayer.GetScriptScope()
+
+                // play the reveal sound to the revealed player
+                EmitSoundEx({ sound_name = _szRevealSound entity = _hPlayer filter_type = RECIPIENT_FILTER_SINGLE_PLAYER })
+
+                // stagger glow removal times so the players blink out at random times ( looks cool )
+                _hPlayer.SetNextActTime ( ZOMBIE_KILL_GLOW, RandomFloat( 5, 7.5 ) )
+                if ( !( "m_iFlags" in _sc ) )
+                    _sc.m_iFlags <- 0
+                _sc.m_iFlags         <- ( _sc.m_iFlags | ZBIT_REVEALED_BY_SPY )
             }
-        }
-
-        if ( !_arrPlayersInRange.len() )
-            return
-
-        // apply reveal effect
-        local _arrPlayersInRange_len = _arrPlayersInRange.len()
-
-        for ( local i = 0; i < _arrPlayersInRange_len; i++ ) {
-
-            local _hNextPlayer = _arrPlayersInRange[ i ]
-
-            if ( !_hNextPlayer || _hNextPlayer == m_hAbilityOwner )
-                break
-
-            _hNextPlayer.RemoveCond(  TF_COND_DISGUISED   )
-            _hNextPlayer.RemoveCond(  TF_COND_DISGUISING  )
-            _hNextPlayer.RemoveCond(  TF_COND_STEALTHED   )
-
-            local _scNext = _hNextPlayer.GetScriptScope()
-
-            // spy reveal simply enables m_bGlowEnabled on players
-            SetPropBool ( _hNextPlayer, "m_bGlowEnabled", true )
-
-            // play the reveal sound to the revealed player
-            EmitSoundEx({ sound_name = _szRevealSound entity = _hNextPlayer filter_type = RECIPIENT_FILTER_SINGLE_PLAYER })
-
-            // stagger glow removal times so the players blink out at random times ( looks cool )
-            _hNextPlayer.SetNextActTime ( ZOMBIE_KILL_GLOW, RandomFloat( 5, 7.5 ) )
-            if ( !( "m_iFlags" in _scNext ) )
-                _scNext.m_iFlags <- 0
-            _scNext.m_iFlags         <- ( _scNext.m_iFlags | ZBIT_REVEALED_BY_SPY )
         }
 
         // screenshake for the reveal effect

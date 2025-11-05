@@ -9,13 +9,13 @@
  * think scripts                                                                                  *
 ***************************************************************************************************/
 
-function PZI_PlayerThink() {
+function ZIPlayerThink() {
 
     if ( !self.IsValid() || !self.IsAlive() || self.GetFlags() & FL_NOTARGET )
         return
 
     if ( !self.IsPlayer() ) {
-        PZI_Util.RemoveThink( self, "PZI_PlayerThink" )
+        PZI_Util.RemoveThink( self, "ZIPlayerThink" )
         return
 
     }
@@ -227,7 +227,7 @@ function PZI_PlayerThink() {
 
                 m_vecVelocityPrevious <- self.GetAbsVelocity()
 
-                if (!IsPlayerABot(self)) {
+                if (!self.IsBotOfType( TF_BOT_TYPE )) {
 
                     local _hTooltip = self.ZombieInitialTooltip()
 
@@ -328,7 +328,7 @@ function PZI_PlayerThink() {
             // Zombie ability "vgui"                                                          //
             // ------------------------------------------------------------------------------ //
 
-            if ( !IsPlayerABot( self ) ) {
+            if ( !self.IsBotOfType( TF_BOT_TYPE ) ) {
 
                 if ( !( _buttons & IN_SCORE ) ) {
 
@@ -910,7 +910,7 @@ function SniperSpitThink() {
         // if the percent of hits that came back empty is lower than the failure threshold
         if ( ( ( _iTimesHitEmpty.tofloat() / _iNumChecks ) * 100.0 ) <= SNIPER_SPIT_MIN_SURFACE_PERCENT ) {
 
-            local _szBaseName = "__pzi_spit_impact_" + PZI_Util.PlayerTable[ m_hOwner ] + "_"
+            local _szBaseName = "__pzi_spit_impact_" + PZI_Util.PlayerTables.All[ m_hOwner ] + "_"
 
             function SpitPoolFXThink() {
 
