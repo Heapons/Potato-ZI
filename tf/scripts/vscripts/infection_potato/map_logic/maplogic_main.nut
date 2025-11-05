@@ -451,7 +451,7 @@ function PZI_MapLogic::GetRoundTimer[this]( replace = true ) {
     return timer
 }
 
-local timer = GetRoundTimer()
+local timer = PZI_MapLogic.GetRoundTimer()
 
 local doors = ["func_door*", "func_areaportal*"]
 local cls   = ["prop_dynamic", "func_brush"]
@@ -527,7 +527,7 @@ PZI_EVENT( "teamplay_round_start", "PZI_MapLogic_RoundStart", function ( params 
 
     EntFireByHandle( _relay, "Trigger", null, -1, null, null )
 
-    timer = GetRoundTimer()
+    timer = PZI_MapLogic.GetRoundTimer()
 
     // Disables most huds
     SetPropInt( PZI_Util.GameRules, "m_nHudType", 2 )
