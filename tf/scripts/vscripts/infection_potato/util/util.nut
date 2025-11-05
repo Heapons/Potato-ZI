@@ -736,7 +736,7 @@ function PZI_Util::GiveWearableItem( player, item_id, model = null ) {
 
 	// avoid infinite loops from post_inventory_application hooks
 	player.AddEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
-	SendGlobalGameEvent( "post_inventory_application",  { userid = PlayerTables.AllPlayers[ player ] } )
+	SendGlobalGameEvent( "post_inventory_application",  { userid = PlayerTables.All[ player ] } )
 	player.RemoveEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
 
 	// add wearable to global table for removal on death/respawn
