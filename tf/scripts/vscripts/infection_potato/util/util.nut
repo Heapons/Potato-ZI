@@ -2416,10 +2416,10 @@ function PZI_Util::RegisterPlayer( player, tbl = "All" ) {
 
 function PZI_Util::ValidatePlayerTables() {
 
-	local function playervalidate( player, _ ) { return player && player.IsValid() }
+	// local function playervalidate( player, _ ) { return player && player.IsValid() }
 
 	foreach( tbl in PlayerTables.keys() )
-		PlayerTables[ tbl ] = PlayerTables[ tbl ].filter( playervalidate )
+		PlayerTables[ tbl ] = PlayerTables[ tbl ].filter( @( player, _ ) player && player.IsValid() )
 }
 
 function PZI_Util::KVStringToVectorOrQAngle( str, angles = false, startidx = 0 ) {
@@ -2681,9 +2681,9 @@ PZI_EVENT( "player_disconnect", "UtilPlayerDisconnect", function ( params ) {
 
 	local u = PZI_Util
 
-	foreach( tbl in u.PlayerTables )
-		if ( player in u[ tbl ] )
-			delete u[ tbl ][ player ]
+	foreach( tbl in u.PlayerTables.keys() )
+		if ( player in u.PlayerTables[ tbl ] )
+			delete u.PlayerTables[ tbl ][ player ]
 	
 	foreach( wearables in [ "kill_on_spawn", "kill_on_death" ] ) {
 
