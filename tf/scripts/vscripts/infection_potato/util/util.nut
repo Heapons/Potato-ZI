@@ -2418,7 +2418,7 @@ function PZI_Util::ValidatePlayerTables() {
 
 	local function playervalidate( player, _ ) { return player && player.IsValid() }
 
-	foreach( tbl in PlayerTables )
+	foreach( tbl in PlayerTables.keys() )
 		PlayerTables[ tbl ] = PlayerTables[ tbl ].filter( playervalidate )
 }
 
