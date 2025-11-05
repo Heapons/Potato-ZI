@@ -335,7 +335,7 @@ local function GetGamemode() {
 
 local GAMEMODE = GetGamemode()
 
-function PZI_MapLogic::GetRoundTimer( replace = true ) {
+function PZI_MapLogic::GetRoundTimer[this]( replace = true ) {
 
     local timer
 
