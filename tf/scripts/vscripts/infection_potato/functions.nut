@@ -70,6 +70,7 @@ function PlayGlobalBell( _bForce = false ) {
     if ( _bForce || Time() - flTimeLastBell > GLOBAL_BELL_DELAY ) {
 
         SendGlobalGameEvent( "teamplay_broadcast_audio", { team = 255, sound = "Halloween.PlayerEscapedUnderworld" })
+        SendGlobalGameEvent( "teamplay_broadcast_audio", { team = 255, sound = "Announcer.TimeAdded" })
         flTimeLastBell = Time()
 
     }

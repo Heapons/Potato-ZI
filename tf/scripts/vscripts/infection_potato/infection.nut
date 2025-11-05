@@ -539,6 +539,8 @@ PZI_EVENT( "player_death", "Infection_PlayerDeath", function( params ) {
 
             PlayGlobalBell()
             EntFire( "team_round_timer", "AddTime", ""+ADDITIONAL_SEC_PER_PLAYER )
+            // control this from PlayGlobalBell instead
+            PZI_Util.ScriptEntFireSafe( "player", "StopSoundOn(`Announcer.TimeAdded`, self)" )
             _sc.m_bCanAddTime = false
 
             return
@@ -552,7 +554,7 @@ PZI_EVENT( "player_death", "Infection_PlayerDeath", function( params ) {
             if ( _iClassNum == TF_CLASS_MEDIC )
                 _hPlayer.ClearZombieEntity( "m_hMedicDispenser" )
 
-            else if ( _sc.m_hZombieAbility && _sc.m_hZombieAbility.IsValid() && _iClassNum == TF_CLASS_SNIPER && !( _hPlayer.GetFlags() & FL_ATCONTROLS ) ) {
+            else if ( _iClassNum == TF_CLASS_SNIPER && !( _hPlayer.GetFlags() & FL_ATCONTROLS ) ) {
 
                 _sc.m_hZombieAbility.CreateSpitball( true )
             }

@@ -821,7 +821,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 		if ( path_recompute_time > time )
 			return
 
-		if ( ( !path_points.len() ) || GetCurThreatDistanceSqr2D() > MAX_THREAT_DISTANCE ) {
+		if ( ( !path_points.len() ) || GetCurThreatDistanceSqr() > MAX_THREAT_DISTANCE ) {
 
 			local area = GetNavArea( threat_pos, 0.0 )
 			if ( area )
