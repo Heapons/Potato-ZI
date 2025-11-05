@@ -295,6 +295,7 @@ PZI_Util.ScriptEntFireSafe("__pzi_util", @"
 	SERVER_DATA.server_key	= GetServerKey( server_name )
 	SERVER_DATA.region		= GetServerRegion( server_name )
 
+    SERVER_DATA.domain = GetStr( `sv_downloadurl` )
     if ( 7 in SERVER_DATA.domain )
         SERVER_DATA.domain = SERVER_DATA.domain.slice( 7, SERVER_DATA.domain.find( `/gameassets` ) )
 
