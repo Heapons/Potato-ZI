@@ -965,7 +965,7 @@ function PZI_Util::ForEachEnt( identifier = null, filter = null, callback = null
 
 				entlist.append( ent )
 
-				if ( callback ) 
+				if ( callback )
 					callback( ent )
 			}
 		}
@@ -1735,7 +1735,7 @@ function PZI_Util::CharReplace( str, findwhat, replace, firstonly = false ) {
 
 	if ( typeof findwhat == "string" )
 		findwhat = findwhat[0]
-	
+
 	if ( typeof replace == "integer" )
 		replace = replace.tochar()
 
@@ -2031,11 +2031,11 @@ function PZI_Util::ClearLastKnownArea( bot ) {
 	EntFireByHandle( trigger, "Kill", "", -1, null, null )
 }
 
-function PZI_Util::KillPlayer( player ) { 
-	
+function PZI_Util::KillPlayer( player ) {
+
 	// zombie skin never gibs, force gib
 	SetPropInt( player, "m_iPlayerSkinOverride", 0 )
-	player.TakeDamageEx( null, TriggerHurt, null, Vector(), player.GetOrigin(), INT_MAX, DMG_ALWAYSGIB|DMG_PREVENT_PHYSICS_FORCE ) 
+	player.TakeDamageEx( null, TriggerHurt, null, Vector(), player.GetOrigin(), INT_MAX, DMG_ALWAYSGIB|DMG_PREVENT_PHYSICS_FORCE )
 }
 
 function PZI_Util::KillAllBots() {
@@ -2047,7 +2047,7 @@ function PZI_Util::KillAllBots() {
 
 // CRASHES!! DON'T USE!!!
 function PZI_Util::SilentKill( bot ) {
-	
+
 	local dummy = CreateByClassname( "tf_weapon_knife" )
 	SetPropInt( dummy, STRING_NETPROP_ITEMDEF, ID_YOUR_ETERNAL_REWARD )
 	SetPropBool( dummy, STRING_NETPROP_INIT, true )
@@ -2300,7 +2300,7 @@ function PZI_Util::AddThink( ent, func ) {
 	if ( !( thinktable_func in scope ) ) {
 
 		// scope[ thinktable_func ] <- function() {
-			
+
 		// 	printl( "aaaaa" )
 		// 	foreach ( name, _func in this[ thinktable_name ] )
 		// 		_func()
@@ -2684,7 +2684,7 @@ PZI_EVENT( "player_disconnect", "UtilPlayerDisconnect", function ( params ) {
 	foreach( tbl in u.PlayerTables.keys() )
 		if ( player in u.PlayerTables[ tbl ] )
 			delete u.PlayerTables[ tbl ][ player ]
-	
+
 	foreach( wearables in [ "kill_on_spawn", "kill_on_death" ] ) {
 
 		if ( player in u[ wearables ] ) {
