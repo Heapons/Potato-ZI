@@ -335,7 +335,7 @@ local function GetGamemode() {
 
 local GAMEMODE = GetGamemode()
 
-function PZI_MapLogic::GetRoundTimer[this]( replace = true ) {
+function PZI_MapLogic::GetRoundTimer[this]( replace = false ) {
 
     local timer
 
@@ -436,7 +436,7 @@ function PZI_MapLogic::GetRoundTimer[this]( replace = true ) {
 
         function UpdateTimestamp() {
 
-            base_timestamp = GetPropFloat( timer, "m_flTimeRemaining" ) + Time()
+            base_timestamp = GetPropFloat( timer, "m_flTimeRemaining" )
             return true
         }
 
@@ -555,13 +555,8 @@ PZI_EVENT( "player_spawn", "PZI_MapLogic_PlayerSpawn", function ( params ) {
     // if ( player.IsEFlagSet( EFL_IS_BEING_LIFTED_BY_BARNACLE ) )
         // return
 
-    PZI_Util.ScriptEntFireSafe( "__pzi_respawnoverride", "self.SetSize( Vector( -9999, -9999, -9999 ), Vector( 9999, 9999, 9999 ) )", -1 )
-    EntFire( "__pzi_respawnoverride", "SetRespawnTime", ""+BASE_RESPAWN_TIME, -1 )
-    EntFire( "__pzi_respawnoverride", "StartTouch", "!activator", -1, player )
+    PZI_Util.SetNextRespawnTime( player, BASE_RESPAWN_TIME )
 
     EntFire( "tf_gamerules", "SetBlueTeamRespawnWaveTime", "0", -1 )
-
-    // random spawn points
-    // EntFire( "__pzi_respawnoverride", "SetRespawnName", spawns[ RandomInt( 0, spawns_len - 1 ) ], -1, player )
     EntFire( "tf_weapon_passtime_gun", "Kill", null, 0.05 )
 })

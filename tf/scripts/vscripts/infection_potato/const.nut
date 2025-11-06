@@ -363,9 +363,20 @@ szArrZombiePlayerModels <-
     "models/player/spy_infected.mdl",
     "models/player/engineer_infected.mdl",
 ]
-szEyeParticles <- [
-    "eye_powerup_red_lvl_3",
-    "eye_powerup_red_lvl_2"
+
+// per-class eye particles
+szEyeParticles <- 
+[
+    "eye_powerup_red_lvl_1" // unused
+    "eye_powerup_red_lvl_1" // scout
+    "eye_powerup_red_lvl_1" // sniper
+    "eye_powerup_red_lvl_4b" // soldier
+    "eye_powerup_red_lvl_3" // demo
+    "eye_powerup_blue_lvl_3" // medic
+    "eye_powerup_red_lvl_4" // heavy
+    "eye_powerup_red_lvl_3" // pyro
+    "eye_powerup_blue_lvl_2" // spy
+    "eye_powerup_blue_lvl_4b" // engineer
 ]
 
 const MDL_ZOMBIE_VIEW_MODEL_SCOUT          = "models/player/infection_potato/v_models/v_infected_scout.mdl"

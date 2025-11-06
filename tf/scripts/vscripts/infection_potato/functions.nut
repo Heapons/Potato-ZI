@@ -549,7 +549,6 @@ function CTFPlayer_SpawnEffect() {
     return
 }
 
-
 function CTFPlayer_GiveZombieCosmetics() {
 
     local wearable = PZI_Util.GiveWearableItem( this, arrZombieCosmeticIDX[ this.GetPlayerClass() ], arrZombieCosmeticModelStr[ this.GetPlayerClass() ] )
@@ -562,9 +561,9 @@ function CTFPlayer_GiveZombieCosmetics() {
     this.GetScriptScope().m_hZombieWearable <- wearable
 }
 
-function CTFPlayer_GiveZombieEyeParticles() {
+function CTFPlayer_GiveZombieEyeParticles( particle_override = null ) {
 
-    local eye_particle = szEyeParticles[RandomInt( 0, szEyeParticles.len() - 1 )]
+    local eye_particle = particle_override || szEyeParticles[ this.GetPlayerClass() ]
 
     if ( this.IsPlayer() && this.GetPlayerClass() != TF_CLASS_DEMOMAN )
         PZI_Util.AttachParticle( this, eye_particle, "eyeglow_L" )
@@ -864,77 +863,69 @@ function CTFPlayer_BuildZombieHUDString() {
 
 function CTFPlayer_ZombieInitialTooltip() {
 
-    local _hAbilityHUDText = SpawnEntityFromTable( "game_text", {
+    local _sc = this.GetScriptScope()
 
-        x          =  0.287,
-        y          =  0.85,
-        effect     =  2,
-        color      =  "255 255 255",
-        color2     =  "127 111 32",
-        fadein     =  0.009,
-        fadeout    =  0.9,
-        holdtime   =  10,
-        fxtime     =  0.008,
-        channel    =  1,
-        message    =  "",
-        spawnflags =  0,
-    })
+    if ( !g_hTooltipHUD || !g_hTooltipHUD.IsValid() ) {
 
-    return _hAbilityHUDText
+        g_hTooltipHUD = SpawnEntityFromTable( "game_text", {
+
+            targetname = "__pzi_hud_text_tooltip"
+            x          =  0.287
+            y          =  0.85
+            holdtime   =  15.5
+        })
+    }
+
+    return g_hTooltipHUD
 }
 
 function CTFPlayer_InitializeZombieHUD() {
 
     local _sc = this.GetScriptScope()
 
-    this.ClearZombieEntity( "m_hHUDText" )
-    this.ClearZombieEntity( "m_hHUDTextAbilityName" )
+    if ( !g_hAbilityHUD || !g_hAbilityHUD.IsValid() ) {
 
-    local userid = GetPlayerUserID( this )
+        g_hAbilityHUD = SpawnEntityFromTable( "game_text", {
 
-    // previous checks apparently don't work, just kill by targetname
-    for ( local ent = worldspawn, name ; ent = FindByClassname( ent, "game_text"); )
-        if ( ( name = ent.GetName() ), startswith( name, "__pzi" ) && endswith( name, userid.tostring() ) )
-            EntFire( name, "Kill" )
+            targetname = "__pzi_hud_text_abilityvalue"
+            x          =  ZHUD_X_POS
+            y          =  0.895
+            effect     =  0
+            color      =  "255 255 255"
+            color2     =  "0 0 0"
+            fadein     =  0
+            fadeout    =  0
+            holdtime   =  10
+            fxtime     =  0
+            channel    =  2
+            message    =  ""
+            spawnflags =  0
+        })
+    }
 
-    local _hAbilityHUDText = SpawnEntityFromTable( "game_text", {
+    if ( !g_hAbilityNameHUD || !g_hAbilityNameHUD.IsValid() ) {
 
-        targetname = "__pzi_hud_text_abilityvalue" + userid
-        x          =  ZHUD_X_POS
-        y          =  0.895
-        effect     =  0
-        color      =  "255 255 255"
-        color2     =  "0 0 0"
-        fadein     =  0
-        fadeout    =  0
-        holdtime   =  10
-        fxtime     =  0
-        channel    =  2
-        message    =  ""
-        spawnflags =  0
-    } )
+        g_hAbilityNameHUD = SpawnEntityFromTable( "game_text", {
 
-    local _hAbilityNameHUDText = SpawnEntityFromTable( "game_text", {
+            targetname = "__pzi_hud_text_abilityname"
+            x          =  ZHUD_X_POS
+            y          =  0.80
+            effect     =  0
+            color      =  "255 255 255"
+            color2     =  "0 0 0"
+            fadein     =  0
+            fadeout    =  0
+            holdtime   =  10
+            fxtime     =  0
+            channel    =  4
+            message    =  ""
+            spawnflags =  0
+        })
+    }
+    _sc.m_hHUDTextAbilityName = g_hAbilityNameHUD
+    _sc.m_hHUDText = g_hAbilityHUD
 
-        targetname = "__pzi_hud_text_abilityname" + userid
-        x          =  ZHUD_X_POS
-        y          =  0.80
-        effect     =  0
-        color      =  "255 255 255"
-        color2     =  "0 0 0"
-        fadein     =  0
-        fadeout    =  0
-        holdtime   =  10
-        fxtime     =  0
-        channel    =  4
-        message    =  ""
-        spawnflags =  0
-    } )
-
-    _sc.m_hHUDText             <- _hAbilityHUDText
-    _sc.m_hHUDTextAbilityName  <- _hAbilityNameHUDText
-
-    return _sc.m_hHUDText
+    return g_hAbilityHUD
 }
 
 function CTFPlayer_CheckIfLoser() {
@@ -1273,9 +1264,12 @@ function CTFPlayer_ModifyJumperWeapons() {
 
 function CTFPlayer_MakeHuman() {
 
-    local _hPlayerVM = GetPropEntity( this, "m_hViewModel" )
-
     SetPropBool( this, "m_bForcedSkin", false )
+
+    if ( this.IsBotOfType( TF_BOT_TYPE ) )
+        return
+
+    local _hPlayerVM = GetPropEntity( this, "m_hViewModel" )
 
     if ( this.GetPlayerClass() == TF_CLASS_ENGINEER ) {
 
@@ -1448,7 +1442,7 @@ function CTFPlayer_SetLinkedSpitPoolEnt( _hSpitPool ) {
 
     local _sc = this.GetScriptScope()
 
-    if ( !_sc || !_hSpitPool || !_hSpitPool.IsValid() )
+    if ( !_sc || !("m_bStandingOnSpit" in _sc) || !_hSpitPool || !_hSpitPool.IsValid() )
         return
 
    // printl( "Setting linked spit pool entity for player..." )

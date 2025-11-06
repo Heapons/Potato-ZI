@@ -107,11 +107,16 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
     player.SetAbsVelocity( Vector() )
 
     player.AcceptInput( "SetForcedTauntCam", "1", null, null )
-    SetPropFloat( player, "m_flNextPrimaryAttack", Time() + 2.0 )
-    SetPropFloat( player, "m_flNextSecondaryAttack", Time() + 2.0 )
-    player.GiveZombieEyeParticles() // TODO: doesn't work
-    EntFire("spawn_hint_" + player.entindex(), "Kill")
-    
+
+    if ( "m_hZombieWep" in scope ) {
+
+        SetPropFloat( scope.m_hZombieWep, "m_flNextPrimaryAttack", Time() + 2.0 )
+        SetPropFloat( scope.m_hZombieWep, "m_flNextSecondaryAttack", Time() + 2.0 )
+
+    }
+    // player.GiveZombieEyeParticles() // TODO: doesn't work
+    EntFire("__pzi_spawn_hint_" + player.entindex(), "Kill")
+
     if ( !("m_iFlags" in scope) )
         scope.m_iFlags <- ZBIT_PENDING_ZOMBIE
     else
@@ -157,7 +162,6 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
     SetPropInt( dummy_player, "m_fEffects", EF_BONEMERGE|EF_BONEMERGE_FASTCULL )
     ::DispatchSpawn( dummy_player )
     dummy_scope.dummy_player <- dummy_player
-    // CTFPlayer.GiveZombieEyeParticles.call( dummy_player )
 
     /***********************************************
      * FAKE WEARABLES                              *
@@ -252,8 +256,7 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
 
             SetPropInt( player, "m_afButtonDisabled", 0 )
             player.GiveZombieCosmetics()
-            player.GiveZombieEyeParticles() // TODO: doesn't work
-            // PZI_Util.ScriptEntFireSafe( player, "self.GiveZombieCosmetics(); self.GiveZombieEyeParticles()" )
+            player.GiveZombieEyeParticles()
 
             EntFireByHandle( self, "Kill", "", -1, null, null )
             EntFireByHandle( fakewearable, "Kill", "", -1, null, null )
@@ -372,6 +375,8 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
         SetPropInt( player, "m_clrRender", 0xFFFFFFFF )
         player.EnableDraw()
     }
+    
+    SetPropInt( player, "m_afButtonDisabled", 0 )
 
     // teleport to a random nav square on spawn
     if ( USE_NAV_FOR_SPAWN ) {
@@ -431,7 +436,7 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
     PZI_Util.TeleportNearVictim( player, players[0], 0.25, true )
 
     local spawn_hint = CreateByClassname( "move_rope" )
-    spawn_hint.KeyValueFromString( "targetname", format( "spawn_hint_%d", player.entindex() ) )
+    spawn_hint.KeyValueFromString( "targetname",  "__pzi_spawn_hint_" + player.entindex() )
     // spawn_hint.AddEFlags( EFL_IN_SKYBOX )
     ::DispatchSpawn( spawn_hint )
     SetPropBool( spawn_hint, STRING_NETPROP_PURGESTRINGS, true )
@@ -573,7 +578,6 @@ PZI_EVENT( "player_death", "SpawnAnywhere_PlayerDeath", function( params ) {
     if ( player.GetTeam() == TEAM_ZOMBIE && player.IsEFlagSet( FL_DONTTOUCH ) ) {
 
         player.RemoveFlag( FL_ATCONTROLS|FL_DUCKING|FL_DONTTOUCH|FL_NOTARGET )
-        player.AcceptInput( "DispatchEffect", "ParticleEffectStop", null, null )
         // player.ForceRespawn()
 
         // both engi and sniper drop a projectile on death, kill this if we die in ghost/summon mode

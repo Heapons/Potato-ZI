@@ -8,6 +8,37 @@ PZI_Bots.MAX_KICK_URGENCY 		 <- 5 // max bot diff before we go full panic mode a
 PZI_Bots.NAV_SNIPER_SPOT_FACTOR  <- 125 // higher value = lower chance.  1/30 chance to be a sniper spot
 PZI_Bots.NAV_SENTRY_SPOT_FACTOR  <- 370 // higher value = lower chance.  1/50 chance to be a sentry spot
 
+PZI_Bots.dummyvm <- CreateByClassname( "tf_viewmodel" )
+PZI_Bots._GetPropEntity <- NetProps.GetPropEntity.bindenv( NetProps )
+
+function GetPropEntity( ent, prop ) {
+
+	local ret = PZI_Bots._GetPropEntity( ent, prop )
+
+	if ( !ret && prop == "m_hViewModel" && ent.IsBotOfType( TF_BOT_TYPE ) ) {
+
+		local dummyvm = PZI_Bots.dummyvm || CreateByClassname( "tf_viewmodel" )
+
+		if ( !dummyvm.IsValid() ) {
+
+			dummyvm = CreateByClassname( "tf_viewmodel" )
+			PZI_Bots.dummyvm = dummyvm
+			return dummyvm
+		}
+
+		return dummyvm
+	}
+
+	return ret
+}
+function PZI_Bots::_OnDestroy() {
+
+	if ( PZI_Bots.dummyvm && PZI_Bots.dummyvm.IsValid() )
+		PZI_Bots.dummyvm.Kill()
+
+	::GetPropEntity <- _GetPropEntity
+}
+
 PZI_Bots.MAX_BOTS_PER_MAP <- {
 
     arena_byre          = 18
@@ -426,7 +457,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 
 	STR_PROJECTILES 	= "tf_projectile*"
 	MAX_RECOMPUTE_TIME  = 3.0
-	MAX_THREAT_DISTANCE = 32.0 * 32.0 // use LengthSqr for performance
+	MAX_THREAT_DISTANCE = 8.0 * 8.0 // use LengthSqr for performance
 
 	bot   				= null
 	scope 				= null
@@ -1112,7 +1143,7 @@ function PZI_Bots::ThinkTable::BotQuotaManager() {
 
 	PZI_Util.ValidatePlayerTables()
 	local bots   = PZI_Util.PlayerTables.Bots.keys()
-	local humans = PZI_Util.PlayerTables.Survivors.keys()
+	local humans = PZI_Util.PlayerTables.NoBots.keys()
 	local cur_bots = bots.len() - doomed_bots.len()
 
 	if ( ( !generator || !generator.IsValid() ) )
@@ -1122,7 +1153,7 @@ function PZI_Bots::ThinkTable::BotQuotaManager() {
 	else if ( FILL_MODE )
 		wish_bots = FILL_MODE == 2 ? PZI_Util.Max( 0, MAX_BOTS * humans.len() ) : MAX_BOTS - humans.len()
 
-	// printf( "wish: %d cur: %d urgency: (%d) doomed: [%d]\n", wish_bots, PZI_Util.BotArray.len(), kick_urgency, doomed_bots.len() )
+	// printf( "wish: %d cur: %d urgency: (%d) doomed: [%d]\n", wish_bots, PZI_Util.PlayerTables.Bots.len(), kick_urgency, doomed_bots.len() )
 	// kick urgency is decided by the difference between how many bots we want and how many we currently have
 	// always kick at max urgency in pre-round
 	kick_urgency = bGameStarted ? PZI_Util.Min( abs( wish_bots - cur_bots ), MAX_KICK_URGENCY ) : MAX_KICK_URGENCY
@@ -1540,7 +1571,7 @@ PZI_EVENT( "teamplay_round_start", "PZI_Bots_TeamplayRoundStart", function( para
 	SetValue( "nb_update_frequency", 1.0 )
 })
 
-PZI_EVENT( "player_spawn", "PZI_Bots_PostInventoryApplication", function( params ) {
+PZI_EVENT( "player_spawn", "PZI_BotsSpawn", function( params ) {
 
     local bot = GetPlayerFromUserID( params.userid )
 
@@ -1549,6 +1580,10 @@ PZI_EVENT( "player_spawn", "PZI_Bots_PostInventoryApplication", function( params
 
 	if ( bot.GetDifficulty() != EXPERT )
 		bot.SetDifficulty( EXPERT )
+	
+	// just doing this without giving them weapons will break them
+	// need to re-organize m_hMyWeapons after doing this
+	GetPropEntity( bot, "m_hViewModel" ).Kill()
 
     local scope = PZI_Util.GetEntScope( bot )
 
@@ -1565,7 +1600,6 @@ PZI_EVENT( "player_spawn", "PZI_Bots_PostInventoryApplication", function( params
 	scope.m_fTimeLastHit <- Time()
 	bot.RemoveOutOfCombat()
 
-	bot.SetMission( NO_MISSION, true )
 	if ( cls == TF_CLASS_MEDIC && bot.GetTeam() == TEAM_HUMAN && RandomInt( 0, 2 ) ) {
 
 		// tf_bot_reevaluate_class_in_spawnroom falls apart with large numbers of bots.
@@ -1579,7 +1613,7 @@ PZI_EVENT( "player_spawn", "PZI_Bots_PostInventoryApplication", function( params
 	if ( !bGameStarted && !("__pzi_firstkill" in scope) && bot.GetTeam() == TEAM_HUMAN ) {
 
 		scope.__pzi_firstkill <- true
-		PZI_Util.ScriptEntFireSafe( bot, "PZI_Util.KillPlayer( self )", RandomFloat( 0.2, 1.6 ) )
+		PZI_Util.ScriptEntFireSafe( bot, "PZI_Util.KillPlayer( self ); self.ForceRespawn()", RandomInt( 0, 20 ) )
 	}
 
 	else if ( bot.GetTeam() == TEAM_ZOMBIE || cls == TF_CLASS_PYRO || cls == TF_CLASS_SPY )
@@ -1618,6 +1652,7 @@ PZI_EVENT( "player_spawn", "PZI_Bots_PostInventoryApplication", function( params
 
 	local b = scope.PZI_BotBehavior
 
+	scope.areas <- {}
 	function BotThink() {
 
 		if ( !bot || !bot.IsValid() || !bot.IsAlive() )
@@ -1629,16 +1664,22 @@ PZI_EVENT( "player_spawn", "PZI_Bots_PostInventoryApplication", function( params
 
 		local stucktime = b.locomotion.GetStuckDuration()
 
+		if ( b.path_debug ) {
+
+			printf( "bot %s STUCK!\n pos: %s\n stuck time: %.2f\n last known area: '%s'\n", bot.tostring(), bot.GetOrigin().ToKVString(), stucktime, ""+area )
+			SetPropBool( bot, "m_bGlowEnabled", stucktime > 5.0 )
+		}
+
+
 		if ( stucktime > 5.0 ) {
 
-			local area = bot.GetLastKnownArea() || GetNearestNavArea( bot.GetOrigin(), 192.0, false, false )
+			local area = bot.GetLastKnownArea() 
+			
+			if ( !area ) {
 
-			if ( b.path_debug ) {
-
-				SetPropBool( bot, "m_bGlowEnabled", !!stucktime )
-				printf( "bot %s STUCK!\n pos: %s\n stuck time: %.2f\n last known area: '%s'\n", bot.tostring(), bot.GetOrigin().ToKVString(), stucktime, ""+area )
+				GetNavAreasInRadius( bot.GetOrigin(), 192.0, areas )
+				area = areas.values()[ RandomInt( 0, areas.len() - 1 ) ]
 			}
-
 			// no nearby nav, just kill and respawn
 			if ( !area )
 				PZI_Util.KillPlayer( bot )

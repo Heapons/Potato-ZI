@@ -23,6 +23,9 @@ if ( "InfectionLoaded" in getroottable() )
 ::PDLogic              <- null
 ::bSetupHasEnded       <- false
 ::bIsPayload           <- false
+::g_hAbilityHUD        <- null
+::g_hAbilityNameHUD    <- null
+::g_hTooltipHUD        <- null
 
 ::bNewFirstWaveBehaviour <- false
 ::bNoPyroExplosionMod    <- false

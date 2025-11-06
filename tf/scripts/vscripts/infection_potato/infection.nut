@@ -287,7 +287,7 @@ PZI_EVENT( "player_spawn", "Infection_PlayerSpawn", function( params ) {
     return
 }, EVENT_WRAPPER_MAIN )
 
-PZI_EVENT( "teamplay_round_start", "Infection_RoundStart", @( params ) PZI_Util.ScriptEntFireSafe( "player", "self.AddEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE ); self.Regenerate( true )", 0.1 ) )
+PZI_EVENT( "teamplay_round_start", "Infection_RoundStart", @( params ) PZI_Util.ScriptEntFireSafe( "player", "self.AddEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE ); self.ForceRegenerateAndRespawn(); self.RemoveEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )", 0.1 ) )
 
 PZI_EVENT( "teamplay_setup_finished", "Infection_SetupFinished", function( params ) {
 
@@ -380,7 +380,7 @@ PZI_EVENT( "teamplay_setup_finished", "Infection_SetupFinished", function( param
             _nextPlayer1.GiveZombieEyeParticles()
 
             _nextPlayer1.AddEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
-            SendGlobalGameEvent( "post_inventory_application", { userid = GetPlayerUserID( _nextPlayer1 ) } )
+            SendGlobalGameEvent( "post_inventory_application", { userid = PZI_Util.PlayerTables.All[ _nextPlayer1 ] } )
             _nextPlayer1.RemoveEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
 
             // add the pending zombie flag
@@ -492,9 +492,10 @@ PZI_EVENT( "player_death", "Infection_PlayerDeath", function( params ) {
     local _bIsEngineerWithEMP  =  ( _hPlayer.GetPlayerClass() == TF_CLASS_ENGINEER && _hPlayer.CanDoAct( ZOMBIE_ABILITY_CAST ) )
 
     SetPropIntArray( _hPlayer, STRING_NETPROP_MDLINDEX_OVERRIDES, 0, 3 )
+    
+    _hPlayer.AcceptInput( "DispatchEffect", "ParticleEffectStop", null, null )
 
     if ( bGameStarted ) {
-
 
         // evaluate win condition when a player dies
         ShouldZombiesWin( _hPlayer )
@@ -538,9 +539,13 @@ PZI_EVENT( "player_death", "Infection_PlayerDeath", function( params ) {
                 // return // don't add time to the round timer if it's a payload map
 
             PlayGlobalBell()
-            EntFire( "team_round_timer", "AddTime", ""+ADDITIONAL_SEC_PER_PLAYER )
+            PZI_MapLogic.GetRoundTimer().AcceptInput( "AddTime", ""+ADDITIONAL_SEC_PER_PLAYER, null, null )
+            // EntFire( "team_round_timer", "AddTime", ""+ADDITIONAL_SEC_PER_PLAYER )
+            foreach ( player in PZI_Util.PlayerTables.All.keys() )
+                StopSoundOn( "Announcer.TimeAdded", player )
+
             // control this from PlayGlobalBell instead
-            PZI_Util.ScriptEntFireSafe( "player", "StopSoundOn(`Announcer.TimeAdded`, self)" )
+            // PZI_Util.ScriptEntFireSafe( "player", "StopSoundOn(`Announcer.TimeAdded`, self)" )
             _sc.m_bCanAddTime = false
 
             return
@@ -603,13 +608,13 @@ PZI_EVENT( "player_death", "Infection_PlayerDeath", function( params ) {
             if ( _sc.m_hHUDText && _sc.m_hHUDText.IsValid() ) {
 
                 _sc.m_hHUDText.KeyValueFromString( "message", "" )
-                EntFireByHandle( _sc.m_hHUDText,  "Display", "", -1, _hPlayer, _hPlayer )
+                _sc.m_hHUDText.AcceptInput( "Display", null, _hPlayer, _hPlayer )
             }
 
             if ( _sc.m_hHUDTextAbilityName && _sc.m_hHUDText.IsValid() ) {
 
                 _sc.m_hHUDTextAbilityName.KeyValueFromString( "message", "" )
-                EntFireByHandle( _sc.m_hHUDTextAbilityName,  "Display", "", -1, _hPlayer, _hPlayer )
+                _sc.m_hHUDTextAbilityName.AcceptInput( "Display", null, _hPlayer, _hPlayer )
             }
 
             // ------------------------------------- //
@@ -1009,6 +1014,7 @@ PZI_EVENT( "player_hurt", "Infection_PlayerHurt", function( params ) {
             // force gibs on zombie death
             SetPropInt( _hPlayer, "m_iPlayerSkinOverride", 0 )
             _hPlayer.SetHealth( -20 ); // force overkill threshhold
+            _hPlayer.AcceptInput( "DispatchEffect", "ParticleEffectStop", null, null )
 
             _hPlayer.SetCustomModelWithClassAnimations( arrTFClassPlayerModels[ _hPlayer.GetPlayerClass() ] )
             return

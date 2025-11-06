@@ -301,7 +301,7 @@ function PZI_Util::ThinkTable::EntityManagerThink() {
 
 function PZI_Util::GetEntScope( ent ) { return ent.GetScriptScope() || ( ent.ValidateScriptScope(), ent.GetScriptScope() ) }
 
-function PZI_Util::TouchCrashFix() { return activator && activator.IsValid() }
+function PZI_Util::TouchCrashFix() { printl(activator); return activator && activator.IsValid() }
 
 function PZI_Util::SetTargetname( ent, name ) {
 
@@ -795,8 +795,8 @@ function PZI_Util::StripWeapon( player, slot = -1 ) {
 
 function PZI_Util::SetNextRespawnTime( player, time ) {
 
-	if ( !player || !player.IsValid() || !RespawnOverride.IsValid() )
-		return
+	if ( !RespawnOverride || !RespawnOverride.IsValid() )
+		RespawnOverride = FindByName( null, "__pzi_respawnoverride" ) || PZI_Util.SpawnEnt( "trigger_player_respawn_override", "__pzi_respawnoverride", false )
 
 	local oldtime = GetPropFloat( RespawnOverride, "m_flRespawnTime" )
 	RespawnOverride.AcceptInput( "SetRespawnTime", time.tostring(), player, player )
@@ -1068,8 +1068,17 @@ function PZI_Util::PointScriptTemplate( targetname = null, onspawn = null ) {
 
 function PZI_Util::AttachParticle( ent, particle, attachment_name ) {
 
-	if ( !TriggerParticle || !TriggerParticle.IsValid() )
-		TriggerParticle = PZI_Util.TriggerParticle
+
+	if ( !TriggerParticle || !TriggerParticle.IsValid() ) {
+
+		TriggerParticle = CreateByClassname( "trigger_particle" )
+		TriggerParticle.KeyValueFromString( "targetname", "__pzi_triggerparticle" )
+		TriggerParticle.KeyValueFromString( "particle_name", particle )
+		TriggerParticle.KeyValueFromString( "attachment_name", attachment_name )
+		TriggerParticle.KeyValueFromInt( "attachment_type", 4 )
+		TriggerParticle.KeyValueFromInt( "spawnflags", 1 )
+		DispatchSpawn(TriggerParticle)
+	}
 
 	SetPropString( TriggerParticle, "m_iszParticleName", particle )
 	SetPropString( TriggerParticle, "m_iszAttachmentName", attachment_name )
@@ -1615,7 +1624,7 @@ function PZI_Util::RemovePlayerWearables( player ) {
 
 function PZI_Util::KillOnDeath( player, entity ) {
 
-	if ( player.entindex() in PZI_Util.kill_on_death )
+	if ( player in PZI_Util.kill_on_death )
 		PZI_Util.kill_on_death[ player ].append( entity )
 	else
 		PZI_Util.kill_on_death[ player ] <- [ entity ]
@@ -1623,7 +1632,7 @@ function PZI_Util::KillOnDeath( player, entity ) {
 
 function PZI_Util::KillOnSpawn( player, entity ) {
 
-	if ( player.entindex() in PZI_Util.kill_on_spawn )
+	if ( player in PZI_Util.kill_on_spawn )
 		PZI_Util.kill_on_death[ player ].append( entity )
 	else
 		PZI_Util.kill_on_death[ player ] <- [ entity ]
@@ -1923,6 +1932,8 @@ function PZI_Util::RoundWin( team = 2 ) {
 	EntFire( "tf_wea*", "Kill" )
 	EntFire( "tf_viewmodel*", "Kill" )
 	EntFire( "pd_dispenser", "Kill" )
+	EntFire( "obj*", "Kill" )
+
 	ScriptEntFireSafe("player", @"
 
 		SetPropString( self, `m_iszScriptThinkFunction`, `` )
@@ -2624,7 +2635,7 @@ PZI_EVENT( "teamplay_round_start", "UtilRoundStart", function ( params ) {
 	PZI_Util.TriggerHurt 	   <- PZI_Util.SpawnEnt( "trigger_hurt", "__pzi_triggerhurt", false )
 	PZI_Util.ClientCommand 	   <- PZI_Util.SpawnEnt( "point_clientcommand", "__pzi_clientcommand", false )
 	PZI_Util.RespawnOverride   <- PZI_Util.SpawnEnt( "trigger_player_respawn_override", "__pzi_respawnoverride", false )
-	PZI_Util.TriggerParticle   <- PZI_Util.SpawnEnt( "trigger_particle", "__pzi_triggerparticle", false, "attachment_type", 4 )
+	// PZI_Util.TriggerParticle   <- PZI_Util.SpawnEnt( "trigger_particle", "__pzi_triggerparticle", false, "attachment_type", 4 )
 	PZI_Util.PopInterface 	   <- FindByClassname( null, "point_populator_interface" ) ||
 									PZI_Util.SpawnEnt( "point_populator_interface", "__pzi_pop_interface", false )
 	PZI_Util.NavInterface 	   <- FindByClassname( null, "tf_point_nav_interface" ) ||

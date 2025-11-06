@@ -27,27 +27,27 @@ PZI_EVENT( "player_spawn", "DamageRadiusMult_OnPlayerSpawn", function( params ) 
     }
 
     // scope.DmgMult <- dmg_mult > DMG_MULT_MAX ? DMG_MULT_MAX : dmg_mult
-    scope.DmgMult <- dmg_mult
+    scope.dmg_mult <- dmg_mult
+    scope.show_mult <- false
 
     function DamageRadiusMult() {
 
         if ( !bGameStarted || Time() < cooldown_time )
             return
 
-        local _dmg_mult = DMG_MULT_MIN
+        dmg_mult = DMG_MULT_MIN
 
         for ( local survivor; survivor = FindByClassnameWithin( survivor, "player", player.GetOrigin(), DMG_MULT_RADIUS ); ) {
 
-            if ( _dmg_mult >= DMG_MULT_MAX )
+            if ( dmg_mult >= DMG_MULT_MAX )
                 break
 
-            if ( survivor.GetTeam() == TEAM_HUMAN && survivor != player )
-                _dmg_mult += DMG_MULT_PER_PLAYER
+            if ( survivor != player  && player.IsAlive() && survivor.GetTeam() == TEAM_HUMAN )
+                dmg_mult += DMG_MULT_PER_PLAYER
         }
 
-        // ClientPrint( player, HUD_PRINTCENTER, "Damage multiplier: " + _dmg_mult )
-        // DmgMult <- _dmg_mult > DMG_MULT_MAX ? DMG_MULT_MAX : _dmg_mult
-        DmgMult = _dmg_mult
+        if ( show_mult )
+            ClientPrint( player, HUD_PRINTCENTER, "Damage multiplier: " + dmg_mult )
 
         cooldown_time = Time() + UPDATE_INTERVAL
     }
@@ -59,8 +59,8 @@ PZI_EVENT( "OnTakeDamage", "DamageRadiusMult_OnTakeDamage", function( params ) {
     local victim = params.const_entity
     local victim_scope = PZI_Util.GetEntScope( victim )
 
-    if ( victim.IsPlayer() && victim.GetTeam() == TEAM_HUMAN && "DmgMult" in victim_scope )
-        params.damage *= victim_scope.DmgMult
+    if ( victim.IsPlayer() && victim.GetTeam() == TEAM_HUMAN && "dmg_mult" in victim_scope )
+        params.damage *= victim_scope.dmg_mult
 
 })
 
@@ -74,6 +74,6 @@ PZI_EVENT( "player_say", "DamageRadiusMult_PlayerSay", function( params ) {
 
     local scope = player.GetScriptScope()
 
-    if ( "DmgMult" in scope )
-        ClientPrint( player, HUD_PRINTCENTER, "Damage multiplier: " + scope.DmgMult )
+    if ( "show_mult" in scope )
+        scope.show_mult = !scope.show_mult
 })
