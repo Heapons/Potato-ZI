@@ -368,14 +368,14 @@ function PZI_MapLogic::GetRoundTimer[this]( replace = false ) {
         EntFire( "__pzi_timer", "Resume", null, 1 )
 
     local scope = timer.GetScriptScope()
-    scope.base_timestamp <- GetPropFloat(timer, "m_flTimeRemaining")
+    scope.end_timestamp <- GetPropFloat(timer, "m_flTimeRemaining")
 
     if ( "VPI" in ROOT )
     {
         function TimerThink()
         {
-            base_timestamp = GetPropFloat( timer, "m_flTimeRemaining" )
-            local time_left = (base_timestamp - Time()).tointeger()
+            end_timestamp = GetPropFloat( timer, "m_flTimerEndTime" )
+            local time_left = (end_timestamp - Time()).tointeger()
             if ( !(time_left % 10) )
             {
                 local players = PlayerCount( TEAM_HUMAN ) + PlayerCount( TEAM_ZOMBIE )
@@ -385,7 +385,7 @@ function PZI_MapLogic::GetRoundTimer[this]( replace = false ) {
 
                 // LocalTime(LOCALTIME)
                 // SERVER_DATA.update_time = LOCALTIME
-                SERVER_DATA.max_wave = time_left
+                SERVER_DATA.max_wave = end_timestamp
                 SERVER_DATA.wave = time_left
                 SERVER_DATA.server_name = GetStr("hostname")
                 SERVER_DATA.server_tags = GetStr("sv_tags")
@@ -434,11 +434,7 @@ function PZI_MapLogic::GetRoundTimer[this]( replace = false ) {
             return -1
         }
 
-        function UpdateTimestamp() {
-
-            base_timestamp = GetPropFloat( timer, "m_flTimeRemaining" )
-            return true
-        }
+        function UpdateTimestamp() { return end_timestamp = GetPropFloat( timer, "m_flTimerEndTime" ) }
 
         scope.InputSetTime <- UpdateTimestamp
         scope.Inputsettime <- UpdateTimestamp

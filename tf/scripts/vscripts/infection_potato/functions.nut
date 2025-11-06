@@ -670,13 +670,13 @@ function CTFPlayer_RemoveOutOfCombat( _bForceCooldown = false ) {
         _sc.m_fTimeLastHit = Time()
     }
 
-    if ( _sc.m_iFlags & ZBIT_MUST_EXPLODE )
+    if ( "m_iFlags" in _sc && _sc.m_iFlags & ZBIT_MUST_EXPLODE )
         return
 
     if ( this.GetPlayerClass() == TF_CLASS_HEAVYWEAPONS || this.GetPlayerClass() == TF_CLASS_SCOUT )
         return
 
-    _sc.m_iFlags = _sc.m_iFlags & ~ZBIT_OUT_OF_COMBAT
+    _sc.m_iFlags <- _sc.m_iFlags & ~ZBIT_OUT_OF_COMBAT
     this.RemoveCond( TF_COND_SPEED_BOOST )
 
     this.RemoveCustomAttribute ( "move speed penalty" )
