@@ -1575,7 +1575,7 @@ PZI_EVENT( "player_spawn", "PZI_BotsSpawn", function( params ) {
 
     local bot = GetPlayerFromUserID( params.userid )
 
-    if ( !bot.IsBotOfType( TF_BOT_TYPE ) || bot.IsEFlagSet( EFL_IS_BEING_LIFTED_BY_BARNACLE ) )
+    if ( !bot.IsBotOfType( TF_BOT_TYPE ) )
 		return
 
 	if ( bot.GetDifficulty() != EXPERT )

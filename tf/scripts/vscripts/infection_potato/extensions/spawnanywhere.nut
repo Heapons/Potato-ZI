@@ -110,8 +110,8 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
 
     if ( "m_hZombieWep" in scope ) {
 
-        SetPropFloat( scope.m_hZombieWep, "m_flNextPrimaryAttack", Time() + 2.0 )
-        SetPropFloat( scope.m_hZombieWep, "m_flNextSecondaryAttack", Time() + 2.0 )
+        SetPropFloat( scope.m_hZombieWep, "m_flNextPrimaryAttack", Time() + scope.m_hZombieAbility.m_fAbilityCooldown + 2 )
+        SetPropFloat( scope.m_hZombieWep, "m_flNextSecondaryAttack", Time() + scope.m_hZombieAbility.m_fAbilityCooldown + 2 )
 
     }
     // player.GiveZombieEyeParticles() // TODO: doesn't work
