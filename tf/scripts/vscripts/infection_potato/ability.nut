@@ -145,6 +145,7 @@ class CSpyReveal extends CZombieAbility {
         _hColorCorrection.KeyValueFromFloat( "fadeInDuration", 0.5 )
         _hColorCorrection.KeyValueFromFloat( "fadeOutDuration", 3 )
         _hColorCorrection.KeyValueFromString( "filename", "materials/colorcorrection/spy_reveal_cc.raw" )
+        _hColorCorrection.SetOwner( m_hAbilityOwner )
 
         DispatchSpawn( _hColorCorrection )
 
