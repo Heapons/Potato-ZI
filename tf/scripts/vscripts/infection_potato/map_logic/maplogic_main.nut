@@ -484,12 +484,12 @@ local setup_finished_relay_table = {
     "OnSpawn#9" : "func_regenerate,Kill,,0,-1"
 }
 
-function PZI_MapLogic::ThinkTable::KillWastefulEnts() {
+// function PZI_MapLogic::ThinkTable::KillWastefulEnts() {
     
     // face flexes/animations for vo/pain feedback
-    for ( local ent; ent = FindByClassname( ent, "instanced_scripted_scene" ); )
-        EntFireByHandle( ent, "Kill", null, -1, null, null )
-}
+    // for ( local ent; ent = FindByClassname( ent, "instanced_scripted_scene" ); )
+    //     EntFireByHandle( ent, "Kill", null, -1, null, null )
+// }
 
 PZI_EVENT( "teamplay_round_start", "PZI_MapLogic_RoundStart", function ( params ) {
 
@@ -547,13 +547,14 @@ PZI_EVENT( "teamplay_round_start", "PZI_MapLogic_RoundStart", function ( params 
         tcp.ValidateScriptScope()
         scope <- tcp.GetScriptScope()
 
-        function scope::ToggleRandomControlPoint() {
+        function ToggleRandomControlPoint[scope]() {
 
 
             self.AcceptInput( "SetLocked", RandomInt( 0, 1 ), null, null )
-            return RandomInt( 10, 30 )
+            return 25
 
         }
+        scope.ToggleRandomControlPoint <- ToggleRandomControlPoint
 
         AddThinkToEnt( tcp, "ToggleRandomControlPoint" )
     }
