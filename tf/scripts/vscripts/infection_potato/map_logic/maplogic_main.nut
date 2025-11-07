@@ -549,7 +549,6 @@ PZI_EVENT( "teamplay_round_start", "PZI_MapLogic_RoundStart", function ( params 
 
         function ToggleRandomControlPoint[scope]() {
 
-
             self.AcceptInput( "SetLocked", RandomInt( 0, 1 ), null, null )
             return 25
 

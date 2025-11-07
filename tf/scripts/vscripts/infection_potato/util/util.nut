@@ -274,10 +274,9 @@ function PZI_Util::EntityManager() {
 		if ( !ent || !ent.IsValid() )
 			continue
 
-		PZI_GameStrings.StringTable[ ent.GetScriptId() ] <- ent.GetName()
-
 		printl( ent )
 		SetPropString( ent, STRING_NETPROP_NAME, queue )
+		SetPropBool( ent, STRING_NETPROP_PURGESTRINGS, true )
 
 		if ( _len < 150 && !( i % 50 ) )
 			yield EntFire( queue, "Kill" ), true
