@@ -1599,7 +1599,8 @@ PZI_EVENT( "player_spawn", "PZI_BotsSpawn", function( params ) {
 	local cls = bot.GetPlayerClass()
 
 	scope.m_fTimeLastHit <- Time()
-	bot.RemoveOutOfCombat()
+	if ( "m_iFlags" in scope )
+		bot.RemoveOutOfCombat()
 
 	if ( cls == TF_CLASS_MEDIC && bot.GetTeam() == TEAM_HUMAN && RandomInt( 0, 2 ) ) {
 
