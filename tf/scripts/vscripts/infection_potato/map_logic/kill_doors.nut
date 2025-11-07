@@ -5,7 +5,6 @@
 
 PZI_MapLogic.KILL_DOORS_ON_MAP <- {
 
-    cp_dustbowl          = null
     cp_fastlane          = null
     cp_foundry           = null
     cp_gorge_event       = null
@@ -22,11 +21,7 @@ PZI_MapLogic.KILL_DOORS_ON_MAP <- {
 if ( !( MAPNAME in PZI_MapLogic.KILL_DOORS_ON_MAP ) )
     return
 
-local function KillDoors() {
-
-    EntFire( "func_brush", "Kill" )
-    EntFire( "prop_dynamic", "Kill" )
-}
+local function KillDoors() { EntFire( "func_brush", "Kill" ); EntFire( "prop_dynamic", "Kill" ) }
 
 PZI_EVENT( "teamplay_round_start", "KillDoors", @(_) KillDoors() )
 PZI_EVENT( "teamplay_setup_finished", "KillDoors", @(_) KillDoors() )

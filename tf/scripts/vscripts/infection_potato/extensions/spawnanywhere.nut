@@ -108,12 +108,9 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
 
     player.AcceptInput( "SetForcedTauntCam", "1", null, null )
 
-    if ( "m_hZombieWep" in scope && "m_hZombieAbility" in scope && "m_fAbilityCooldown" in scope.m_hZombieAbility ) {
+    if ( "m_hZombieAbility" in scope && scope.m_hZombieAbility instanceof CZombieAbility ) 
+        scope.m_hZombieAbility.PutAbilityOnCooldown( scope.m_hZombieAbility.m_fAbilityCooldown + 2.0 )
 
-        SetPropFloat( scope.m_hZombieWep, "m_flNextPrimaryAttack", Time() + scope.m_hZombieAbility.m_fAbilityCooldown + 2.0 )
-        SetPropFloat( scope.m_hZombieWep, "m_flNextSecondaryAttack", Time() + scope.m_hZombieAbility.m_fAbilityCooldown + 2.0 )
-
-    }
     // player.GiveZombieEyeParticles() // TODO: doesn't work
     EntFire("__pzi_spawn_hint_" + player.entindex(), "Kill")
 

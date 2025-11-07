@@ -276,6 +276,7 @@ function PZI_Util::EntityManager() {
 
 		PZI_GameStrings.StringTable[ ent.GetScriptId() ] <- ent.GetName()
 
+		printl( ent )
 		SetPropString( ent, STRING_NETPROP_NAME, queue )
 
 		if ( _len < 150 && !( i % 50 ) )
@@ -283,6 +284,7 @@ function PZI_Util::EntityManager() {
 	}
 
 	EntFire( queue, "Kill" )
+	return
 }
 
 local gen = PZI_Util.EntityManager()
@@ -1650,19 +1652,21 @@ function PZI_Util::GiveWeapon( player, class_name, item_id ) {
 	weapon.SetTeam( player.GetTeam() )
 	::DispatchSpawn( weapon )
 	SetPropBool( weapon, STRING_NETPROP_PURGESTRINGS, true )
+	local slot = weapon.GetSlot()
 
 	// remove existing weapon in same slot
 	for ( local i = 0, old; i < SLOT_COUNT; i++ ) {
 
-		old = GetPropEntityArray( player, STRING_NETPROP_MYWEAPONS, i )
-		if ( old && old.GetSlot() == weapon.GetSlot() ) {
+		if ( old = GetPropEntityArray( player, STRING_NETPROP_MYWEAPONS, i ) ) {
 
+			if ( old.GetSlot() != slot ) continue
+			
+			EntShredder.append( old )
 			SetPropEntityArray( player, STRING_NETPROP_MYWEAPONS, weapon, i )
 
 			player.Weapon_Equip( weapon )
-			player.Weapon_Switch( weapon )
+			WeaponSwitchSlot( player, slot )
 
-			PZI_Util.EntShredder.append( old )
 			return weapon
 		}
 	}
@@ -1941,9 +1945,10 @@ function PZI_Util::RoundWin( team = 2 ) {
 		self.AcceptInput(`DispatchEffect`, `ParticleEffectStop`, null, null )
 		SetPropInt(self, `m_nRenderMode`, kRenderTransColor )
 		SetPropInt(self, `m_clrRender`, 0 )
+		self.DisableDraw()
 		SetPropBool( self, `m_bGlowEnabled`, false )
 	")
-	EntFire( "player", "TerminateScriptScope", null, 0.1 )
+	// EntFire( "player", "TerminateScriptScope", null, 0.1 )
 }
 
 function PZI_Util::GetWeaponMaxAmmo( player, wep ) {
@@ -2677,12 +2682,10 @@ PZI_EVENT( "player_death", "UtilPlayerDeath", function ( params ) {
 
 	local player = GetPlayerFromUserID( params.userid )
 
-	if ( player in PZI_Util.kill_on_death ) {
+	if ( !( player in PZI_Util.kill_on_death ) ) return
 
-		PZI_Util.EntShredder.extend( PZI_Util.kill_on_death[ player ] )
-		PZI_Util.kill_on_death[ player ].clear()
-	}
-
+	PZI_Util.EntShredder.extend( PZI_Util.kill_on_death[ player ] )
+	PZI_Util.kill_on_death[ player ].clear()
 
 }, EVENT_WRAPPER_UTIL )
 
@@ -2701,9 +2704,8 @@ PZI_EVENT( "player_disconnect", "UtilPlayerDisconnect", function ( params ) {
 
 		if ( player in u[ wearables ] ) {
 
-			foreach ( wearable in u[ wearables ][ player ] )
-				if ( wearable && wearable.IsValid() )
-					EntFireByHandle( wearable, "Kill", null, -1, null, null )
+			// foreach ( wearable in u[ wearables ][ player ] )
+			u.EntShredder.extend( u[ wearables ][ player ] )
 
 			delete u[ wearables ][ player ]
 		}
@@ -2723,7 +2725,7 @@ PZI_EVENT( "post_inventory_application", "UtilPostInventoryApplication", functio
 	if ( player in PZI_Util.kill_on_spawn )
 		foreach ( wearable in PZI_Util.kill_on_spawn[ player ] || [] )
 			if ( wearable && wearable.IsValid() )
-				EntFireByHandle( wearable, "Kill", null, -1, null, null )
+				SetPropBool( wearable, STRING_NETPROP_PURGESTRINGS, true ), EntFireByHandle( wearable, "Kill", null, -1, null, null )
 
 	// fill out player tables if empty
 	local tbl = "All"

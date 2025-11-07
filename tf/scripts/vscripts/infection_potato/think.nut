@@ -234,7 +234,7 @@ function ZIPlayerThink() {
 
                 self.GiveZombieAbility()
 
-                if ( m_hZombieAbility.m_iAbilityType == ZABILITY_PASSIVE ) {
+                if ( m_hZombieAbility instanceof CPassiveAbility ) {
 
                     m_hZombieAbility.ApplyPassive()
                     _szAbilityTooltip = STRING_UI_ZOMBIE_INSTRUCTION_PASSIVE
@@ -294,7 +294,7 @@ function ZIPlayerThink() {
                     EmitSoundOnClient( "TFPlayer.FlameOut", self )
             }
 
-            if ( _bPressingAttack2 && !_bCanCast && m_iCurrentAbilityType != ZABILITY_PASSIVE && m_iFlags & ZBIT_HASNT_HEARD_DENY_SFX ) {
+            if ( _bPressingAttack2 && !_bCanCast && !( m_hZombieAbility instanceof CPassiveAbility ) && m_iFlags & ZBIT_HASNT_HEARD_DENY_SFX ) {
 
                     EmitSoundOnClient( "Player.UseDeny", self )
                     m_iFlags = m_iFlags & ~ZBIT_HASNT_HEARD_DENY_SFX
@@ -344,7 +344,7 @@ function ZIPlayerThink() {
                         m_hHUDTextAbilityName.AcceptInput( "Display", null, self, self )
                     }
 
-                    if ( m_iCurrentAbilityType == ZABILITY_PASSIVE ) {
+                    if ( m_hZombieAbility instanceof CPassiveAbility ) {
 
                         if ( m_fTimeNextClientPrint <= Time() ) {
 
@@ -625,10 +625,7 @@ function ZIPlayerThink() {
             // generic zombie ability cast behaviour                                          //
             // ------------------------------------------------------------------------------ //
 
-            if ( _bPressingAttack2 && _bCanCast ) {
-
-                if ( m_hZombieAbility.m_iAbilityType == ZABILITY_PASSIVE )
-                    return PLAYER_RETHINK_TIME
+            if ( _bPressingAttack2 && !( m_hZombieAbility instanceof CPassiveAbility ) && _bCanCast ) {
 
                 // Make sure spy gets uncloaked after casting ability
                 if ( self.GetPlayerClass() == TF_CLASS_SPY ) {
@@ -1126,37 +1123,18 @@ function EngieEMPThink() {
         if ( m_bHasHitSolid )
             return
 
-        local _buildableArr    =  [ ]
-        local _buildable       =  null
-        local _buildableCount  =  0
+        local _buildable   =  worldspawn
+        local _szClassname =  ""
+        while ( _szClassname = _buildable.GetClassname(), _buildable = FindByClassnameWithin( _buildable, "obj_*", self.GetOrigin(), ENGIE_EMP_FIRST_HIT_RANGE ) ) {
 
-        while ( _buildable = FindByClassnameWithin( _buildable, "obj_*", self.GetOrigin(), ENGIE_EMP_FIRST_HIT_RANGE ) ) {
+            // ignore obj_attachment_sapper
+            if ( _szClassname[4] == 'a' ) continue
 
-            if ( _buildable ) {
+            // deal bonus damage to the first building hit
+            local _vecNearestBuildingOrigin = FindByClassnameNearest( "obj_*", self.GetOrigin(), ENGIE_EMP_FIRST_HIT_RANGE ).GetOrigin()
+            // _buildable.TakeDamage( 110, DMG_BLAST, m_hOwner ); // todo - const
 
-                _buildableArr.append( _buildable )
-                _buildableCount++
-            }
-        }
-
-        if ( _buildableCount ) {
-
-            local _buildableArr_len = _buildableArr.len()
-            for ( local i = 0; i < _buildableArr_len; i++ ) {
-
-                local _buildable = _buildableArr[ i ]
-
-                if ( _buildable.GetClassname() == "obj_sentrygun"  ||
-                     _buildable.GetClassname() == "obj_teleporter" ||
-                     _buildable.GetClassname() == "obj_dispenser" ) {
-
-                    // deal bonus damage to the first building hit
-                    local _vecNearestBuildingOrigin = FindByClassnameNearest( "obj_*", self.GetOrigin(), ENGIE_EMP_FIRST_HIT_RANGE ).GetOrigin()
-                    // _buildable.TakeDamage( 110, DMG_BLAST, m_hOwner ); // todo - const
-
-                    m_fExplodeTime = 0.0; // explode now
-                }
-            }
+            m_fExplodeTime = 0.0; // explode now
         }
     }
 
@@ -1305,7 +1283,7 @@ function KillMeThink() {
         return
     }
 
-    return 0.01
+    return 0.2
 }
 
 function ZombieWearableThink() {
@@ -1352,3 +1330,5 @@ function PyroFireballThink() {
 
     // return 0.03
 }
+
+function SpyRevealCCThink() { self.SetAbsOrigin( self.GetOwner().GetOrigin() ); return -1 }

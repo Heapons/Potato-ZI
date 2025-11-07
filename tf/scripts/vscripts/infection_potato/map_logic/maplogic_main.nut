@@ -368,14 +368,14 @@ function PZI_MapLogic::GetRoundTimer[this]( replace = false ) {
         EntFire( "__pzi_timer", "Resume", null, 1 )
 
     local scope = timer.GetScriptScope()
-    scope.end_timestamp <- GetPropFloat(timer, "m_flTimeRemaining")
+    scope.end_timestamp <- GetPropFloat( timer, "m_flTimerEndTime" )
+    scope.time_left <- scope.end_timestamp - Time()
 
     if ( "VPI" in ROOT )
     {
         function TimerThink()
         {
-            end_timestamp = GetPropFloat( timer, "m_flTimerEndTime" )
-            local time_left = (end_timestamp - Time()).tointeger()
+            time_left = (end_timestamp - Time()).tointeger()
             if ( !(time_left % 10) )
             {
                 local players = PlayerCount( TEAM_HUMAN ) + PlayerCount( TEAM_ZOMBIE )
@@ -434,7 +434,7 @@ function PZI_MapLogic::GetRoundTimer[this]( replace = false ) {
             return -1
         }
 
-        function UpdateTimestamp() { return end_timestamp = GetPropFloat( timer, "m_flTimerEndTime" ) }
+        function UpdateTimestamp() { return end_timestamp = GetPropFloat( timer, "m_flTimerEndTime" ), time_left = end_timestamp - Time() }
 
         scope.InputSetTime <- UpdateTimestamp
         scope.Inputsettime <- UpdateTimestamp
@@ -459,13 +459,14 @@ local round_start_relay_table = {
     spawnflags = 1
     "OnTrigger#1" : "func_areaportal*,Open,,0,-1"
     "OnTrigger#2" : "__pzi_nav_interface,RecomputeBlockers,,0,-1"
-    // "OnTrigger#3" : "team_control_point,SetLocked,1,0,-1"
-    "OnTrigger#4" : "team_control_point,HideModel,,0,-1"
-    // "OnTrigger#5" : "team_control_point,Disable,,0,-1" // keep these enabled so bots know what to do
-    "OnTrigger#6" : "func_door*,AddOutput,OnFullyOpened func_door*:Kill::0:-1,0,-1"
-    "OnTrigger#7" : "func_door*,Unlock,,0,-1"
-    "OnTrigger#8" : "func_door*,Open,,0.1,-1"
-    "OnTrigger#9" : "func_door*,Kill,,5,-1"
+    // "OnTrigger#3" : "team_control_point,Disable,,0,-1" // keep these enabled so bots know what to do
+    "OnTrigger#4" : "team_control_point,SetLocked,0,0,-1"
+    "OnTrigger#5" : "team_control_point,SetOwner,0,0,-1"
+    "OnTrigger#6" : "team_control_point,HideModel,,0,-1"
+    "OnTrigger#7" : "func_door*,AddOutput,OnFullyOpened func_door*:Kill::0:-1,0,-1"
+    "OnTrigger#8" : "func_door*,Unlock,,0,-1"
+    "OnTrigger#9" : "func_door*,Open,,0.1,-1"
+    "OnTrigger#10" : "func_door*,Kill,,15,-1"
 }
 
 local setup_finished_relay_table = {
@@ -486,7 +487,8 @@ local setup_finished_relay_table = {
 function PZI_MapLogic::ThinkTable::KillWastefulEnts() {
     
     // face flexes/animations for vo/pain feedback
-    EntFire( "instanced_scripted_scene", "RunScriptCode", "SetPropBool( self, STRING_NETPROP_PURGESTRINGS, true ); self.Kill()" )
+    for ( local ent; ent = FindByClassname( ent, "instanced_scripted_scene" ); )
+        PZI_Util.EntShredder.append( ent )
 }
 
 PZI_EVENT( "teamplay_round_start", "PZI_MapLogic_RoundStart", function ( params ) {
@@ -529,17 +531,32 @@ PZI_EVENT( "teamplay_round_start", "PZI_MapLogic_RoundStart", function ( params 
     SetPropInt( PZI_Util.GameRules, "m_nHudType", 2 )
 
     // disable control points hud elements
-    for ( local tcp; tcp = FindByClassname( null, "team_control_point_master" ); ) {
+    for ( local tcp; tcp = FindByClassname( null, "team_control_point*" ); ) {
 
-        SetPropFloat( tcp, "m_flCustomPositionX", 1.0 )
-        SetPropFloat( tcp, "m_flCustomPositionY", 1.0 )
-        tcp.AcceptInput( "RoundSpawn", "", null, null )
-        local tcp_scope = PZI_Util.GetEntScope( tcp )
-        tcp_scope.InputSetWinner <- @() false
-        tcp_scope.Inputsetwinner <- @() false
-        break
+        if ( tcp.GetClassname() == "team_control_point_master" ) {
+
+            SetPropFloat( tcp, "m_flCustomPositionX", 1.0 )
+            SetPropFloat( tcp, "m_flCustomPositionY", 1.0 )
+            tcp.AcceptInput( "RoundSpawn", "", null, null )
+            local tcp_scope = PZI_Util.GetEntScope( tcp )
+            tcp_scope.InputSetWinner <- @() false
+            tcp_scope.Inputsetwinner <- @() false
+            continue
+        }
+    
+        tcp.ValidateScriptScope()
+        scope <- tcp.GetScriptScope()
+
+        function scope::ToggleRandomControlPoint() {
+
+
+            self.AcceptInput( "SetLocked", RandomInt( 0, 1 ), null, null )
+            return RandomInt( 10, 30 )
+
+        }
+
+        AddThinkToEnt( tcp, "ToggleRandomControlPoint" )
     }
-
 })
 
 PZI_EVENT( "teamplay_setup_finished", "PZI_MapLogic_SetupFinished", @ ( params ) SpawnEntityFromTable( "logic_relay", setup_finished_relay_table ) )

@@ -54,8 +54,8 @@
 ::SPY_REVEAL_LENGTH              <- 20    // how long players are revealed for ( sec )
 ::SPY_RECLOAK_TIME               <- 3     // how long before spy becomes cloaked again
 ::SPY_REVEAL_SCREENSHAKE_AMP     <- 750   // amplitude of reveal screenshake
-::SPY_REVEAL_SCREENSHAKE_FREQ    <- 450   // frequency of reveal screenshake
-::SPY_REVEAL_SCREENSHAKE_DUR     <- 1     // duration of reveal screenshake
+::SPY_REVEAL_SCREENSHAKE_FREQ    <- 200   // frequency of reveal screenshake
+::SPY_REVEAL_SCREENSHAKE_DUR     <- 5     // duration of reveal screenshake
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 // ZombieMedic Heal Ability |------------------------------------------------------------- //
@@ -94,20 +94,11 @@ class CZombieAbility {
     function GetAbilityCooldown ()  { return m_fAbilityCooldown }
     function GetAbilityName     ()  { return m_szAbilityName }
 
-    function LockAbility() {
+    function LockAbility() { m_hAbilityOwner.SetNextActTime( ZOMBIE_ABILITY_CAST, ACT_LOCKED ) }
 
-        m_hAbilityOwner.SetNextActTime( ZOMBIE_ABILITY_CAST, ACT_LOCKED )
-    }
+    function UnlockAbility() { m_hAbilityOwner.SetNextActTime( ZOMBIE_ABILITY_CAST, 0.01 ) }
 
-    function UnlockAbility() {
-
-        m_hAbilityOwner.SetNextActTime( ZOMBIE_ABILITY_CAST, 0.01 )
-    }
-
-    function PutAbilityOnCooldown() {
-
-        m_hAbilityOwner.SetNextActTime( ZOMBIE_ABILITY_CAST, m_fAbilityCooldown )
-    }
+    function PutAbilityOnCooldown( _fOverride = null ) { m_hAbilityOwner.SetNextActTime( ZOMBIE_ABILITY_CAST, _fOverride != null ? _fOverride : m_fAbilityCooldown ) }
 
 }
 // --------------------------------- //
@@ -130,15 +121,44 @@ class CSpyReveal extends CZombieAbility {
 
         local _d = m_hAbilityOwner.GetScriptScope()
 
-        _d.m_hTempEntity <- SpawnEntityFromTable( "info_particle_system", {
 
-            effect_name   =  FX_EMITTER_FX,
-            start_active  =  "0",
-            targetname    =  "__pzi_spy_reveal_pfx_" + m_hAbilityOwner.entindex(),
-            origin        =  m_hAbilityOwner.GetOrigin(),
+        // reveal particle effect
+        local _hSpyRevealPfx = SpawnEntityFromTable( "info_particle_system", {
+
+            effect_name   =  FX_EMITTER_FX
+            start_active  =  true
+            targetname    =  "__pzi_spy_reveal_pfx_" + PZI_Util.PlayerTables.Zombies[ m_hAbilityOwner ]
+            origin        =  m_hAbilityOwner.GetOrigin()
         })
 
-        m_hAbilityOwner.SetForcedTauntCam  ( 1 )
+        EmitSoundOn( "WeaponMedigun.HealingWorld", _hSpyRevealPfx )
+        EntFireByHandle( _hSpyRevealPfx, "Kill", null, 2.0, null, null )
+
+        // color correction effect
+        // shifts highlights/shadows to give an adrenalin-rush like visual effect
+        local _hColorCorrection = CreateByClassname( "color_correction" )
+
+        _hColorCorrection.SetAbsOrigin( m_hAbilityOwner.GetOrigin() )
+        _hColorCorrection.KeyValueFromInt( "StartDisabled", 1 )
+        _hColorCorrection.KeyValueFromFloat( "minfalloff", SPY_REVEAL_RANGE * 0.8 )
+        _hColorCorrection.KeyValueFromFloat( "maxfalloff", SPY_REVEAL_RANGE * 1.2 )
+        _hColorCorrection.KeyValueFromFloat( "fadeInDuration", 0.5 )
+        _hColorCorrection.KeyValueFromFloat( "fadeOutDuration", 3 )
+        _hColorCorrection.KeyValueFromString( "filename", "materials/colorcorrection/spy_reveal_cc.raw" )
+
+        DispatchSpawn( _hColorCorrection )
+
+        _hColorCorrection.ValidateScriptScope()
+        AddThinkToEnt( _hColorCorrection, "SpyRevealCCThink" )
+
+        _hColorCorrection.AcceptInput( "Enable", null, null, null )
+
+        EntFireByHandle( _hColorCorrection, "Disable", null, 2.0, null, null )
+        EntFireByHandle( _hColorCorrection, "Kill", null, 5.0, null, null )
+
+        SetPropBool( _hColorCorrection, STRING_NETPROP_PURGESTRINGS, true )
+
+        m_hAbilityOwner.SetForcedTauntCam( 1 )
 
         m_hAbilityOwner.ClearZombieEntity( "m_hZombieFXWearable" )
         m_hAbilityOwner.ClearZombieEntity( "m_hZombieWearable" )
@@ -147,17 +167,16 @@ class CSpyReveal extends CZombieAbility {
         m_hAbilityOwner.GiveZombieCosmetics()
 
         m_hAbilityOwner.AddCond( TF_COND_TAUNTING )
-        m_hAbilityOwner.AddEventToQueue( EVENT_KILL_TEMP_ENTITY, 2 ); // todo - const
         m_hAbilityOwner.AddEventToQueue( EVENT_PUT_ABILITY_ON_CD, INSTANT )
 
-        EmitSoundOn( "WeaponMedigun.HealingWorld", _d.m_hTempEntity )
-        EntFireByHandle( _d.m_hTempEntity, "Start", "", 0, null, null )
         ScreenShake( m_hAbilityOwner.GetOrigin(), 15.0, 150.0, 1.0, 500, 0, false )
-        EntFireByHandle( _d.m_hTempEntity, "SetParent", "!activator", 0, m_hAbilityOwner, m_hAbilityOwner )
+        EntFireByHandle( _hSpyRevealPfx, "SetParent", "!activator", 0, m_hAbilityOwner, m_hAbilityOwner )
 
         local _szRevealSound = format( SFX_SPY_REVEAL_ONCAST, RandomInt( 1, 3 ) )
+
         PrecacheSound( _szRevealSound )
         EmitSoundEx({
+
             sound_name = _szRevealSound
             sound_level = 100
             volume = 1
@@ -174,20 +193,22 @@ class CSpyReveal extends CZombieAbility {
                 // moved above m_hAbilityOwner check to also glow the spy
                 SetPropBool ( _hPlayer, "m_bGlowEnabled", true )
 
-                _hPlayer.RemoveCond(  TF_COND_DISGUISED   )
-                _hPlayer.RemoveCond(  TF_COND_DISGUISING  )
-                _hPlayer.RemoveCond(  TF_COND_STEALTHED   )
+                _hPlayer.RemoveCond( TF_COND_STEALTHED )
+                _hPlayer.RemoveCond( TF_COND_DISGUISING )
+                _hPlayer.RemoveCond( TF_COND_DISGUISED )
 
                 local _sc = _hPlayer.GetScriptScope()
 
-                // play the reveal sound to the revealed player
+                // play the reveal sound at full volume with no distance falloff to the revealed players
                 EmitSoundEx({ sound_name = _szRevealSound entity = _hPlayer filter_type = RECIPIENT_FILTER_SINGLE_PLAYER })
 
+                local _flGlowRemoveTime = RandomFloat( 5, 7.5 )
                 // stagger glow removal times so the players blink out at random times ( looks cool )
-                _hPlayer.SetNextActTime ( ZOMBIE_KILL_GLOW, RandomFloat( 5, 7.5 ) )
+                _hPlayer.SetNextActTime ( ZOMBIE_KILL_GLOW, _flGlowRemoveTime )
                 if ( !( "m_iFlags" in _sc ) )
                     _sc.m_iFlags <- 0
-                _sc.m_iFlags         <- ( _sc.m_iFlags | ZBIT_REVEALED_BY_SPY )
+
+                _sc.m_iFlags <- ( _sc.m_iFlags | ZBIT_REVEALED_BY_SPY )
             }
         }
 
@@ -864,7 +885,8 @@ class CPyroBlast extends CZombieAbility {
         m_hAbilityOwner.RemoveAmmo()
 
         m_hAbilityOwner.AddEventToQueue ( EVENT_PUT_ABILITY_ON_CD, INSTANT )
-        m_hAbilityOwner.AddEventToQueue ( EVENT_RESET_ZOMBIE_WEP,   0.01 )
+        // TODO: not sure why this is here, probably causing the rare pyro A-pose bug
+        // m_hAbilityOwner.AddEventToQueue ( EVENT_RESET_ZOMBIE_WEP,   0.01 )
 
         return
     }

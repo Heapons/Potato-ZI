@@ -302,7 +302,7 @@ PZI_EVENT( "teamplay_setup_finished", "Infection_SetupFinished", function( param
 
     SetValue( "mp_humans_must_join_team", "blue" )
 
-    if ( ( _iPlayerCountRed <= 1 ) && ( DEBUG_MODE < 1 ) ) {
+    if ( ( _iPlayerCountRed <= 1 ) && ( !DEBUG_MODE ) ) {
 
         PZI_Util.RoundWin( TEAM_HUMAN )
         return
@@ -928,7 +928,7 @@ PZI_EVENT( "OnTakeDamage", "Infection_OnTakeDamage", function( params ) {
                 damage_percent_per_second = 8,
                 spawnflags                = 1,
                 solid                     = 2,
-            } )
+            })
 
             _hIgniteTrigger.SetAbsOrigin  ( _hVictim.GetCenter() )
 

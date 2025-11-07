@@ -574,6 +574,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 				if ( cls[10] == 'l' && wep.animset[0] == 'h' )
 					wep_ent.AddAttribute( "active health degen", -2.0, -1.0 )
 				
+				// pyro bots like to spam airblast a ton
 				else if ( wep.item_slot[1] == 'r' && bot.GetPlayerClass() == TF_CLASS_PYRO )
 					wep_ent.AddAttribute( "mult airblast refire time", 3.0, -1 )
 
@@ -1647,8 +1648,14 @@ PZI_EVENT( "player_spawn", "PZI_BotsSpawn", function( params ) {
 	}
 
 	// give bots infinite ammo
-	PZI_Util.ScriptEntFireSafe( bot, "self.AddCustomAttribute( `ammo regen`, 10.0, -1 )" , 7.0 )
-	PZI_Util.ScriptEntFireSafe( bot, "self.AddCustomAttribute( `metal regen`, 10.0, -1 )", 7.0 )
+	// fix switch speed bugs on lunchbox/banner items
+	PZI_Util.ScriptEntFireSafe( bot, @"
+
+		self.AddCustomAttribute( `deploy time increased`, 1.35, -1 )
+		self.AddCustomAttribute( `ammo regen`, 10.0, -1 )
+		self.AddCustomAttribute( `metal regen`, 10.0, -1 )
+
+	" , 7.0 )
 
 	local b = scope.PZI_BotBehavior
 
