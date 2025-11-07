@@ -42,7 +42,7 @@ PZI_EVENT( "player_spawn", "DamageRadiusMult_OnPlayerSpawn", function( params ) 
             if ( dmg_mult >= DMG_MULT_MAX )
                 break
 
-            if ( survivor != player  && player.IsAlive() && survivor.GetTeam() == TEAM_HUMAN )
+            if ( survivor != player && player.IsAlive() && survivor.GetTeam() == TEAM_HUMAN )
                 dmg_mult += DMG_MULT_PER_PLAYER
         }
 

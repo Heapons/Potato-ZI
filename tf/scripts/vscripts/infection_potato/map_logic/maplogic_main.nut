@@ -488,7 +488,7 @@ function PZI_MapLogic::ThinkTable::KillWastefulEnts() {
     
     // face flexes/animations for vo/pain feedback
     for ( local ent; ent = FindByClassname( ent, "instanced_scripted_scene" ); )
-        PZI_Util.EntShredder.append( ent )
+        EntFireByHandle( ent, "Kill", null, -1, null, null )
 }
 
 PZI_EVENT( "teamplay_round_start", "PZI_MapLogic_RoundStart", function ( params ) {
