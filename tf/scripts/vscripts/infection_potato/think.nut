@@ -11,13 +11,12 @@
 
 function ZIPlayerThink() {
 
-    if ( !self.IsValid() || !self.IsAlive() || self.GetFlags() & FL_NOTARGET )
+    if ( !self.IsValid() || !self.IsAlive() || self.GetFlags() & FL_ATCONTROLS )
         return
 
     if ( !self.IsPlayer() ) {
         PZI_Util.RemoveThink( self, "ZIPlayerThink" )
         return
-
     }
 
     else if ( !self.GetPlayerClass() )  {
@@ -122,7 +121,6 @@ function ZIPlayerThink() {
         // }
     // }
 
-
     if ( m_iFlags || m_iFlags == ( ZBIT_SURVIVOR ) ) {
 
         // ------------------------------------------------------------------------------ //
@@ -130,6 +128,8 @@ function ZIPlayerThink() {
         // ------------------------------------------------------------------------------ //
 
         if ( m_iFlags & ( ZBIT_PENDING_ZOMBIE ) ) {
+            
+            printl( "ZOMBIE THINK: " + self + " : " + m_iFlags )
 
             if ( self.CanDoAct( ZOMBIE_BECOME_ZOMBIE ) ) {
 
@@ -195,26 +195,6 @@ function ZIPlayerThink() {
                     m_hMedicDispenserTouchTrigger <- _hDispenserTouchTrigger
                 }
 
-                if ( self.GetPlayerClass() ==  TF_CLASS_PYRO ) {
-
-                //     local _hBomb = SpawnEntityFromTable( "tf_generic_bomb",
-                //     {
-                //         explode_particle = "fireSmokeExplosion_track"
-                //         sound            = SFX_PYRO_FIREBOMB,
-                //         damage           = 10,
-                //         radius           = 256,
-                //         friendlyfire     = "0",
-                //     } )
-
-                //     _hBomb.SetOwner     ( self )
-                //     _hBomb.SetAbsOrigin ( self.GetOrigin() )
-                //     _hBomb.AcceptInput  ( "SetParent", "!activator", self, self )
-
-                //     AddThinkToEnt( _hBomb, "PyroBombThink" )
-
-                //    m_hPyroBomb <- _hBomb
-                }
-
                 SetPropFloat( m_hZombieWep, "m_flNextSecondaryAttack", FLT_MAX )
                 SetPropBool( self, "m_Shared.m_bShieldEquipped", false )
                 SendGlobalGameEvent( "localplayer_pickup_weapon", self )
@@ -240,14 +220,14 @@ function ZIPlayerThink() {
                     _szAbilityTooltip = STRING_UI_ZOMBIE_INSTRUCTION_PASSIVE
                 }
 
-                // if (!self.IsBotOfType( TF_BOT_TYPE )) {
+                if (!self.IsBotOfType( TF_BOT_TYPE )) {
 
                     local _hTooltip = self.ZombieInitialTooltip()
 
                     _hTooltip.KeyValueFromString( "message", _szAbilityTooltip )
 
                     _hTooltip.AcceptInput( "Display", null, self, self )
-                // }
+                }
 
                 m_iFlags = ( m_iFlags | ZBIT_ZOMBIE | ZBIT_HASNT_HEARD_READY_SFX | ZBIT_HASNT_HEARD_DENY_SFX | ZBIT_HAS_HUD )
             }
@@ -326,7 +306,7 @@ function ZIPlayerThink() {
             // Zombie ability "vgui"                                                          //
             // ------------------------------------------------------------------------------ //
 
-            // if ( !self.IsBotOfType( TF_BOT_TYPE ) ) {
+            if ( !self.IsBotOfType( TF_BOT_TYPE ) ) {
 
                 if ( !( _buttons & IN_SCORE ) ) {
 
@@ -419,7 +399,7 @@ function ZIPlayerThink() {
 
                     self.SetScriptOverlayMaterial( "" )
                 }
-            // }
+            }
 
             // ------------------------------------------------------------------------------ //
             // demoman zombie charge ability collision check                                  //
@@ -530,6 +510,8 @@ function ZIPlayerThink() {
             local _drawSeq            =   _hPlayerVM.LookupSequence( "draw" )
             local _idleSeq            =   _hPlayerVM.LookupSequence( "idle" )
             local _bAttackedThisTick  =   false
+
+            printf( "player: %s buttons: %d nextprimary: %f nextsecondary: %f\n", self.tostring(), _buttons, GetPropFloat( m_hZombieWep, "m_flNextPrimaryAttack" ), GetPropFloat( m_hZombieWep, "m_flNextSecondaryAttack" ) )
 
             if ( ( _buttons & IN_ATTACK ) ) {
 
@@ -681,7 +663,6 @@ function ZIPlayerThink() {
             self.SetScriptOverlayMaterial( "" )
             self.ClearSpitStatus()
         }
-
     }
 
     self.ProcessEventQueue()
@@ -733,7 +714,7 @@ function SniperSpitThink() {
                 if ( _szHitEntClass == "tf_generic_bomb" || _szHitEntClass == "tf_pumpkin_bomb" ) {
 
                     // use ignite to deal damage to the pumpkin and set it off
-                    EntFireByHandle( _tblTrace.enthit, "ignite", "", -1, null, null )
+                    _tblTrace.enthit.AcceptInput( "ignite", null, null, null )
 
                     // use the pumpkin's z position as splatter
                     m_vecHitPosition <- _tblTrace.enthit.GetOrigin()
@@ -987,7 +968,7 @@ function SniperSpitThink() {
 
                 if ( _hNextTargetEntity ) {
 
-                    EntFireByHandle( _hNextTargetEntity, _szInput, "", -1, null, null )
+                    _hNextTargetEntity.AcceptInput( _szInput, null, null, null )
                 }
             }
         }
@@ -1332,3 +1313,23 @@ function PyroFireballThink() {
 }
 
 function SpyRevealCCThink() { self.SetAbsOrigin( self.GetOwner().GetOrigin() ); return -1 }
+
+function BotRemoveThink() {
+
+	if ( !self || !self.IsValid() )
+		return 1.0
+
+	if ( !self.HasBotAttribute( REMOVE_ON_DEATH ) )
+		self.AddBotAttribute( REMOVE_ON_DEATH )
+
+	else if ( self.IsAlive() ) {
+
+		self.AddEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
+		PZI_Util.SetNextRespawnTime( self, INT_MAX )
+		PZI_Util.KillPlayer( self )
+		// self.SetTeam( TEAM_SPECTATOR )
+		EntFire( "tf_ammo_pack", "Kill" )
+	}
+
+	return 1.0
+}

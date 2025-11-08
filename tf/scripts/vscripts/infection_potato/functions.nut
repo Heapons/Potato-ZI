@@ -1111,6 +1111,7 @@ function CTFPlayer_ProcessEventQueue() {
                 this.DestroyAllWeapons()
                 this.GiveZombieWeapon()
                 this.RemoveAmmo()
+                Assert( this.GetTeam() == TEAM_ZOMBIE, "EVENT_RESET_ZOMBIE_WEP: player is not a zombie!" )
                 break
 
             default:
@@ -1167,23 +1168,14 @@ function CTFPlayer_AddEventToQueue( _event, _delay ) {
 
 function CTFPlayer_ResetInfectionVars() {
 
-    local _sc = this.GetScriptScope()
-
-	if ( !_sc ) return
+    local _sc = PZI_Util.GetEntScope( this )
 
     // AddThinkToEnt( this, null )
 
-    if ( !this.IsPlayer() )
-        return __DumpScope(0, getstackinfos(2))
+    Assert( this.IsPlayer(), "CTFPlayer_ResetInfectionVars: NON A PLAYER!" )
 
-    if ( ( "m_iUserConfigFlags" in _sc ) ) {
-
-        _sc.m_iUserConfigFlags <- ( _sc.m_iUserConfigFlags )
-    }
-    else {
-
+    if ( !( "m_iUserConfigFlags" in _sc ) )
         _sc.m_iUserConfigFlags <- ZBIT_HAS_HUD
-    }
 
     if ( !bGameStarted )
         _sc.m_bCanAddTime <- true

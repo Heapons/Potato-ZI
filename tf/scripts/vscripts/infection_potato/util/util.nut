@@ -301,7 +301,7 @@ function PZI_Util::ThinkTable::EntityManagerThink() {
 
 function PZI_Util::GetEntScope( ent ) { return ent.GetScriptScope() || ( ent.ValidateScriptScope(), ent.GetScriptScope() ) }
 
-function PZI_Util::TouchCrashFix() { printl(activator); return activator && activator.IsValid() }
+function PZI_Util::TouchCrashFix() { return activator && activator.IsValid() }
 
 function PZI_Util::SetTargetname( ent, name ) {
 
@@ -367,7 +367,7 @@ function PZI_Util::SpawnEnt( ... ) {
 	ent.ValidateScriptScope()
 
 	// auto-detect triggers
-	if ( HasProp( ent, "m_hTouchingEntities" ) ) {
+	if ( HasProp( ent, "m_hFilter" ) ) {
 
 		SetPropInt( ent, "m_spawnflags", SF_TRIGGER_ALLOW_CLIENTS )
 		local scope = GetEntScope( ent )
@@ -377,7 +377,7 @@ function PZI_Util::SpawnEnt( ... ) {
 		scope.Inputendtouch <- TouchCrashFix.bindenv( scope )
 		::DispatchSpawn( ent )
 		ent.SetSolid( SOLID_BBOX )
-		ent.SetSize( sizemin, sizemax )
+		ent.SetSize( Vector(), Vector( 1, 1, 1) )
 	}
 
 	SetPropBool( ent, STRING_NETPROP_PURGESTRINGS, true )
@@ -2361,10 +2361,14 @@ function PZI_Util::RemoveThink( ent, func = null ) {
 	if ( typeof func == "function" )
 		func = func.getinfos().name || format( "__%s_ANONYMOUS_THINK", ent.GetName() )
 
-	if ( !( func in scope[ thinktable_name ] ) )
-		return
+	// Assert( (func in scope[ thinktable_name ]), format( "Function %s not found in thinktable %s", func, thinktable_name ) )
 
-	!func ? scope[ thinktable_name ].clear() : delete scope[ thinktable_name ][ func ]
+	if (!func || func == "" )
+		return scope[ thinktable_name ].clear()
+	else if ( !( func in scope[ thinktable_name ] ) ) 
+		return printf( "Function %s not found in thinktable %s\n", func, thinktable_name )
+
+	delete scope[ thinktable_name ][ func ]
 }
 
 function PZI_Util::SetConvar( convar, value, duration = 0, hide_chat_message = true ) {

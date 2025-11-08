@@ -141,7 +141,7 @@ function PZI_CREATE_SCOPE( name = "", namespace = null, entity_ref = null, think
 				if ( k == id ) {
 
 					if ( _OnDestroy )
-						_OnDestroy()
+						try { _OnDestroy() } catch ( e ) { error( "Error in _OnDestroy: " + e + "\n" ) }
 
                     // delete root references to ourself
 					if ( namespace in ROOT )

@@ -30,24 +30,24 @@ PZI_EVENT( "player_spawn", "DamageRadiusMult_OnPlayerSpawn", function( params ) 
     scope.dmg_mult <- dmg_mult
     scope.show_mult <- false
 
-    function DamageRadiusMult() {
+    function DamageRadiusMult[scope]() {
 
         if ( !bGameStarted || Time() < cooldown_time )
             return
 
         dmg_mult = DMG_MULT_MIN
 
-        for ( local survivor; survivor = FindByClassnameWithin( survivor, "player", player.GetOrigin(), DMG_MULT_RADIUS ); ) {
+        for ( local survivor; survivor = FindByClassnameWithin( survivor, "player", self.GetOrigin(), DMG_MULT_RADIUS ); ) {
 
             if ( dmg_mult >= DMG_MULT_MAX )
                 break
 
-            if ( survivor != player && player.IsAlive() && survivor.GetTeam() == TEAM_HUMAN )
+            if ( survivor != self && self.IsAlive() && survivor.GetTeam() == TEAM_HUMAN )
                 dmg_mult += DMG_MULT_PER_PLAYER
         }
 
         if ( show_mult )
-            ClientPrint( player, HUD_PRINTCENTER, "Damage multiplier: " + dmg_mult )
+            ClientPrint( self, HUD_PRINTCENTER, "Damage multiplier: " + dmg_mult )
 
         cooldown_time = Time() + UPDATE_INTERVAL
     }

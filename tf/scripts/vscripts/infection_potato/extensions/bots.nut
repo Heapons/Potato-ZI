@@ -31,13 +31,35 @@ PZI_Bots.NAV_SENTRY_SPOT_FACTOR  <- 370 // higher value = lower chance.  1/50 ch
 
 // 	return ret
 // }
-// function PZI_Bots::_OnDestroy() {
 
-// 	if ( PZI_Bots.dummyvm && PZI_Bots.dummyvm.IsValid() )
-// 		PZI_Bots.dummyvm.Kill()
+// delete all bots on cleanup
+function PZI_Bots::_OnDestroy() {
 
-// 	::GetPropEntity <- _GetPropEntity
-// }
+	for ( local i = 1, player; i <= MAX_CLIENTS; i++ ) {
+
+		if ( player = PlayerInstanceFromIndex(i) && player.IsBotOfType( TF_BOT_TYPE ) ) {
+			
+			printl( player + " : " + player.GetScriptThinkFunc() )
+			// time to find out if this will cause crashes
+			// EntFireByHandle( player, "Kill", null, -1, null, null )
+			player.ValidateScriptScope()
+			player.GetScriptScope().BotRemoveThink <- function() {
+
+				if ( self.IsAlive() ) {
+
+					self.SetHealth( 1 )
+					self.TakeDamageEx( null, TriggerHurt, null, Vector(), self.GetOrigin(), 2.0, DMG_ALWAYSGIB|DMG_PREVENT_PHYSICS_FORCE )
+				}
+			}
+			AddThinkToEnt( player, "BotRemoveThink" )
+		}
+	}
+
+	// if ( PZI_Bots.dummyvm && PZI_Bots.dummyvm.IsValid() )
+	// 	PZI_Bots.dummyvm.Kill()
+
+	// ::GetPropEntity <- _GetPropEntity
+}
 
 PZI_Bots.MAX_BOTS_PER_MAP <- {
 
@@ -146,7 +168,7 @@ PZI_Bots.kick_urgency_funcs <- {
 			return false
 
 		// > 1024 hu away from threat, can't see them
-		else if ( b.GetCurThreatDistanceSqr() > 0xFFFFF && !b.IsCurThreatVisible() )
+		else if ( b.threat_dist > 0xFFFFF && !b.IsCurThreatVisible() )
 			return true
 	}
 
@@ -513,6 +535,9 @@ PZI_Bots.PZI_BotBehavior <- class {
 		this.bot         = bot
 		this.scope       = bot.GetScriptScope()
 		this.team        = bot.GetTeam()
+		this.cur_pos     = bot.GetOrigin()
+		this.cur_vel     = bot.GetAbsVelocity()
+		this.cur_speed   = Vector()
 		this.cur_eye_ang = bot.EyeAngles()
 		this.cur_eye_pos = bot.EyePosition()
 		this.cur_eye_fwd = bot.EyeAngles().Forward()
@@ -541,7 +566,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 
 		this.bot_level 			 = bot.GetDifficulty()
 
-		this.path_debug			 = false
+		this.path_debug			 = true
 	}
 
 	function GiveRandomLoadout() {
@@ -830,7 +855,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 		if ( time - threat_time < 3.0 )
 			return
 
-		if ( attacker != bot && GetCurThreatDistanceSqr() > GetThreatDistanceSqr( attacker ) )
+		if ( attacker != bot && threat_dist > GetThreatDistanceSqr( attacker ) )
 			SetThreat( attacker )
 	}
 
@@ -857,12 +882,13 @@ PZI_Bots.PZI_BotBehavior <- class {
 		if ( path_recompute_time > time )
 			return
 
-		if ( ( !path_count ) || GetCurThreatDistanceSqr() > MAX_THREAT_DISTANCE ) {
+		if ( ( !path_count ) || threat_dist > MAX_THREAT_DISTANCE ) {
 
 			local area = GetNavArea( threat_pos, 0.0 )
 			if ( area )
 				UpdatePath( threat_pos, true )
 		}
+		threat_dist = GetCurThreatDistanceSqr()
 	}
 
 	function ResetPath() {
@@ -1035,7 +1061,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 		}
 
 		if ( move )
-			MoveToThreat( lookat )
+			MoveToThreat( lookat )			
 	}
 
 	function MoveToThreat( lookat = true, turnrate_min = 600, turnrate_max = 1500 ) {
@@ -1062,9 +1088,12 @@ PZI_Bots.PZI_BotBehavior <- class {
 			
 			if ( path_debug ) {
 
-				printf( "UPDATING PATH! bot: %s frac: %.2f\n", bot.tostring(), frac )
+				// printf( "UPDATING PATH! bot: %s frac: %.2f\n", bot.tostring(), frac )
+				DebugDrawText( cur_pos, "UPDATING PATH! bot: " + bot.tostring() + " frac: " + frac.tostring(), false, 0.1 )
 				DebugDrawLine( cur_pos, point, 255, 0, 100, false, 0.1 )
-				bot.GetLastKnownArea().DebugDrawFilled( 0, 0, 255, 255, 5.0, true, 0.0 )
+
+				if ( bot.GetLastKnownArea() )
+					bot.GetLastKnownArea().DebugDrawFilled( 0, 0, 255, 255, 5.0, true, 0.0 )
 			}
 			return UpdatePath( threat_pos, true )
 		}
@@ -1132,26 +1161,6 @@ function PZI_Bots::ShouldKickBot( bot ) {
 	return kick_urgency >= MAX_KICK_URGENCY
 }
 
-function PZI_Bots::BotRemoveThink() {
-
-	if ( !self || !self.IsValid() )
-		return 1.0
-
-	if ( !self.HasBotAttribute( REMOVE_ON_DEATH ) )
-		self.AddBotAttribute( REMOVE_ON_DEATH )
-
-	else if ( self.IsAlive() ) {
-
-		self.AddEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
-		PZI_Util.SetNextRespawnTime( self, INT_MAX )
-		PZI_Util.KillPlayer( self )
-		self.SetTeam( TEAM_SPECTATOR )
-		EntFire( "tf_ammo_pack", "Kill" )
-	}
-
-	return 1.0
-}
-
 function PZI_Bots::ThinkTable::BotQuotaManager() {
 
 	// don't run any quota logic while we're actively spawning/removing bots
@@ -1206,6 +1215,10 @@ function PZI_Bots::ThinkTable::BotQuotaManager() {
 	// too many bots, schedule one for removal
 	if ( cmp == -1 ) {
 
+		local node = FindByClassname( null, "point_commentary_node" ) || CreateByClassname( "point_commentary_node" )
+		DispatchSpawn( node )
+		EntFire( "point_commentary_node", "Kill", null, 1.1 )
+
 		local rnd = bots[ RandomInt( 0, cur_bots - 1 ) ]
 
 		local tries = -1
@@ -1226,9 +1239,9 @@ function PZI_Bots::ThinkTable::BotQuotaManager() {
 	// not enough bots, add another
 	else if ( cmp ) {
 
-		// local node = CreateByClassname( "point_commentary_node" )
-		// DispatchSpawn( node )
-		// EntFire( "point_commentary_node", "Kill", null, 1.1 )
+		local node = FindByClassname( null, "point_commentary_node" ) || CreateByClassname( "point_commentary_node" )
+		DispatchSpawn( node )
+		EntFire( "point_commentary_node", "Kill", null, 1.1 )
 		generator.AcceptInput( "SpawnBot", null, null, null )
 	}
 
@@ -1245,13 +1258,13 @@ function PZI_Bots::AllocateBots( count = PZI_Bots.MAX_BOTS ) {
 	// re-running scripts will cause BotArray to get reset back to 0
 	// this will cause stacking bot generators that completely break quota logic.
 	// fix that instead of manually re-iterating players here!
-	local j = 0
-	for ( local i = 1; i <= MAX_CLIENTS; i++ )
-		if ( PlayerInstanceFromIndex(i) )
-			j++
+	// local j = 0
+	// for ( local i = 1; i <= MAX_CLIENTS; i++ )
+	// 	if ( PlayerInstanceFromIndex(i) )
+	// 		j++
 
-	if ( j >= MAX_BOTS )
-		return
+	// if ( j >= MAX_BOTS )
+	// 	return
 
 	local max = count - PZI_Util.PlayerTables.Bots.len()
 
@@ -1283,17 +1296,21 @@ function PZI_Bots::AllocateBots( count = PZI_Bots.MAX_BOTS ) {
 
 		self.AcceptInput( "RemoveBots", null, null, null )
 
-		foreach( bot in PZI_Util.PlayerTables.Bots.keys() ) {
+		for( local i = 1, player; i <= MAX_CLIENTS; i++ ) {
 
-			doomed_bots[ bot ] <- 0.0
-			local scope = bot.GetScriptScope()
-			scope.BotRemoveThink <- BotRemoveThink.bindenv( scope )
-			AddThinkToEnt( bot, "BotRemoveThink" )
+			if ( player = PlayerInstanceFromIndex(i) && player.IsBotOfType( TF_BOT_TYPE ) ) {
+
+				doomed_bots[ bot ] <- 0.0
+				local scope = bot.GetScriptScope()
+				scope.BotRemoveThink <- BotRemoveThink.bindenv( scope )
+				AddThinkToEnt( bot, "BotRemoveThink" )
+			
+			}
 		}
 	})
 
 	// hide bot join messages in chat
-	local node = CreateByClassname( "point_commentary_node" )
+	local node = FindByClassname( null, "point_commentary_node" ) || CreateByClassname( "point_commentary_node" )
 	DispatchSpawn( node )
 	local i = -1, inc = 0.0
 	while ( i++, inc = i * 0.05, i < max ) {
@@ -1368,19 +1385,21 @@ function PZI_Bots::PrepareNavmesh() {
 
 function PZI_Bots::GenericZombie( bot, threat_type = "closest" ) {
 
-    function GenericZombieThink() {
+	local scope = PZI_Util.GetEntScope( bot )
+	local b = scope.PZI_BotBehavior
 
-        if ( !bot.IsAlive() || bot.GetTeam() != TEAM_ZOMBIE )
+    function GenericZombieThink[scope]() {
+
+        if ( !self.IsAlive() || self.GetTeam() != TEAM_ZOMBIE )
             return
 
-		else if ( bot.GetFlags() & FL_ATCONTROLS || ( bot.GetActionPoint() && bot.GetActionPoint().IsValid() ) )
+		else if ( self.GetFlags() & FL_ATCONTROLS || ( self.GetActionPoint() && self.GetActionPoint().IsValid() ) )
 			return
 
-		local b = PZI_Util.GetEntScope( bot ).PZI_BotBehavior
 
         local threat = b.threat
 
-        if ( !threat || !threat.IsValid() || !threat.IsAlive() || threat.GetTeam() == bot.GetTeam() ) {
+        if ( !threat || !threat.IsValid() || !threat.IsAlive() || threat.GetTeam() == self.GetTeam() ) {
 
             if ( threat_type == "closest" ) {
 
@@ -1403,25 +1422,32 @@ function PZI_Bots::GenericZombie( bot, threat_type = "closest" ) {
 			b.FindPathToThreat()
 			b.MoveToThreat()
 
-			// 1024^2
-			if ( b.GetCurThreatDistanceSqr() > 1048576.0 && !FindByClassnameNearest( "player", b.cur_pos, 512.0 ) ) {
+			// 512^2
+			if ( b.threat_dist > 262144.0 || !FindByClassnameNearest( "player", b.cur_pos, 512.0 ) ) {
 
-				bot.AddCondEx( TF_COND_SPEED_BOOST, 1.0, bot )
+				self.AddCondEx( TF_COND_SPEED_BOOST, 1.0, self )
 
 				// we haven't taken/dealt any damage in a while, just respawn us if we're too far away from a player
 				if ( m_fTimeLastHit && m_fTimeLastHit + 25.0 < b.time && !b.IsCurThreatVisible() ) {
 
-					PZI_Util.SetNextRespawnTime( bot, 1.0 )
-					PZI_Util.KillPlayer( bot )
+					PZI_Util.SetNextRespawnTime( self, 1.0 )
+					PZI_Util.KillPlayer( self )
 					m_fTimeLastHit = INT_MAX
 				}
 
 			}
-            else {
+            else if ( b.threat_dist <= b.MAX_THREAT_DISTANCE * 2 && b.IsCurThreatVisible() ) {
 
-				bot.SetAttentionFocus( threat )
+				self.SetAttentionFocus( threat )
 				b.LookAt( threat.EyePosition() - Vector( 0, 0, 20 ), 1500, 1500 )
-				bot.PressFireButton( 5.0 )
+				self.PressFireButton( 5.0 )
+
+				if ( b.path_debug ) {
+
+					// printf( "BOT %s ATTACKING THREAT: %s\n", self.tostring(), threat.tostring() )
+					DebugDrawText( self.GetOrigin(), "ATTACKING THREAT: " + threat.tostring(), false, 0.02 )
+
+				}
 			}
         }
     }
@@ -1431,11 +1457,12 @@ function PZI_Bots::GenericZombie( bot, threat_type = "closest" ) {
 
 function PZI_Bots::GenericSpecial( bot ) {
 
-	local b = PZI_Util.GetEntScope( bot ).PZI_BotBehavior
+	local scope = PZI_Util.GetEntScope( bot )
+	local b = scope.PZI_BotBehavior
 
-	function GenericSpecialThink() {
+	function GenericSpecialThink[scope]() {
 
-		if ( bot.GetFlags() & FL_ATCONTROLS )
+		if ( self.GetFlags() & FL_ATCONTROLS )
 			return
 
 		local threat = b.threat
@@ -1443,11 +1470,11 @@ function PZI_Bots::GenericSpecial( bot ) {
 		if ( !threat || !threat.IsValid() )
 			return
 
-		else if ( !threat.IsAlive() || threat.GetTeam() == bot.GetTeam() )
+		else if ( !threat.IsAlive() || threat.GetTeam() == self.GetTeam() )
 			return
 
-		else if ( b.GetCurThreatDistanceSqr() <= b.MAX_THREAT_DISTANCE * 4 && b.IsCurThreatVisible() )
-			bot.PressAltFireButton( 1.0 )
+		else if ( b.threat_dist <= b.MAX_THREAT_DISTANCE * 4 && b.IsCurThreatVisible() )
+			self.PressAltFireButton( 0.2 )
 
 	}
 
@@ -1459,24 +1486,25 @@ function PZI_Bots::ScoutZombie( bot ) { bot.SetAutoJump( 0.05, 2 ) }
 
 function PZI_Bots::SoldierZombie( bot ) {
 
-	function SoldierZombieThink() {
+	local scope = PZI_Util.GetEntScope( bot )
+	local b = scope.PZI_BotBehavior
 
-		if ( bot.GetFlags() & FL_ATCONTROLS )
+	function SoldierZombieThink[scope]() {
+
+		if ( self.GetFlags() & FL_ATCONTROLS )
 			return
 
-		local buttons = GetPropInt( bot, "m_nButtons" )
+		local buttons = GetPropInt( self, "m_nButtons" )
 
-		local b = PZI_Util.GetEntScope( bot ).PZI_BotBehavior
+		if ( b.threat_pos && !GetPropEntity( self, "m_hGroundEntity" ) ) {
 
-		if ( b.threat_pos && !GetPropEntity( bot, "m_hGroundEntity" ) ) {
-
-			SetPropInt( bot, "m_afButtonDisabled", IN_BACK )
-			SetPropInt( bot, "m_nButtons", ~IN_BACK )
+			SetPropInt( self, "m_afButtonDisabled", GetPropInt( self, "m_afButtonDisabled" ) | IN_BACK )
+			SetPropInt( self, "m_nButtons", buttons & ~IN_BACK )
 			b.LookAt( b.threat_pos, INT_MAX, INT_MAX )
 			return
 		}
 
-		SetPropInt( bot, "m_afButtonDisabled", 0 )
+		SetPropInt( self, "m_afButtonDisabled", GetPropInt( self, "m_afButtonDisabled" ) & ~IN_BACK )
 	}
 
 	GenericSpecial( bot )
@@ -1485,15 +1513,18 @@ function PZI_Bots::SoldierZombie( bot ) {
 
 function PZI_Bots::MedicZombie( bot ) {
 
-	// heal nearby teammates
-    function MedicZombieThink() {
+	local scope = PZI_Util.GetEntScope( bot )
+	local b = scope.PZI_BotBehavior
 
-		if ( bot.GetFlags() & FL_ATCONTROLS )
+	// heal nearby teammates
+    function MedicZombieThink[scope]() {
+
+		if ( self.GetFlags() & FL_ATCONTROLS )
 			return
 
-		for (local player; player = FindByClassnameWithin( player, "player", bot.GetOrigin(), MEDIC_HEAL_RANGE );)
+		for (local player; player = FindByClassnameWithin( player, "player", self.GetOrigin(), MEDIC_HEAL_RANGE );)
 			if ( player.GetTeam() == TEAM_ZOMBIE && player.GetHealth() < player.GetMaxHealth() * 0.85 )
-				return bot.PressAltFireButton( 1.0 )
+				return self.PressAltFireButton( 1.0 )
     }
 
 	PZI_Util.AddThink( bot, MedicZombieThink )
@@ -1501,35 +1532,69 @@ function PZI_Bots::MedicZombie( bot ) {
 
 function PZI_Bots::EngineerZombie( bot ) {
 
-	local scope 		= PZI_Util.GetEntScope( bot )
-	local b 			= scope.PZI_BotBehavior
+	local scope = PZI_Util.GetEntScope( bot )
+	local b 	= scope.PZI_BotBehavior
+
+	local building
 
 	if ( red_buildings.len() )
-		b.SetThreat( red_buildings.keys()[ RandomInt( 0, red_buildings.len() - 1 ) ] )
+		building = red_buildings.keys()[ RandomInt( 0, red_buildings.len() - 1 ) ]
 
 	bot[ b.threat ? "SetBehaviorFlag" : "ClearBehaviorFlag" ]( 511 )
 
-    function EngineerZombieThink() {
+    function EngineerZombieThink[scope]() {
 
-		if ( bot.GetFlags() & FL_ATCONTROLS )
+		if ( self.GetFlags() & FL_ATCONTROLS )
 			return
 
-		else if ( b.threat && b.threat.IsValid() )
+		else if ( b.threat && b.threat in red_buildings )
 			return
-
-		red_buildings = red_buildings.filter( @( k, v ) k && k instanceof CBaseEntity && k.IsValid() )
 
 		if ( !red_buildings.len() ) {
 
-			bot.ClearBehaviorFlag( 511 )
+			self.ClearBehaviorFlag( 511 )
 			return
 		}
 
-		b.SetThreat( red_buildings.keys()[ RandomInt( 0, red_buildings.len() - 1 ) ] )
+		building = red_buildings.keys()[ RandomInt( 0, red_buildings.len() - 1 ) ]
+
+		if ( !building || !building.IsValid() )
+			return delete red_buildings[ building ]
+
+		b.SetThreat( building )
+
+		if ( !self.IsBehaviorFlagSet( 511 ) )
+			self.SetBehaviorFlag( 511 )
+	
+		// 512^2
+		if ( b.threat_dist > 262144.0 || !FindByClassnameNearest( "player", b.cur_pos, 512.0 ) ) {
+
+			self.AddCondEx( TF_COND_SPEED_BOOST, 1.0, self )
+
+			// we haven't taken/dealt any damage in a while, just respawn us if we're too far away from a player
+			if ( m_fTimeLastHit && m_fTimeLastHit + 25.0 < b.time && !b.IsCurThreatVisible() ) {
+
+				PZI_Util.SetNextRespawnTime( self, 1.0 )
+				PZI_Util.KillPlayer( self )
+				m_fTimeLastHit = INT_MAX
+			}
+
+		}
+		else {
+
+			self.SetAttentionFocus( building )
+			b.LookAt( building.EyePosition() - Vector( 0, 0, 20 ), 1500, 1500 )
+			self.PressFireButton( 5.0 )
+
+			if ( b.path_debug ) {
+
+				DebugDrawText( self.GetOrigin(), "ENGINEER ATTACKING BUILDING: " + building.tostring(), false, 0.02 )
+
+			}
+		}
 	}
 
 	PZI_Util.AddThink( bot, EngineerZombieThink )
-	GenericSpecial( bot )
 }
 
 PZI_EVENT( "teamplay_round_start", "PZI_Bots_TeamplayRoundStart", function( params ) {
@@ -1633,16 +1698,13 @@ PZI_EVENT( "player_spawn", "PZI_BotsSpawn", function( params ) {
 	if ( !bGameStarted && !("__pzi_firstkill" in scope) && bot.GetTeam() == TEAM_HUMAN ) {
 
 		scope.__pzi_firstkill <- true
-		PZI_Util.ScriptEntFireSafe( bot, "PZI_Util.KillPlayer( self ); self.ForceRespawn()", RandomInt( 0, 20 ) )
+		PZI_Util.ScriptEntFireSafe( bot, "PZI_Util.KillPlayer( self ); self.ForceRespawn()", RandomInt( 0, 12 ) )
 	}
 
 	else if ( bot.GetTeam() == TEAM_ZOMBIE )
 		bot.SetMission( MISSION_SEEK_AND_DESTROY, true )
 
 	else if ( bot.GetTeam() == TEAM_HUMAN ) {
-
-		// non engineers/medics have a rare chance to use sniper AI
-		// (periodically right click and melee when enemies are close)
 		
 		local mission = NO_MISSION
 		switch ( cls ) {
@@ -1679,13 +1741,13 @@ PZI_EVENT( "player_spawn", "PZI_BotsSpawn", function( params ) {
 	local b = scope.PZI_BotBehavior
 
 	scope.areas <- {}
-	function BotThink() {
+	function BotThink[scope]() {
 
-		if ( !bot || !bot.IsValid() || !bot.IsAlive() )
+		if ( !self.IsAlive() )
 			return
 
-		if ( !( bot.GetFlags() & FL_ATCONTROLS ) && !bot.GetActiveWeapon() )
-			return PZI_Util.SwitchToFirstValidWeapon( bot )
+		if ( !( self.GetFlags() & FL_ATCONTROLS ) && !self.GetActiveWeapon() )
+			return PZI_Util.SwitchToFirstValidWeapon( self )
 
 		b.OnUpdate()
 
@@ -1696,7 +1758,7 @@ PZI_EVENT( "player_spawn", "PZI_BotsSpawn", function( params ) {
 		if ( stucktime > 3.0 && b.path_recompute_time <= b.time ) {
 
 			b.path_recompute_time = b.time + 3.0
-			local area = bot.GetLastKnownArea()
+			local area = self.GetLastKnownArea()
 			
 			if ( !area ) {
 
@@ -1705,13 +1767,13 @@ PZI_EVENT( "player_spawn", "PZI_BotsSpawn", function( params ) {
 			}
 			// no nearby nav, just kill and respawn
 			if ( !area )
-				PZI_Util.KillPlayer( bot )
+				PZI_Util.KillPlayer( self )
 
 			else {
 
 				// if ( b.path_debug ) {
 
-				// 	printf( "bot %s STUCK!\n pos: %s stuck time: %.2f last known area: '%s'\n", bot.tostring(), b.cur_pos.ToKVString(), stucktime, ""+area )
+				// 	printf( "bot %s STUCK!\n pos: %s stuck time: %.2f last known area: '%s'\n", self.tostring(), b.cur_pos.ToKVString(), stucktime, ""+area )
 				// 	SetPropBool( bot, "m_bGlowEnabled", stucktime > 5.0 )
 				// }
 		
@@ -1732,14 +1794,14 @@ PZI_EVENT( "player_spawn", "PZI_BotsSpawn", function( params ) {
 
 						if ( b.path_debug ) {
 
-							printf( "bot %s moved to '%s'\n", bot.tostring(), center.ToKVString() )
+							DebugDrawText( center, "bot " + self.tostring() + " moved to '" + center.ToKVString() + "'", false, 0.1 )
 							new_area.DebugDrawFilled( 255, 0, 255, 80, 5.0, true, 0.0 )
 						}
 
 						// very stuck, probably in world geometry/map entity
 						if ( stucktime > 15.0 ) {
 
-							bot.SetAbsOrigin( center + Vector( 0, 0, 20 ) )
+							self.SetAbsOrigin( center + Vector( 0, 0, 20 ) )
 							b.locomotion.ClearStuckStatus( "Moved to new nav area" )
 							stucktime = 0.0
 							b.SetThreat( null )
@@ -1758,10 +1820,9 @@ PZI_EVENT( "player_spawn", "PZI_BotsSpawn", function( params ) {
 
 	PZI_Util.AddThink( bot, BotThink )
 
-	local thinkname = ""
-	foreach ( name, func in PZI_Bots )
-		if ( thinkname = name+"Think", thinkname != "BotRemoveThink" && thinkname in scope.ThinkTable )
-			PZI_Util.RemoveThink( bot, thinkname )
+	foreach ( name, _ in scope.ThinkTable )
+		if ( endswith( name, "ZombieThink") )
+			PZI_Util.RemoveThink( bot, name )
 
 	local cls = bot.GetPlayerClass()
 
@@ -1782,7 +1843,7 @@ PZI_EVENT( "player_spawn", "PZI_BotsSpawn", function( params ) {
 
 PZI_EVENT( "teamplay_setup_finished", "PZI_Bots_TeamplaySetupFinished", function( params ) {
 
-	foreach ( bot in PZI_Util.PlayerTables.Survivors.keys() )
+	foreach ( bot in PZI_Util.PlayerTables.Bots.keys() )
 		bot.RemoveEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
 })
 
@@ -1811,7 +1872,7 @@ PZI_EVENT( "player_death", "PZI_Bots_PlayerDeath", function( params ) {
 	if ( !scope || !("PZI_BotBehavior" in scope) )
 		return
 
-	scope.PZI_BotBehavior.threat = null
+	scope.PZI_BotBehavior.SetThreat( null )
 })
 
 PZI_EVENT( "player_hurt", "PZI_Bots_PlayerHurt", function( params ) {

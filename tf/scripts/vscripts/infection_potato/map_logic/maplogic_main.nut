@@ -461,7 +461,7 @@ local round_start_relay_table = {
     "OnTrigger#1" : "func_areaportal*,Open,,0,-1"
     "OnTrigger#2" : "__pzi_nav_interface,RecomputeBlockers,,0,-1"
     // "OnTrigger#3" : "team_control_point,Disable,,0,-1" // keep these enabled so bots know what to do
-    "OnTrigger#4" : "tf_pumpkin_bomb,RunScriptCode,self.TakeDamage( INT_MAX DMG_GENERIC null ),,0,-1"
+    "OnTrigger#4" : "tf_pumpkin_bomb,RunScriptCode,if ( self.IsValid() ) self.TakeDamage( INT_MAX DMG_GENERIC null ),,0,-1"
     "OnTrigger#5" : "team_control_point,SetOwner,0,1,-1"
     "OnTrigger#6" : "team_control_point,HideModel,,0,-1"
 }
@@ -558,6 +558,8 @@ PZI_EVENT( "player_spawn", "PZI_MapLogic_PlayerSpawn", function ( params ) {
 
     PZI_Util.SetNextRespawnTime( player, BASE_RESPAWN_TIME )
 
-    EntFire( "tf_gamerules", "SetBlueTeamRespawnWaveTime", "0", -1 )
+    // we control this with a respawn_override trigger instead
+    EntFire( "tf_gamerules", "SetBlueTeamRespawnWaveTime", "999999", -1 )
+    EntFire( "tf_gamerules", "SetRedTeamRespawnWaveTime", "999999", -1 )
     EntFire( "tf_weapon_passtime_gun", "Kill", null, 0.05 )
 })

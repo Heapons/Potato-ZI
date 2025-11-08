@@ -38,7 +38,7 @@ function PZI_SpawnAnywhere::SetGhostMode( player ) {
     SetPropInt( player, "m_clrRender", 0 )
     player.DisableDraw() // makes bots stop targeting us
 
-    SetPropInt( player, "m_afButtonDisabled", IN_ATTACK2 )
+    SetPropInt( player, "m_afButtonDisabled", GetPropInt( player, "m_afButtonDisabled" ) | IN_ATTACK2 )
 
     scope.m_iFlags <- ZBIT_PYRO_DONT_EXPLODE
 
@@ -98,7 +98,7 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
 
     // force player to duck
     // mitigates some stuck spots
-    SetPropInt( player, "m_afButtonForced", IN_DUCK )
+    SetPropInt( player, "m_afButtonForced", GetPropInt( player, "m_afButtonForced" ) | IN_DUCK )
     SetPropBool( player, "m_Local.m_bDucked", true )
     player.AddFlag( FL_DUCKING|FL_ATCONTROLS )
 
@@ -108,15 +108,12 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
 
     player.AcceptInput( "SetForcedTauntCam", "1", null, null )
 
-    if ( "m_hZombieAbility" in scope && scope.m_hZombieAbility instanceof CZombieAbility ) 
-        scope.m_hZombieAbility.PutAbilityOnCooldown( scope.m_hZombieAbility.m_fAbilityCooldown + 2.0 )
-
     EntFire( "__pzi_spawn_hint_" + PZI_Util.PlayerTables.All[ player ], "Kill" )
 
-    if ( !("m_iFlags" in scope) )
-        scope.m_iFlags <- ZBIT_PENDING_ZOMBIE
-    else
-        scope.m_iFlags = scope.m_iFlags | ZBIT_PENDING_ZOMBIE
+    scope.m_iFlags <- ZBIT_PENDING_ZOMBIE
+
+    if ( "m_hZombieAbility" in scope && scope.m_hZombieAbility instanceof CZombieAbility ) 
+        scope.m_hZombieAbility.PutAbilityOnCooldown( scope.m_hZombieAbility.m_fAbilityCooldown + 2.0 )
 
     local playercls = player.GetPlayerClass()
 
@@ -228,10 +225,6 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
 
             SendGlobalGameEvent( "hide_annotation", { id = PZI_Util.PlayerTables.All[ player ] } )
 
-            player.RemoveFlag( FL_ATCONTROLS|FL_DUCKING )
-            SetPropInt( player, "m_afButtonForced", ~IN_DUCK )
-            SetPropBool( player, "m_Local.m_bDucked", false )
-
             SetPropInt( player, "m_nRenderMode", kRenderNormal )
             SetPropInt( player, "m_clrRender", 0xFFFFFFFF )
             player.EnableDraw()
@@ -250,7 +243,11 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
             if ( player.GetPlayerClass() == TF_CLASS_PYRO )
                 scope.m_iFlags = scope.m_iFlags & ~ZBIT_PYRO_DONT_EXPLODE
 
-            SetPropInt( player, "m_afButtonDisabled", ~IN_ATTACK2 )
+            SetPropInt( player, "m_afButtonDisabled", 0 )
+            SetPropInt( player, "m_afButtonForced", 0 )
+            player.RemoveFlag( FL_ATCONTROLS|FL_DUCKING )
+            SetPropBool( player, "m_Local.m_bDucked", false )
+
             player.GiveZombieCosmetics()
             player.GiveZombieEyeParticles()
 
@@ -373,6 +370,7 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
     }
     
     SetPropInt( player, "m_afButtonDisabled", 0 )
+    SetPropInt( player, "m_afButtonForced", 0 )
 
     // teleport to a random nav square on spawn
     if ( USE_NAV_FOR_SPAWN ) {
@@ -392,7 +390,9 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
     // BLU LOGIC BEYOND THIS POINT
     if ( player.GetTeam() != TEAM_ZOMBIE ) {
         
-        PZI_Util.RemoveThink( player, "GhostThink" )
+        if ( "GhostThink" in scope.ThinkTable )
+            PZI_Util.RemoveThink( player, "GhostThink" )
+
         player.ResetInfectionVars()
         return
     }
@@ -438,6 +438,9 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
 
     PZI_Util.ScriptEntFireSafe( spawn_hint, @"
 
+        if ( !activator || !activator.IsValid() || !activator.IsAlive() || activator.GetTeam() == TEAM_HUMAN )
+            return
+
         local player_idx = PZI_Util.PlayerTables.All[ activator ]
 
         local origin = self.GetOrigin()
@@ -453,7 +456,7 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
             worldposY = origin.y
             worldposZ = origin.z
             id = player_idx
-        } )
+        })
 
     ", 0.5, player )
 

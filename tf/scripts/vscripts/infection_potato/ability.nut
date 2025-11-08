@@ -890,7 +890,7 @@ class CPyroBlast extends CZombieAbility {
 
         m_hAbilityOwner.AddEventToQueue ( EVENT_PUT_ABILITY_ON_CD, INSTANT )
         // TODO: not sure why this is here, probably causing the rare pyro A-pose bug
-        // m_hAbilityOwner.AddEventToQueue ( EVENT_RESET_ZOMBIE_WEP,   0.01 )
+        m_hAbilityOwner.AddEventToQueue ( EVENT_RESET_ZOMBIE_WEP,   0.01 )
 
         return
     }
