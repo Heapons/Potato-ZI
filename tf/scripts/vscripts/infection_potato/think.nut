@@ -11,7 +11,7 @@
 
 function ZIPlayerThink() {
 
-    if ( !self.IsValid() || !self.IsAlive() || self.GetFlags() & FL_ATCONTROLS )
+    if ( !self.IsValid() || !self.IsAlive() || self.GetFlags() & FL_NOTARGET )
         return
 
     if ( !self.IsPlayer() ) {
@@ -129,7 +129,7 @@ function ZIPlayerThink() {
 
         if ( m_iFlags & ( ZBIT_PENDING_ZOMBIE ) ) {
             
-            printl( "ZOMBIE THINK: " + self + " : " + m_iFlags )
+            // printl( "ZOMBIE THINK: " + self + " : " + m_iFlags )
 
             if ( self.CanDoAct( ZOMBIE_BECOME_ZOMBIE ) ) {
 

@@ -2134,7 +2134,9 @@ function PZI_Util::SetDestroyCallback( entity, callback ) {
 					local scope = entity.GetScriptScope()
 					scope.self <- entity
 					scope.__pzi_util_destroy_callback()
-					PZI_GameStrings.PurgeGameString( id )
+
+					if ( "PZI_GameStrings" in ROOT )
+						PZI_GameStrings.PurgeGameString( id )
 				}
 
 				delete parent[k]

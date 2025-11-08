@@ -1290,7 +1290,7 @@ function PZI_Bots::AllocateBots( count = PZI_Bots.MAX_BOTS ) {
 
 		for ( local i = 1, player; i <= MAX_CLIENTS; i++ ) {
 
-			if ( player = PlayerInstanceFromIndex(i) && player.IsBotOfType( TF_BOT_TYPE ) ) {
+			if ( player = PlayerInstanceFromIndex(i) && IsPlayerABot( player ) ) {
 				
 				printl( player + " : " + player.GetScriptThinkFunc() )
 				// time to find out if this will cause crashes
@@ -1490,13 +1490,13 @@ function PZI_Bots::SoldierZombie( bot ) {
 
 		if ( b.threat_pos && !GetPropEntity( self, "m_hGroundEntity" ) ) {
 
-			SetPropInt( self, "m_afButtonDisabled", GetPropInt( self, "m_afButtonDisabled" ) | IN_BACK )
+			SetPropInt( self, "m_afButtonDisabled", IN_BACK )
 			SetPropInt( self, "m_nButtons", buttons & ~IN_BACK )
 			b.LookAt( b.threat_pos, INT_MAX, INT_MAX )
 			return
 		}
 
-		SetPropInt( self, "m_afButtonDisabled", GetPropInt( self, "m_afButtonDisabled" ) & ~IN_BACK )
+		SetPropInt( self, "m_afButtonDisabled", 0 )
 	}
 
 	GenericSpecial( bot )

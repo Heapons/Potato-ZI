@@ -38,8 +38,6 @@ function PZI_SpawnAnywhere::SetGhostMode( player ) {
     SetPropInt( player, "m_clrRender", 0 )
     player.DisableDraw() // makes bots stop targeting us
 
-    SetPropInt( player, "m_afButtonDisabled", GetPropInt( player, "m_afButtonDisabled" ) | IN_ATTACK2 )
-
     scope.m_iFlags = scope.m_iFlags | ZBIT_PYRO_DONT_EXPLODE
 
     scope.playermodel <- player.GetModelName()
@@ -89,8 +87,9 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
 
     local scope = PZI_Util.GetEntScope( player )
 
-    if ( "ThinkTable" in scope && "GhostThink" in scope.ThinkTable )
-        delete scope.ThinkTable.GhostThink
+    printl( player + " : " + NetName( player ) )
+
+    PZI_Util.RemoveThink( player, "GhostThink" )
 
     // should already be invis but whatever
     SetPropInt( player, "m_nRenderMode", kRenderTransColor )
@@ -98,7 +97,7 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
 
     // force player to duck
     // mitigates some stuck spots
-    SetPropInt( player, "m_afButtonForced", GetPropInt( player, "m_afButtonForced" ) | IN_DUCK )
+    SetPropInt( player, "m_afButtonForced", IN_DUCK )
     SetPropBool( player, "m_Local.m_bDucked", true )
     player.AddFlag( FL_DUCKING|FL_ATCONTROLS )
 
@@ -110,7 +109,7 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
 
     EntFire( "__pzi_spawn_hint_" + PZI_Util.PlayerTables.All[ player ], "Kill" )
 
-    scope.m_iFlags = scope.m_iFlags|ZBIT_SURVIVOR|ZBIT_PENDING_ZOMBIE
+    scope.m_iFlags = scope.m_iFlags|ZBIT_PENDING_ZOMBIE
 
     if ( "m_hZombieAbility" in scope && scope.m_hZombieAbility instanceof CZombieAbility ) 
         scope.m_hZombieAbility.PutAbilityOnCooldown( scope.m_hZombieAbility.m_fAbilityCooldown + 2.0 )
@@ -366,9 +365,6 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
         SetPropInt( player, "m_clrRender", 0xFFFFFFFF )
         player.EnableDraw()
     }
-    
-    SetPropInt( player, "m_afButtonDisabled", 0 )
-    SetPropInt( player, "m_afButtonForced", 0 )
 
     // teleport to a random nav square on spawn
     if ( USE_NAV_FOR_SPAWN ) {
@@ -476,13 +472,13 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
 
         // no world geometry found
         if ( !nav_trace.hit )
-            return
+            return ClientPrint( player, HUD_PRINTCENTER, "No valid spawn point found!" )
 
         tracepos = nav_trace.pos
 
         // trace too far away
         if ( ( player.GetOrigin() - tracepos ).Length2D() > MAX_SPAWN_DISTANCE )
-            return
+            return ClientPrint( player, HUD_PRINTCENTER, "Too far away from spawn point!" )
 
         // not a valid area
         if ( USE_NAV_FOR_SPAWN ) {
@@ -490,7 +486,7 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
             local nav_area = GetNearestNavArea( tracepos, SUMMON_RADIUS * 2, true, true )
 
             if ( !nav_area || !nav_area.IsFlat() )
-                return
+                return ClientPrint( player, HUD_PRINTCENTER, "Not a valid spawn area!" )
 
             spawnpos = nav_area.GetCenter()
         }
@@ -501,13 +497,13 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
             spawnpos = tracepos
 
         if ( !spawnpos )
-            return
+            return ClientPrint( player, HUD_PRINTCENTER, "No valid spawn point found!" )
 
         // avoid lambdas for perf counter.
         local function in_triggerhurt( pos ) { return PZI_Util.IsPointInTrigger( pos, "trigger_hurt" ) }
 
         if ( in_triggerhurt( spawnpos ) || in_triggerhurt( spawnpos + Vector( 0, 0, 64 ) ) )
-            return
+            return ClientPrint( player, HUD_PRINTCENTER, "Too close to a trigger_hurt!" )
 
         // check if we can fit here
         else if ( !PZI_Util.IsSpaceToSpawnHere( spawnpos + Vector( 0, 0, 20 ), player.GetBoundingMins(), player.GetBoundingMaxs() ) )
