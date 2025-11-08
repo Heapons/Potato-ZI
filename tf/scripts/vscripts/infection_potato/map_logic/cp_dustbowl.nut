@@ -7,7 +7,9 @@ for ( local brush, mdlindex; brush = FindByClassname( brush, "func_brush" ); ) {
     if ( mdlindex == 45 || mdlindex == 53 )
         continue
 
-    EntFireByHandle( brush, "Kill", null, -1, null, null )
+    PZI_Util.EntShredder.append( brush )
 }
 
 EntFire( "prop_dynamic", "Kill" )
+
+PZI_EVENT( "teamplay_round_start", "KillDustbowlProps", @(_) EntFire( "prop_dynamic", "Kill" ) )

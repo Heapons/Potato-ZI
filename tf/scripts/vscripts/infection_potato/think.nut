@@ -240,14 +240,14 @@ function ZIPlayerThink() {
                     _szAbilityTooltip = STRING_UI_ZOMBIE_INSTRUCTION_PASSIVE
                 }
 
-                if (!self.IsBotOfType( TF_BOT_TYPE )) {
+                // if (!self.IsBotOfType( TF_BOT_TYPE )) {
 
                     local _hTooltip = self.ZombieInitialTooltip()
 
                     _hTooltip.KeyValueFromString( "message", _szAbilityTooltip )
 
                     _hTooltip.AcceptInput( "Display", null, self, self )
-                }
+                // }
 
                 m_iFlags = ( m_iFlags | ZBIT_ZOMBIE | ZBIT_HASNT_HEARD_READY_SFX | ZBIT_HASNT_HEARD_DENY_SFX | ZBIT_HAS_HUD )
             }
@@ -326,7 +326,7 @@ function ZIPlayerThink() {
             // Zombie ability "vgui"                                                          //
             // ------------------------------------------------------------------------------ //
 
-            if ( !self.IsBotOfType( TF_BOT_TYPE ) ) {
+            // if ( !self.IsBotOfType( TF_BOT_TYPE ) ) {
 
                 if ( !( _buttons & IN_SCORE ) ) {
 
@@ -419,7 +419,7 @@ function ZIPlayerThink() {
 
                     self.SetScriptOverlayMaterial( "" )
                 }
-            }
+            // }
 
             // ------------------------------------------------------------------------------ //
             // demoman zombie charge ability collision check                                  //

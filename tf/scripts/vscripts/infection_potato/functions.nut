@@ -328,7 +328,7 @@ function ShouldZombiesWin( _hPlayer ) {
     return
 }
 
-function CreateAmmoPack( _vecLocation, _szClassname ) {
+function CreatePackPickup( _vecLocation, _szClassname ) {
 
     local _hDroppedPack = CreateByClassname( _szClassname )
     ::DispatchSpawn( _hDroppedPack )
@@ -336,6 +336,7 @@ function CreateAmmoPack( _vecLocation, _szClassname ) {
     _hDroppedPack.SetAbsOrigin( _vecLocation )
     _hDroppedPack.SetMoveType( MOVETYPE_FLYGRAVITY, MOVECOLLIDE_FLY_BOUNCE )
     
+    // this function has null/invalid checks already
     PZI_Util.ScriptEntFireSafe( _hDroppedPack, "self.Kill()", 20.0 )
 }
 
@@ -557,8 +558,8 @@ function CTFPlayer_GiveZombieCosmetics() {
     SetPropBool( this, "m_bForcedSkin", true )
     SetPropInt( this, "m_nForcedSkin", this.GetSkin() + (this.GetPlayerClass() == TF_CLASS_SPY ? 22 : 4) )
     SetPropInt( this, "m_iPlayerSkinOverride", 1 )
-    PZI_Util.SetTargetname( wearable, format( "__pzi_zombie_cosmetic_%d", this.entindex() ) )
-    this.GetScriptScope().m_hZombieWearable <- wearable
+    PZI_Util.SetTargetname( wearable, format( "__pzi_zombie_cosmetic_%d", PZI_Util.PlayerTables.All[ this ] ) )
+    _sc.m_hZombieWearable <- wearable
 }
 
 function CTFPlayer_GiveZombieEyeParticles( particle_override = null ) {

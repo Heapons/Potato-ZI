@@ -251,11 +251,12 @@ local ents_to_kill = [
     "func_respawnroomvisualizer"
 
     // misc edict wasters
-	"beam"
-    "env_sun"
+	"beam" // light glow effect on all lights
+    "env_sun" // sun
     "env_beam"
     "move_rope"
     "env_sprite"
+    "game_text_tf"
     "env_lightglow"
     "keyframe_rope"
 ]
@@ -460,13 +461,9 @@ local round_start_relay_table = {
     "OnTrigger#1" : "func_areaportal*,Open,,0,-1"
     "OnTrigger#2" : "__pzi_nav_interface,RecomputeBlockers,,0,-1"
     // "OnTrigger#3" : "team_control_point,Disable,,0,-1" // keep these enabled so bots know what to do
-    "OnTrigger#4" : "team_control_point,SetLocked,0,0,-1"
-    "OnTrigger#5" : "team_control_point,SetOwner,0,0,-1"
+    "OnTrigger#4" : "tf_pumpkin_bomb,RunScriptCode,self.TakeDamage( INT_MAX DMG_GENERIC null ),,0,-1"
+    "OnTrigger#5" : "team_control_point,SetOwner,0,1,-1"
     "OnTrigger#6" : "team_control_point,HideModel,,0,-1"
-    "OnTrigger#7" : "func_door*,AddOutput,OnFullyOpened func_door*:Kill::0:-1,0,-1"
-    "OnTrigger#8" : "func_door*,Unlock,,0,-1"
-    "OnTrigger#9" : "func_door*,Open,,0.1,-1"
-    "OnTrigger#10" : "func_door*,Kill,,15,-1"
 }
 
 local setup_finished_relay_table = {
@@ -475,41 +472,23 @@ local setup_finished_relay_table = {
     spawnflags = 1
     "OnSpawn#1" : "func_areaportal*,Open,,0,-1"
     "OnSpawn#2" : "__pzi_nav_interface,RecomputeBlockers,,0,-1"
-    "OnSpawn#3" : "func_door*,AddOutput,OnFullyOpened func_door*:Kill::0:-1,0,-1"
-    "OnSpawn#4" : "func_door*,Unlock,,0,-1"
-    "OnSpawn#5" : "func_door*,Open,,0.1,-1"
-    "OnSpawn#6" : "func_door*,Kill,,5,-1"
-    "OnSpawn#7" : "func_respawnroom,Disable,,0,-1"
-    "OnSpawn#8" : "func_respawnroom,SetInactive,,0,-1"
-    "OnSpawn#9" : "func_regenerate,Kill,,0,-1"
+    "OnSpawn#3" : "func_respawnroom,Disable,,0,-1"
+    "OnSpawn#4" : "func_respawnroom,SetInactive,,0,-1"
+    "OnSpawn#5" : "func_regenerate,Kill,,0,-1"
+    // "OnSpawn#6" : "team_control_point,SetOwner,0,1,-1"
 }
 
-// function PZI_MapLogic::ThinkTable::KillWastefulEnts() {
+function PZI_MapLogic::ThinkTable::KillWastefulEnts() {
     
     // face flexes/animations for vo/pain feedback
-    // for ( local ent; ent = FindByClassname( ent, "instanced_scripted_scene" ); )
-    //     EntFireByHandle( ent, "Kill", null, -1, null, null )
-// }
+    for ( local scene; scene = FindByClassname( scene, "instanced_scripted_scene" ); )
+        PZI_Util.EntShredder.append( scene )
+}
 
 PZI_EVENT( "teamplay_round_start", "PZI_MapLogic_RoundStart", function ( params ) {
 
     if ( GAMEMODE in gamemode_funcs )
         gamemode_funcs[ GAMEMODE ]()
-
-    // kill all props and brushes associated with the doors
-    foreach( d in doors ) {
-
-        for ( local ent; ent = FindByClassname( ent, d ); ) {
-
-            local scope = PZI_Util.GetEntScope( ent )
-            scope.InputClose <- @() false
-            scope.Inputclose <- @() false
-
-            foreach( c in cls )
-                if ( nearest = FindByClassnameNearest( c, ent.GetCenter(), 256 ) )
-                    EntFireByHandle( c, "Kill", null, -1, null, null )
-        }
-    }
 
     // kill these immediately
     for ( local ent; ent = FindByClassname( ent, "team_round_timer" ); )
@@ -523,7 +502,7 @@ PZI_EVENT( "teamplay_round_start", "PZI_MapLogic_RoundStart", function ( params 
     foreach( name in ents_to_kill )
         AddOutput( _relay, "OnTrigger", name, "Kill", null, 0, -1 )
 
-    EntFireByHandle( _relay, "Trigger", null, -1, null, null )
+    EntFireByHandle( _relay, "Trigger", null, 0.2, null, null )
 
     timer = PZI_MapLogic.GetRoundTimer()
 
@@ -531,31 +510,40 @@ PZI_EVENT( "teamplay_round_start", "PZI_MapLogic_RoundStart", function ( params 
     SetPropInt( PZI_Util.GameRules, "m_nHudType", 2 )
 
     // disable control points hud elements
-    for ( local tcp; tcp = FindByClassname( null, "team_control_point*" ); ) {
+    for ( local tcp; tcp = FindByClassname( tcp, "team_control_point*" ); ) {
 
+        tcp_scope <- PZI_Util.GetEntScope( tcp )
         if ( tcp.GetClassname() == "team_control_point_master" ) {
 
             SetPropFloat( tcp, "m_flCustomPositionX", 1.0 )
             SetPropFloat( tcp, "m_flCustomPositionY", 1.0 )
             tcp.AcceptInput( "RoundSpawn", "", null, null )
-            local tcp_scope = PZI_Util.GetEntScope( tcp )
-            tcp_scope.InputSetWinner <- @() false
-            tcp_scope.Inputsetwinner <- @() false
+            function tcp_scope::InputSetWinner() { return false }
+            function tcp_scope::Inputsetwinner() { return false }
             continue
         }
+
+        for ( local i = 0; i < 3; i++ )
+            tcp.KeyValueFromString( "team_previouspoint_2_" + i, tcp.GetName() )
+
+        for ( local i = 0; i < 3; i++ )
+            tcp.KeyValueFromString( "team_previouspoint_3_" + i, tcp.GetName() )
+
+        SetPropInt( tcp, "m_iDefaultOwner", 0 )
     
-        tcp.ValidateScriptScope()
-        scope <- tcp.GetScriptScope()
+        function tcp_scope::InputSetLocked() { return false }
+        function tcp_scope::Inputsetlocked() { return false }
+        tcp_scope.locked <- GetPropBool( tcp, "m_bLocked" )
 
-        function ToggleRandomControlPoint[scope]() {
+        function tcp_scope::ToggleRandomControlPoint() {
 
-            self.AcceptInput( "SetLocked", RandomInt( 0, 1 ), null, null )
-            return 25
-
+            SetPropBool( self, "m_bLocked", !locked )
+            return RandomInt( 5, 20 )
         }
-        scope.ToggleRandomControlPoint <- ToggleRandomControlPoint
 
         AddThinkToEnt( tcp, "ToggleRandomControlPoint" )
+
+        EntFireByHandle( tcp, "RoundSpawn", null, -1, null, null )
     }
 })
 

@@ -127,7 +127,7 @@ class CSpyReveal extends CZombieAbility {
 
             effect_name   =  FX_EMITTER_FX
             start_active  =  true
-            targetname    =  "__pzi_spy_reveal_pfx_" + PZI_Util.PlayerTables.Zombies[ m_hAbilityOwner ]
+            targetname    =  "__pzi_spy_reveal_pfx_" + PZI_Util.PlayerTables.All[ m_hAbilityOwner ]
             origin        =  m_hAbilityOwner.GetOrigin()
         })
 
@@ -145,6 +145,7 @@ class CSpyReveal extends CZombieAbility {
         _hColorCorrection.KeyValueFromFloat( "fadeInDuration", 0.5 )
         _hColorCorrection.KeyValueFromFloat( "fadeOutDuration", 3 )
         _hColorCorrection.KeyValueFromString( "filename", "materials/colorcorrection/spy_reveal_cc.raw" )
+        _hColorCorrection.KeyValueFromString( "targetname", "__pzi_spy_reveal_cc_" + PZI_Util.PlayerTables.All[ m_hAbilityOwner ] )
         _hColorCorrection.SetOwner( m_hAbilityOwner )
 
         DispatchSpawn( _hColorCorrection )
@@ -164,6 +165,8 @@ class CSpyReveal extends CZombieAbility {
         m_hAbilityOwner.ClearZombieEntity( "m_hZombieFXWearable" )
         m_hAbilityOwner.ClearZombieEntity( "m_hZombieWearable" )
 
+        EntFireByHandle( m_hAbilityOwner, "SetForcedTauntCam", "0", 2.0, null, null )
+
         // m_hAbilityOwner.GiveZombieFXWearable()
         m_hAbilityOwner.GiveZombieCosmetics()
 
@@ -171,7 +174,7 @@ class CSpyReveal extends CZombieAbility {
         m_hAbilityOwner.AddEventToQueue( EVENT_PUT_ABILITY_ON_CD, INSTANT )
 
         ScreenShake( m_hAbilityOwner.GetOrigin(), 15.0, 150.0, 1.0, 500, 0, false )
-        EntFireByHandle( _hSpyRevealPfx, "SetParent", "!activator", 0, m_hAbilityOwner, m_hAbilityOwner )
+        _hSpyRevealPfx.AcceptInput( "SetParent", "!activator", m_hAbilityOwner, m_hAbilityOwner )
 
         local _szRevealSound = format( SFX_SPY_REVEAL_ONCAST, RandomInt( 1, 3 ) )
 
@@ -296,7 +299,7 @@ class CMedicHeal extends CZombieAbility {
 
             effect_name   =  FX_MEDIC_HEAL
             start_active  =  "0"
-            targetname    =  "__pzi_zmedic_heal_pfx" + m_hAbilityOwner.entindex()
+            targetname    =  "__pzi_zmedic_heal_pfx" + PZI_Util.PlayerTables.All[ m_hAbilityOwner ]
             origin        =  m_hAbilityOwner.GetOrigin()
         })
 

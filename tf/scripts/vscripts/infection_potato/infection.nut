@@ -316,9 +316,9 @@ PZI_EVENT( "teamplay_setup_finished", "Infection_SetupFinished", function( param
 
     // local _szZombieNetNames  =  ""
     local _zombieArr = []
-    if ( PZI_Util.PlayerTables.Bots.len() >= _numStartingZombies )
-        _zombieArr = PZI_Util.PlayerTables.Bots.keys().slice( 0, _numStartingZombies )
-    else
+    // if ( PZI_Util.PlayerTables.Bots.len() >= _numStartingZombies )
+    //     _zombieArr = PZI_Util.PlayerTables.Bots.keys().slice( 0, _numStartingZombies )
+    // else
         _zombieArr = GetRandomPlayers( _numStartingZombies, TEAM_HUMAN )
 
     local _zombieArr_len = _zombieArr.len()
@@ -429,8 +429,7 @@ PZI_EVENT( "teamplay_setup_finished", "Infection_SetupFinished", function( param
         if ( convert_gen.getstatus() == "dead" )
             return self.Kill(), 1
 
-        resume convert_gen
-        return 0.05
+        return resume convert_gen, -1
     }
     dummy.GetScriptScope().ConvertPlayersThink <- ConvertPlayersThink
     AddThinkToEnt( dummy, "ConvertPlayersThink" )
@@ -570,7 +569,7 @@ PZI_EVENT( "player_death", "Infection_PlayerDeath", function( params ) {
                 local _hKillicon = KilliconInflictor( KILLICON_PYRO_BREATH )
 
                 // CreateMediumHealthKit( _hPlayer.GetOrigin() )
-                CreateAmmoPack( _hPlayer.GetOrigin(), "item_ammopack_small" )
+                CreatePackPickup( _hPlayer.GetOrigin(), "item_ammopack_small" )
 
                 if ( !bNoPyroExplosionMod && !( _sc.m_iFlags & ZBIT_PYRO_DONT_EXPLODE ) ) {
 
@@ -594,7 +593,7 @@ PZI_EVENT( "player_death", "Infection_PlayerDeath", function( params ) {
             else {
 
                 local _szKitType = "item_ammopack_" + ( _iClassNum == TF_CLASS_HEAVYWEAPONS ? "medium" : "small" )
-                CreateAmmoPack( _hPlayer.GetOrigin(), _szKitType )
+                CreatePackPickup( _hPlayer.GetOrigin(), _szKitType )
             }
 
             // ------------------------------------- //

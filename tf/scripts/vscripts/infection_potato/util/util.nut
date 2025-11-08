@@ -262,27 +262,27 @@ function PZI_Util::_OnDestroy() {
 
 function PZI_Util::EntityManager() {
 
-	// strip out leftover nulls
-	EntShredder = EntShredder.filter( @( _, ent ) ent && ent.IsValid() )
-
 	// give everything a common targetname and EntFire kill it
-	local queue = "___ENTSHREDDER___QUEUED"
 	local _len = EntShredder.len()
 
 	foreach( i, ent in EntShredder ) {
 
-		if ( !ent || !ent.IsValid() )
+		if ( !ent || !ent.IsValid() || ent.GetName() == ___ENTSHREDDER___QUEUED )
 			continue
 
 		printl( ent )
-		SetPropString( ent, STRING_NETPROP_NAME, queue )
+		SetPropString( ent, STRING_NETPROP_NAME, ___ENTSHREDDER___QUEUED )
 		SetPropBool( ent, STRING_NETPROP_PURGESTRINGS, true )
 
-		if ( _len < 150 && !( i % 50 ) )
-			yield EntFire( queue, "Kill" ), true
+		if ( _len < 200 && !( i % 20 ) )
+			yield !EntFire( ___ENTSHREDDER___QUEUED, "Kill" )
 	}
 
-	EntFire( queue, "Kill" )
+	EntFire( ___ENTSHREDDER___QUEUED, "Kill" )
+
+	// strip out leftover nulls
+	yield EntShredder = EntShredder.filter( @( _, ent ) ent && ent.IsValid() )
+
 	return
 }
 
@@ -291,7 +291,7 @@ local gen = PZI_Util.EntityManager()
 function PZI_Util::ThinkTable::EntityManagerThink() {
 
 	if ( !EntShredder.len() )
-		return 0.5
+		return -1
 
 	else if ( gen.getstatus() == "dead" )
 		gen = EntityManager()
@@ -729,7 +729,7 @@ function PZI_Util::GiveWearableItem( player, item_id, model = null ) {
 
 	InitEconItem( wearable, item_id )
 	::DispatchSpawn( wearable )
-	SetTargetname( wearable, format( "__pzi_util_wearable_%d", wearable.entindex() ) )
+	SetTargetname( wearable, format( "__pzi_util_wearable_%d", PZI_Util.PlayerTables.All[ player ] )  )
 	SetPropBool( wearable, STRING_NETPROP_PURGESTRINGS, true )
 
 	if ( model )
@@ -755,7 +755,7 @@ function PZI_Util::CreateWearable( player, model, bonemerge = true, attachment =
 
 	local wearable = CreateByClassname( "tf_wearable" )
 	SetPropInt( wearable, STRING_NETPROP_MODELINDEX, model_index )
-	SetTargetname( wearable, format( "__pzi_util_wearable_%d", wearable.entindex() ) )
+	SetTargetname( wearable, format( "__pzi_util_wearable_%d", PZI_Util.PlayerTables.All[ player ] ) )
 	wearable.SetSkin( player.GetTeam() )
 	wearable.SetTeam( player.GetTeam() )
 	wearable.SetSolidFlags( 4 )
@@ -1296,7 +1296,7 @@ function PZI_Util::PlayerBonemergeModel( player, model ) {
 		scope.bonemerge_model.Kill()
 
 	local bonemerge_model = CreateByClassname( "tf_wearable" )
-	SetTargetname( bonemerge_model, "__pzi_util_bonemerge_model" + player.entindex() )
+	SetTargetname( bonemerge_model, "__pzi_util_bonemerge_model" + PZI_Util.PlayerTables.All[ player ] )
 	SetPropInt( bonemerge_model, STRING_NETPROP_MODELINDEX, PrecacheModel( model ) )
 	SetPropBool( bonemerge_model, STRING_NETPROP_ATTACH, true )
 	SetPropEntity( bonemerge_model, "m_hOwner", player )
@@ -1328,7 +1328,7 @@ function PZI_Util::PlayerSequence( player, sequence, model_override = "", playba
 	local has_bonemerge_model = "bonemerge_model" in scope && scope.bonemerge_model && scope.bonemerge_model.IsValid()
 
 	local dummy = CreateByClassname( "funCBaseFlex" )
-	SetTargetname( dummy, format( "__pzi_util_sequence_dummy%d", player.entindex() ) )
+	SetTargetname( dummy, format( "__pzi_util_sequence_dummy%d", PZI_Util.PlayerTables.All[ player ] ) )
 
 	// SetModelSimple is more expensive but handles precaching and refreshes bone cache automatically
 	if ( model_override != "" )
@@ -1617,8 +1617,7 @@ function PZI_Util::RemovePlayerWearables( player ) {
 		if ( wearable instanceof CBaseCombatWeapon || !( wearable instanceof CEconEntity ) )
 			continue
 
-		SetPropBool( wearable, STRING_NETPROP_PURGESTRINGS, true )
-		EntFireByHandle( wearable, "Kill", null, -1, null, null )
+		EntShredder.append( wearable )
 	}
 	return
 }
@@ -1932,10 +1931,9 @@ function PZI_Util::RoundWin( team = 2 ) {
 	round_win.AcceptInput( "RoundWin", null, null, null )
 	bGameStarted = false
 
-	EntFire( "tf_wea*", "Kill" )
-	EntFire( "tf_viewmodel*", "Kill" )
-	EntFire( "pd_dispenser", "Kill" )
-	EntFire( "obj*", "Kill" )
+	foreach ( cls in [ "tf_wea*", "tf_viewmodel*", "tf_ragdoll", "pd_dispenser", "obj*" ] )
+		for ( local ent; ent = FindByClassname( ent, cls ); )
+			PZI_Util.EntShredder.append( ent )
 
 	ScriptEntFireSafe("player", @"
 
@@ -2039,12 +2037,9 @@ function PZI_Util::IsSpaceToSpawnHere( where, hullmin, hullmax ) {
 
 function PZI_Util::ClearLastKnownArea( bot ) {
 
-	local trigger = SpawnEntityFromTable( "trigger_remove_tf_player_condition", {
-		spawnflags = SF_TRIGGER_ALLOW_CLIENTS,
-		condition = TF_COND_TMPDAMAGEBONUS,
-	})
-	EntFireByHandle( trigger, "StartTouch", "!activator", -1, bot, bot )
-	EntFireByHandle( trigger, "Kill", "", -1, null, null )
+	local trigger = SpawnEntityFromTable( "trigger_remove_tf_player_condition", { spawnflags = SF_TRIGGER_ALLOW_CLIENTS condition = TF_COND_TMPDAMAGEBONUS })
+	trigger.AcceptInput( "StartTouc", "!activator", bot, bot )
+	EntShredder.append( trigger )
 }
 
 function PZI_Util::KillPlayer( player ) {
@@ -2389,7 +2384,7 @@ function PZI_Util::SetConvar( convar, value, duration = 0, hide_chat_message = t
 		ScriptEntFireSafe( "__pzi_util", format( "SetConvar( `%s`,`%s` )", convar, ConVars[convar].tostring() ), duration )
 
 	if ( hide_fcvar_notify )
-		EntFireByHandle( hide_fcvar_notify, "Kill", "", 1, null, null )
+		EntShredder.append( hide_fcvar_notify )
 }
 
 function PZI_Util::ResetConvars( hide_chat_message = true ) {
@@ -2402,7 +2397,7 @@ function PZI_Util::ResetConvars( hide_chat_message = true ) {
 	ConVars.clear()
 
 	if ( hide_fcvar_notify )
-		EntFireByHandle( hide_fcvar_notify, "Kill", "", -1, null, null )
+		EntShredder.append( hide_fcvar_notify )
 }
 
 function PZI_Util::RegisterPlayer( player, tbl = "All" ) {
@@ -2626,14 +2621,7 @@ function PZI_Util::Clamp360Angle( ang ) {
 // wrapper so we can see it in the perf counter
 function PZI_Util::collectgarbage() { ::collectgarbage() }
 
-PZI_EVENT( "teamplay_setup_finished", "UtilSetupStatus", function ( params ) {
-
-	PZI_Util.IsInSetup = false
-
-	// delay GC call so we don't eat into the budget of other round start scripts
-	EntFire( "__pzi_util", "CallScriptFunction", "collectgarbage", 0.5 )
-
-}, EVENT_WRAPPER_UTIL )
+PZI_EVENT( "teamplay_setup_finished", "UtilSetupStatus", function ( params ) { PZI_Util.IsInSetup = false }, EVENT_WRAPPER_UTIL )
 
 PZI_EVENT( "teamplay_round_start", "UtilRoundStart", function ( params ) {
 
@@ -2721,10 +2709,11 @@ PZI_EVENT( "post_inventory_application", "UtilPostInventoryApplication", functio
 	if ( !player || !player.IsValid() || player.IsEFlagSet( EFL_IS_BEING_LIFTED_BY_BARNACLE ) )
 		return
 
-	if ( player in PZI_Util.kill_on_spawn )
-		foreach ( wearable in PZI_Util.kill_on_spawn[ player ] || [] )
-			if ( wearable && wearable.IsValid() )
-				SetPropBool( wearable, STRING_NETPROP_PURGESTRINGS, true ), EntFireByHandle( wearable, "Kill", null, -1, null, null )
+	if ( player in PZI_Util.kill_on_spawn ) {
+
+		PZI_Util.EntShredder.extend( PZI_Util.kill_on_spawn[ player ] )
+		PZI_Util.kill_on_spawn[ player ].clear()
+	}
 
 	// fill out player tables if empty
 	local tbl = "All"

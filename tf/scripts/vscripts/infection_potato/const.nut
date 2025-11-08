@@ -105,7 +105,7 @@ ZOMBIE_WEP_ATTRIBS <- [ ////////////////////////////////////////////////////////
 ["melee bounds multiplier",  1, -1],            // Increase melee range for zombie         //
 ["crit mod disabled hidden", 0, -1],            // No crits                                //
 ["zombiezombiezombiezombie", 1, -1],            // enable zombie cosmetic vo               //
-["attach particle effect", 3105, -1],            // enable particle effect                 //
+// ["attach particle effect", 3105, -1],            // enable particle effect                 //
 ["voice pitch scale", 0.7, -1],                       // Makes player voice funny          //
 ],                                              //                                         //
 [// attributes for scout zombie weapon --------------------------------------------------- //
@@ -195,32 +195,32 @@ ZOMBIE_PLAYER_ATTRIBS <- [ /////////////////////////////////////////////////////
     ["hidden maxhealth non buffed", 25, -1 ],             //                                  //
 ],                                                        //                                  //
 [// attributes for soldier zombie  ------------------------------------------------------- //
-    ["SPELL: set Halloween footstep type", 4552221, -1 ], // corrupted green footsteps        //
+    // ["SPELL: set Halloween footstep type", 4552221, -1 ], // corrupted green footsteps        //
     ["hidden maxhealth non buffed", 25, -1 ],             //                                  //
 ],                                                        //                                  //
 [// attributes for demo zombie  ---------------------------------------------------------- //
-    ["SPELL: set Halloween footstep type", 4552221, -1 ], // corrupted green footsteps        //
+    // ["SPELL: set Halloween footstep type", 4552221, -1 ], // corrupted green footsteps        //
     ["hidden maxhealth non buffed", 25, -1 ],             //                                  //
 ],                                                        //                                  //
 [// attributes for medic zombie  --------------------------------------------------------- //
-    ["SPELL: set Halloween footstep type", 4552221, -1 ], // corrupted green footsteps        //
+    // ["SPELL: set Halloween footstep type", 4552221, -1 ], // corrupted green footsteps        //
     ["hidden maxhealth non buffed", 25, -1 ],             //                                  //
 ],                                                        //                                  //
 [// attributes for heavyweapons zombie  -------------------------------------------------- //
-    ["SPELL: set Halloween footstep type", 4552221, -1 ], // corrupted green footsteps        //
+    // ["SPELL: set Halloween footstep type", 4552221, -1 ], // corrupted green footsteps        //
     ["move speed penalty", 0.90, -1 ],                    //                                  //
     ["dmg bonus vs buildings", 100, -1 ],                 //                                  //
     ["hidden maxhealth non buffed", 225, -1 ],            //                                  //
 ],                                                        //                                  //
 [// attributes for pyro zombie  ---------------------------------------------------------- //
-    ["SPELL: set Halloween footstep type", 4552221, -1 ], // corrupted green footsteps        //
+    // ["SPELL: set Halloween footstep type", 4552221, -1 ], // corrupted green footsteps        //
     ["hidden maxhealth non buffed", 75, -1 ],             //                                  //
 ],                                                        //                                  //
 [// attributes for spy zombie  ----------------------------------------------------------- //
-    ["hidden maxhealth non buffed", 25, -1 ],             //                                  //
+    ["hidden maxhealth non buffed", 0, -1 ],             //                                  //
 ],                                                        //                                  //
 [// attributes for engy zombie  ---------------------------------------------------------- //
-    ["SPELL: set Halloween footstep type", 4552221, -1 ], // corrupted green footsteps        //
+    // ["SPELL: set Halloween footstep type", 4552221, -1 ], // corrupted green footsteps        //
     ["hidden maxhealth non buffed", 25, -1 ],             //                                  //
 ],                                                        //                                  //
 ];                                                        //                                  //

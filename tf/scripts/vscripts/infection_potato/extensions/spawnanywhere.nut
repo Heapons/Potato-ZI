@@ -111,8 +111,7 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
     if ( "m_hZombieAbility" in scope && scope.m_hZombieAbility instanceof CZombieAbility ) 
         scope.m_hZombieAbility.PutAbilityOnCooldown( scope.m_hZombieAbility.m_fAbilityCooldown + 2.0 )
 
-    // player.GiveZombieEyeParticles() // TODO: doesn't work
-    EntFire("__pzi_spawn_hint_" + player.entindex(), "Kill")
+    EntFire( "__pzi_spawn_hint_" + PZI_Util.PlayerTables.All[ player ], "Kill" )
 
     if ( !("m_iFlags" in scope) )
         scope.m_iFlags <- ZBIT_PENDING_ZOMBIE
@@ -227,10 +226,10 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
         // animation finished, "spawn" player
         if ( GetPropFloat( self, "m_flCycle" ) >= 0.99 ) {
 
-            SendGlobalGameEvent( "hide_annotation", { id = player.entindex() } )
+            SendGlobalGameEvent( "hide_annotation", { id = PZI_Util.PlayerTables.All[ player ] } )
 
             player.RemoveFlag( FL_ATCONTROLS|FL_DUCKING )
-            SetPropInt( player, "m_afButtonForced", 0 )
+            SetPropInt( player, "m_afButtonForced", ~IN_DUCK )
             SetPropBool( player, "m_Local.m_bDucked", false )
 
             SetPropInt( player, "m_nRenderMode", kRenderNormal )
@@ -251,7 +250,7 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
             if ( player.GetPlayerClass() == TF_CLASS_PYRO )
                 scope.m_iFlags = scope.m_iFlags & ~ZBIT_PYRO_DONT_EXPLODE
 
-            SetPropInt( player, "m_afButtonDisabled", 0 )
+            SetPropInt( player, "m_afButtonDisabled", ~IN_ATTACK2 )
             player.GiveZombieCosmetics()
             player.GiveZombieEyeParticles()
 
@@ -408,7 +407,7 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
     // PZI_Util.ScriptEntFireSafe( player, "PZI_SpawnAnywhere.SetGhostMode( self )", -1 )
     PZI_SpawnAnywhere.SetGhostMode( player )
 
-    // make bots behave like mvm spy bots
+    // make bots spawn in like mvm spy bots
     if ( player.IsBotOfType( TF_BOT_TYPE ) ) {
 
         PZI_Util.ScriptEntFireSafe( player, @"
@@ -432,15 +431,14 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
 
     PZI_Util.TeleportNearVictim( player, players[0], 0.25, true )
 
-    local spawn_hint = CreateByClassname( "move_rope" )
-    spawn_hint.KeyValueFromString( "targetname",  "__pzi_spawn_hint_" + player.entindex() )
-    // spawn_hint.AddEFlags( EFL_IN_SKYBOX )
-    ::DispatchSpawn( spawn_hint )
+    local spawn_hint = CreateByClassname( "entity_saucer" )
+    spawn_hint.KeyValueFromString( "targetname",  "__pzi_spawn_hint_" + PZI_Util.PlayerTables.All[ player ] )
+
     SetPropBool( spawn_hint, STRING_NETPROP_PURGESTRINGS, true )
 
-    PZI_Util.ScriptEntFireSafe( spawn_hint, format( @"
+    PZI_Util.ScriptEntFireSafe( spawn_hint, @"
 
-        local player_idx = %d
+        local player_idx = PZI_Util.PlayerTables.All[ activator ]
 
         local origin = self.GetOrigin()
 
@@ -449,7 +447,7 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
             text = `Spawn Here!`
             lifetime = -1
             show_distance = true
-            visibilityBitfield = 1 << player_idx
+            visibilityBitfield = 1 << activator.entindex()
             follow_entindex = self.entindex()
             worldposX = origin.x
             worldposY = origin.y
@@ -457,7 +455,7 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
             id = player_idx
         } )
 
-    ", player.entindex() ), 0.5 )
+    ", 0.5, player )
 
     function GhostThink() {
 

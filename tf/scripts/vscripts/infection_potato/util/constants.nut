@@ -41,7 +41,7 @@ const STRING_NETPROP_NAME		  	    = "m_iName"
 const STRING_NETPROP_MODELINDEX   	    = "m_nModelIndex"
 const STRING_NETPROP_POPNAME    		= "m_iszMvMPopfileName"
 const STRING_NETPROP_MDLINDEX_OVERRIDES = "m_nModelIndexOverrides"
-
+const ___ENTSHREDDER___QUEUED 			= "___ENTSHREDDER___QUEUED"
 
 // Single tick interval
 const SINGLE_TICK = 0.015
