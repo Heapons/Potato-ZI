@@ -50,3 +50,4 @@ local function KillCowerhouseEnts() {
 
 KillCowerhouseEnts()
 PZI_EVENT( "teamplay_round_start", "PZI_MapLogic_KillCowerhouseEnts", @(_) KillCowerhouseEnts() )
+PZI_EVENT( "teamplay_setup_finished", "PZI_MapLogic_KillCowerhouseEnts", @(_) KillCowerhouseEnts() )
