@@ -37,20 +37,12 @@ function PZI_Bots::_OnDestroy() {
 
 	for ( local i = 1, player; i <= MAX_CLIENTS; i++ ) {
 
-		if ( player = PlayerInstanceFromIndex(i) && player.IsBotOfType( TF_BOT_TYPE ) ) {
+		if ( player = PlayerInstanceFromIndex(i) && IsPlayerABot( player ) ) {
 			
 			printl( player + " : " + player.GetScriptThinkFunc() )
 			// time to find out if this will cause crashes
 			// EntFireByHandle( player, "Kill", null, -1, null, null )
 			player.ValidateScriptScope()
-			player.GetScriptScope().BotRemoveThink <- function() {
-
-				if ( self.IsAlive() ) {
-
-					self.SetHealth( 1 )
-					self.TakeDamageEx( null, TriggerHurt, null, Vector(), self.GetOrigin(), 2.0, DMG_ALWAYSGIB|DMG_PREVENT_PHYSICS_FORCE )
-				}
-			}
 			AddThinkToEnt( player, "BotRemoveThink" )
 		}
 	}
@@ -1296,15 +1288,15 @@ function PZI_Bots::AllocateBots( count = PZI_Bots.MAX_BOTS ) {
 
 		self.AcceptInput( "RemoveBots", null, null, null )
 
-		for( local i = 1, player; i <= MAX_CLIENTS; i++ ) {
+		for ( local i = 1, player; i <= MAX_CLIENTS; i++ ) {
 
 			if ( player = PlayerInstanceFromIndex(i) && player.IsBotOfType( TF_BOT_TYPE ) ) {
-
-				doomed_bots[ bot ] <- 0.0
-				local scope = bot.GetScriptScope()
-				scope.BotRemoveThink <- BotRemoveThink.bindenv( scope )
-				AddThinkToEnt( bot, "BotRemoveThink" )
-			
+				
+				printl( player + " : " + player.GetScriptThinkFunc() )
+				// time to find out if this will cause crashes
+				// EntFireByHandle( player, "Kill", null, -1, null, null )
+				player.ValidateScriptScope()
+				AddThinkToEnt( player, "BotRemoveThink" )
 			}
 		}
 	})
@@ -1698,7 +1690,7 @@ PZI_EVENT( "player_spawn", "PZI_BotsSpawn", function( params ) {
 	if ( !bGameStarted && !("__pzi_firstkill" in scope) && bot.GetTeam() == TEAM_HUMAN ) {
 
 		scope.__pzi_firstkill <- true
-		PZI_Util.ScriptEntFireSafe( bot, "PZI_Util.KillPlayer( self ); self.ForceRespawn()", RandomInt( 0, 12 ) )
+		PZI_Util.ScriptEntFireSafe( bot, "PZI_Util.KillPlayer( self ); self.ForceRespawn()", RandomInt( 0, 6 ) )
 	}
 
 	else if ( bot.GetTeam() == TEAM_ZOMBIE )

@@ -40,7 +40,7 @@ function PZI_SpawnAnywhere::SetGhostMode( player ) {
 
     SetPropInt( player, "m_afButtonDisabled", GetPropInt( player, "m_afButtonDisabled" ) | IN_ATTACK2 )
 
-    scope.m_iFlags <- ZBIT_PYRO_DONT_EXPLODE
+    scope.m_iFlags = scope.m_iFlags | ZBIT_PYRO_DONT_EXPLODE
 
     scope.playermodel <- player.GetModelName()
 
@@ -110,7 +110,7 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
 
     EntFire( "__pzi_spawn_hint_" + PZI_Util.PlayerTables.All[ player ], "Kill" )
 
-    scope.m_iFlags <- ZBIT_PENDING_ZOMBIE
+    scope.m_iFlags = scope.m_iFlags|ZBIT_SURVIVOR|ZBIT_PENDING_ZOMBIE
 
     if ( "m_hZombieAbility" in scope && scope.m_hZombieAbility instanceof CZombieAbility ) 
         scope.m_hZombieAbility.PutAbilityOnCooldown( scope.m_hZombieAbility.m_fAbilityCooldown + 2.0 )
@@ -237,8 +237,6 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
 
             for ( local child = player.FirstMoveChild(); child; child = child.NextMovePeer() )
                 child.EnableDraw()
-
-            scope.m_iFlags = scope.m_iFlags & ~ZBIT_PENDING_ZOMBIE
 
             if ( player.GetPlayerClass() == TF_CLASS_PYRO )
                 scope.m_iFlags = scope.m_iFlags & ~ZBIT_PYRO_DONT_EXPLODE
@@ -390,7 +388,7 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
     // BLU LOGIC BEYOND THIS POINT
     if ( player.GetTeam() != TEAM_ZOMBIE ) {
         
-        if ( "GhostThink" in scope.ThinkTable )
+        if ( "ThinkTable" in scope && "GhostThink" in scope.ThinkTable )
             PZI_Util.RemoveThink( player, "GhostThink" )
 
         player.ResetInfectionVars()
@@ -431,8 +429,9 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
 
     PZI_Util.TeleportNearVictim( player, players[0], 0.25, true )
 
-    local spawn_hint = CreateByClassname( "entity_saucer" )
+    local spawn_hint = CreateByClassname( "move_rope" )
     spawn_hint.KeyValueFromString( "targetname",  "__pzi_spawn_hint_" + PZI_Util.PlayerTables.All[ player ] )
+    DispatchSpawn( spawn_hint )
 
     SetPropBool( spawn_hint, STRING_NETPROP_PURGESTRINGS, true )
 

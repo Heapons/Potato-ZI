@@ -273,7 +273,7 @@ function PZI_Util::EntityManager() {
 		SetPropString( ent, STRING_NETPROP_NAME, ___ENTSHREDDER___QUEUED )
 		SetPropBool( ent, STRING_NETPROP_PURGESTRINGS, true )
 
-		if ( _len < 200 && !( i % 20 ) )
+		if ( _len < 200 && !( i % 40 ) )
 			yield !EntFire( ___ENTSHREDDER___QUEUED, "Kill" )
 	}
 

@@ -249,7 +249,7 @@ PZI_EVENT( "player_spawn", "Infection_PlayerSpawn", function( params ) {
         // _hPlayer.SetHealth( _hPlayer.GetMaxHealth() )
         return
     }
-    else { // game has started, player should be a zombie {
+    else { // game has started, player should be a zombie
 
         if ( _hPlayer.GetTeam() == TEAM_HUMAN ) {
 

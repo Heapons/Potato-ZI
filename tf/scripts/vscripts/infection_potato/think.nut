@@ -511,7 +511,7 @@ function ZIPlayerThink() {
             local _idleSeq            =   _hPlayerVM.LookupSequence( "idle" )
             local _bAttackedThisTick  =   false
 
-            printf( "player: %s buttons: %d nextprimary: %f nextsecondary: %f\n", self.tostring(), _buttons, GetPropFloat( m_hZombieWep, "m_flNextPrimaryAttack" ), GetPropFloat( m_hZombieWep, "m_flNextSecondaryAttack" ) )
+            // printf( "player: %s buttons: %d nextprimary: %f nextsecondary: %f\n", self.tostring(), _buttons, GetPropFloat( m_hZombieWep, "m_flNextPrimaryAttack" ), GetPropFloat( m_hZombieWep, "m_flNextSecondaryAttack" ) )
 
             if ( ( _buttons & IN_ATTACK ) ) {
 
@@ -1314,19 +1314,26 @@ function PyroFireballThink() {
 
 function SpyRevealCCThink() { self.SetAbsOrigin( self.GetOwner().GetOrigin() ); return -1 }
 
+local respawn_override
 function BotRemoveThink() {
 
 	if ( !self || !self.IsValid() )
 		return 1.0
 
-	if ( !self.HasBotAttribute( REMOVE_ON_DEATH ) )
+	else if ( !self.HasBotAttribute( REMOVE_ON_DEATH ) )
 		self.AddBotAttribute( REMOVE_ON_DEATH )
 
 	else if ( self.IsAlive() ) {
 
+        while ( respawn_override = FindByClassname( respawn_override, "trigger_player_respawn_override" ) ) {
+
+            respawn_override.AcceptInput( "SetRespawnTime", "10", self, self )
+            respawn_override.AcceptInput( "StartTouch", "!activator", self, self )
+        }
+
 		self.AddEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
-		PZI_Util.SetNextRespawnTime( self, INT_MAX )
-		PZI_Util.KillPlayer( self )
+        self.SetHealth( 1 )
+        self.TakeDamageEx( null, self, null, Vector(), Vector(), 2.0, DMG_ALWAYSGIB|DMG_PREVENT_PHYSICS_FORCE )
 		// self.SetTeam( TEAM_SPECTATOR )
 		EntFire( "tf_ammo_pack", "Kill" )
 	}
