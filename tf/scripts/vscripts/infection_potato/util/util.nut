@@ -270,7 +270,6 @@ function PZI_Util::EntityManager() {
 		if ( !ent || !ent.IsValid() || ent.GetName() == ___ENTSHREDDER___QUEUED )
 			continue
 
-		printl( ent )
 		SetPropString( ent, STRING_NETPROP_NAME, ___ENTSHREDDER___QUEUED )
 		SetPropBool( ent, STRING_NETPROP_PURGESTRINGS, true )
 
