@@ -1662,8 +1662,8 @@ PZI_EVENT( "player_spawn", "PZI_BotsSpawn", function( params ) {
 
 		bot.SetMission( mission, true )
 
-		scope.PZI_BotBehavior.GiveRandomLoadout()
-		// PZI_Util.ScriptEntFireSafe( bot, "if ( self.GetTeam() == TEAM_HUMAN ) PZI_BotBehavior.GiveRandomLoadout()", 5.0 )
+		// scope.PZI_BotBehavior.GiveRandomLoadout()
+		PZI_Util.ScriptEntFireSafe( bot, "if ( self.GetTeam() == TEAM_HUMAN ) PZI_BotBehavior.GiveRandomLoadout()", 2.0 )
 	}
 
 	// give bots infinite ammo
