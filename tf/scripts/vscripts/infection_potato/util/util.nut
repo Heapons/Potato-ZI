@@ -1283,7 +1283,7 @@ function PZI_Util::GetItemInSlot( player, slot ) {
 function PZI_Util::SwitchToFirstValidWeapon( player ) {
 
 	for ( local i = 0, wep; i < SLOT_COUNT; wep = GetPropEntityArray( player, STRING_NETPROP_MYWEAPONS, i ), i++ )
-		if ( wep && wep instanceof CBaseCombatWeapon && wep.GetSlot() <= SLOT_BUILDING )
+		if ( wep && wep instanceof CBaseCombatWeapon && wep.GetSlot() < SLOT_BUILDING )
 			return player.Weapon_Switch( wep ), wep
 }
 
