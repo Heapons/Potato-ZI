@@ -556,6 +556,9 @@ PZI_EVENT( "player_spawn", "PZI_MapLogic_PlayerSpawn", function ( params ) {
     // if ( player.IsEFlagSet( EFL_IS_BEING_LIFTED_BY_BARNACLE ) )
         // return
 
+    if ( player.IsBotOfType( TF_BOT_TYPE ) && player.HasBotAttribute( REMOVE_ON_DEATH ) )
+        return
+
     PZI_Util.SetNextRespawnTime( player, BASE_RESPAWN_TIME )
 
     // we control this with a respawn_override trigger instead

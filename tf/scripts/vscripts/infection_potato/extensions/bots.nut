@@ -471,7 +471,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 
 	STR_PROJECTILES 	= "tf_projectile*"
 	MAX_RECOMPUTE_TIME  = 3.0
-	MAX_THREAT_DISTANCE = 8.0 * 8.0 // use LengthSqr for performance
+	MAX_THREAT_DISTANCE = 32.0 * 32.0 // use LengthSqr for performance
 
 	bot   				= null
 	scope 				= null
@@ -1041,14 +1041,14 @@ PZI_Bots.PZI_BotBehavior <- class {
 
 			local area_count = path_areas.len()
 
-			for ( local i = 0, area = path_areas["area0"]; i < area_count; i++ ) {
+			for ( local i = 0, _area = path_areas["area0"]; i < area_count; i++ ) {
 				
-				if ( !area ) continue
+				if ( !_area ) continue
 
 				local x = ( ( area_count - i - 0.0 ) / area_count ) * 255.0
-				area.DebugDrawFilled( 0, x, 0, 50, 0.075, true, 0.0 )
+				_area.DebugDrawFilled( 0, x, 0, 50, 0.075, true, 0.0 )
 
-				area = area.GetParent()
+				_area = _area.GetParent()
 			}
 		}
 
@@ -1194,8 +1194,6 @@ function PZI_Bots::ThinkTable::BotQuotaManager() {
 			if ( !ShouldKickBot( _bot ) )
 				continue
 
-			local scope = PZI_Util.GetEntScope( _bot )
-			scope.BotRemoveThink <- BotRemoveThink.bindenv( scope )
 			AddThinkToEnt( _bot, "BotRemoveThink" )
 		}
 
@@ -1427,7 +1425,7 @@ function PZI_Bots::GenericZombie( bot, threat_type = "closest" ) {
 				}
 
 			}
-            else if ( b.threat_dist <= b.MAX_THREAT_DISTANCE * 2 && b.IsCurThreatVisible() ) {
+            else if ( b.threat_dist <= b.MAX_THREAT_DISTANCE * (self.GetPlayerClass() == TF_CLASS_DEMOMAN ? 48 : 24 ) && b.IsCurThreatVisible() ) {
 
 				self.SetAttentionFocus( threat )
 				b.LookAt( threat.EyePosition() - Vector( 0, 0, 20 ), 1500, 1500 )
@@ -1464,8 +1462,11 @@ function PZI_Bots::GenericSpecial( bot ) {
 		else if ( !threat.IsAlive() || threat.GetTeam() == self.GetTeam() )
 			return
 
-		else if ( b.threat_dist <= b.MAX_THREAT_DISTANCE * 4 && b.IsCurThreatVisible() )
-			self.PressAltFireButton( 0.2 )
+		else if ( b.threat_dist <= b.MAX_THREAT_DISTANCE * 16 && b.IsCurThreatVisible() )
+			self.PressAltFireButton( 2.0 )
+
+		
+		// printl( self + " : " + b.threat_dist + " : " + (b.MAX_THREAT_DISTANCE * 16) )
 
 	}
 
@@ -1487,7 +1488,6 @@ function PZI_Bots::SoldierZombie( bot ) {
 
 		local buttons = GetPropInt( self, "m_nButtons" )
 
-		printl( self + " : " + buttons )
 		if ( b.threat_pos && !GetPropEntity( self, "m_hGroundEntity" ) ) {
 
 			SetPropInt( self, "m_afButtonDisabled", IN_BACK )
@@ -1778,9 +1778,6 @@ PZI_EVENT( "player_spawn", "PZI_BotsSpawn", function( params ) {
 
 					center = new_area.GetCenter()
 
-					if ( b.path_debug )
-						new_area.DebugDrawFilled( 255, 255, 0, 50, 0.02, true, 0.0 )
-
 					// 256 hu^2
 					if ( ( center - b.cur_pos ).LengthSqr() <= 65535.0 ) {
 
@@ -1797,16 +1794,25 @@ PZI_EVENT( "player_spawn", "PZI_BotsSpawn", function( params ) {
 							b.locomotion.ClearStuckStatus( "Moved to new nav area" )
 							stucktime = 0.0
 							b.SetThreat( null )
-							b.UpdatePath( center, b.skip_corners = !b.skip_corners, true )
-							break
 						}
 
 						b.UpdatePath( center, b.skip_corners = !b.skip_corners, true )
 						break
 					}
+
+					if ( b.path_debug )
+						new_area.DebugDrawFilled( 255, 255, 0, 50, 0.02, true, 0.0 )
 				}
 			}
 			// area.MarkAsBlocked( TEAM_ZOMBIE )
+		}
+
+		if ( self.GetTeam() == TEAM_HUMAN ) {
+
+			if ( self.GetPlayerClass() == TF_CLASS_PYRO ) {
+
+
+			}
 		}
 	}
 
