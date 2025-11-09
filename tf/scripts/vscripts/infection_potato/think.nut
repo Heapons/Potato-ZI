@@ -44,7 +44,7 @@ function ZIPlayerThink() {
 
                 local watch = PZI_Util.HasItemInLoadout( self, "tf_weapon_invis" )
 
-                if ( watch.GetAttribute( "set cloak is movement based", 0.0 ) == 2.0 )
+                if ( watch && watch.GetAttribute( "set cloak is movement based", 0.0 ) == 2.0 )
                     watch.AddAttribute( "set cloak is movement based", 0.0, -1 )
 
                 // self.AddCustomAttribute( "cannot disguise", 1.0, -1 )
@@ -57,7 +57,7 @@ function ZIPlayerThink() {
 
             local watch = PZI_Util.HasItemInLoadout( self, "tf_weapon_invis" )
             
-            if ( !watch.GetAttribute( "set cloak is movement based", -1.0 ) )
+            if ( watch && !watch.GetAttribute( "set cloak is movement based", -1.0 ) )
                 watch.AddAttribute( "set cloak is movement based", 2.0, -1 )
 
             // self.RemoveCustomAttribute( "cannot disguise" )

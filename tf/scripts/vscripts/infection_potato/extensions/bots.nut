@@ -1464,7 +1464,7 @@ function PZI_Bots::GenericSpecial( bot ) {
 			return
 
 		else if ( b.threat_dist <= b.MAX_THREAT_DISTANCE * 16 && b.IsCurThreatVisible() )
-			self.PressAltFireButton( 2.0 )
+			self.PressAltFireButton( 0.2 )
 
 		
 		// printl( self + " : " + b.threat_dist + " : " + (b.MAX_THREAT_DISTANCE * 16) )
