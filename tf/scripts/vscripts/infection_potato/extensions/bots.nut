@@ -1061,8 +1061,8 @@ PZI_Bots.PZI_BotBehavior <- class {
 		// if ( !(path_index in path_points) )
 		// 	__DumpScope( 0, path_points )
 
-		// we're underwater and can see our target, just move directly at them
-		if ( bot.GetWaterLevel() >= 2 && IsVisible( threat ) ) {
+		// we're underwater or very close and can see our target, just move directly at them
+		if ( ( bot.GetWaterLevel() >= 2 || threat_dist <= MAX_THREAT_DISTANCE ) && IsVisible( threat ) ) {
 
 			locomotion.Approach( threat_pos, 0.0 )
 			locomotion.FaceTowards( threat_pos )
@@ -1087,6 +1087,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 				if ( bot.GetLastKnownArea() )
 					bot.GetLastKnownArea().DebugDrawFilled( 0, 0, 255, 255, 5.0, true, 0.0 )
 			}
+
 			return UpdatePath( threat_pos, true )
 		}
 

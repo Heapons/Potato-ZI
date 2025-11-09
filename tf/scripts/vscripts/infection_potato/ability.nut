@@ -454,6 +454,8 @@ class CSniperSpitball extends CZombieAbility {
 
         ::DispatchSpawn( _spitEnt )
         _spitEnt.SetPhysVelocity ( _vecThrow )
+        
+        printl( _spitEnt.GetAbsVelocity() + " : " + _vecThrow )
 
         SetPropInt( _spitEnt, "m_nRenderMode", kRenderTransColor )
         SetPropInt( _spitEnt, "m_clrRender", 0 )

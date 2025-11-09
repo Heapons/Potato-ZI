@@ -478,7 +478,7 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
 
         // trace too far away
         if ( ( player.GetOrigin() - tracepos ).Length2D() > MAX_SPAWN_DISTANCE )
-            return ClientPrint( player, HUD_PRINTCENTER, "Too far away from spawn point!" )
+            return // ClientPrint( player, HUD_PRINTCENTER, "Too far away from spawn point!" )
 
         // not a valid area
         if ( USE_NAV_FOR_SPAWN ) {
