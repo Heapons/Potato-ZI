@@ -39,7 +39,7 @@ function PZI_Bots::_OnDestroy() {
 
 		if ( player = PlayerInstanceFromIndex(i) && IsPlayerABot( player ) ) {
 			
-			printl( player + " : " + player.GetScriptThinkFunc() )
+			// printl( player + " : " + player.GetScriptThinkFunc() )
 			// time to find out if this will cause crashes
 			// EntFireByHandle( player, "Kill", null, -1, null, null )
 			player.ValidateScriptScope()
@@ -558,7 +558,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 
 		this.bot_level 			 = bot.GetDifficulty()
 
-		this.path_debug			 = true
+		this.path_debug			 = false
 	}
 
 	function GiveRandomLoadout() {
@@ -1292,7 +1292,7 @@ function PZI_Bots::AllocateBots( count = PZI_Bots.MAX_BOTS ) {
 
 			if ( player = PlayerInstanceFromIndex(i) && IsPlayerABot( player ) ) {
 				
-				printl( player + " : " + player.GetScriptThinkFunc() )
+				// printl( player + " : " + player.GetScriptThinkFunc() )
 				// time to find out if this will cause crashes
 				// EntFireByHandle( player, "Kill", null, -1, null, null )
 				player.ValidateScriptScope()
@@ -1388,7 +1388,6 @@ function PZI_Bots::GenericZombie( bot, threat_type = "closest" ) {
 		else if ( self.GetFlags() & FL_ATCONTROLS || ( self.GetActionPoint() && self.GetActionPoint().IsValid() ) )
 			return
 
-
         local threat = b.threat
 
         if ( !threat || !threat.IsValid() || !threat.IsAlive() || threat.GetTeam() == self.GetTeam() ) {
@@ -1415,9 +1414,9 @@ function PZI_Bots::GenericZombie( bot, threat_type = "closest" ) {
 			b.MoveToThreat()
 
 			// 512^2
-			if ( b.threat_dist > 262144.0 || !FindByClassnameNearest( "player", b.cur_pos, 512.0 ) ) {
+			if ( b.threat_dist > 262144.0 && !FindByClassnameNearest( "player", b.cur_pos, 1024.0 ) ) {
 
-				self.AddCondEx( TF_COND_SPEED_BOOST, 1.0, self )
+				self.AddCondEx( TF_COND_SPEED_BOOST, 0.2, self )
 
 				// we haven't taken/dealt any damage in a while, just respawn us if we're too far away from a player
 				if ( m_fTimeLastHit && m_fTimeLastHit + 25.0 < b.time && !b.IsCurThreatVisible() ) {
@@ -1488,6 +1487,7 @@ function PZI_Bots::SoldierZombie( bot ) {
 
 		local buttons = GetPropInt( self, "m_nButtons" )
 
+		printl( self + " : " + buttons )
 		if ( b.threat_pos && !GetPropEntity( self, "m_hGroundEntity" ) ) {
 
 			SetPropInt( self, "m_afButtonDisabled", IN_BACK )
@@ -1559,9 +1559,9 @@ function PZI_Bots::EngineerZombie( bot ) {
 			self.SetBehaviorFlag( 511 )
 	
 		// 512^2
-		if ( b.threat_dist > 262144.0 || !FindByClassnameNearest( "player", b.cur_pos, 512.0 ) ) {
+		if ( b.threat_dist > 262144.0 && !FindByClassnameNearest( "player", b.cur_pos, 1024.0 ) ) {
 
-			self.AddCondEx( TF_COND_SPEED_BOOST, 1.0, self )
+			self.AddCondEx( TF_COND_SPEED_BOOST, 0.2, self )
 
 			// we haven't taken/dealt any damage in a while, just respawn us if we're too far away from a player
 			if ( m_fTimeLastHit && m_fTimeLastHit + 25.0 < b.time && !b.IsCurThreatVisible() ) {
@@ -1813,10 +1813,17 @@ PZI_EVENT( "player_spawn", "PZI_BotsSpawn", function( params ) {
 	PZI_Util.AddThink( bot, BotThink )
 
 	foreach ( name, _ in scope.ThinkTable )
-		if ( endswith( name, "ZombieThink") )
+		if ( endswith( name, "ZombieThink" ) )
 			PZI_Util.RemoveThink( bot, name )
 
 	local cls = bot.GetPlayerClass()
+
+	
+	if ( bot.GetTeam() != TEAM_ZOMBIE )
+		return
+
+	if ( cls != TF_CLASS_MEDIC && cls != TF_CLASS_ENGINEER )
+		PZI_Bots.GenericZombie( bot, "closest" )
 
 	if ( cls == TF_CLASS_SCOUT )
 		PZI_Bots.ScoutZombie( bot )
@@ -1826,11 +1833,8 @@ PZI_EVENT( "player_spawn", "PZI_BotsSpawn", function( params ) {
 		PZI_Bots.MedicZombie( bot )
 	else if ( cls == TF_CLASS_ENGINEER )
 		PZI_Bots.EngineerZombie( bot )
-	else if ( cls != TF_CLASS_SCOUT && cls != TF_CLASS_HEAVYWEAPONS )
+	else if ( cls != TF_CLASS_HEAVYWEAPONS )
 		PZI_Bots.GenericSpecial( bot )
-
-	if ( cls != TF_CLASS_MEDIC )
-		PZI_Bots.GenericZombie( bot, "closest" )
 })
 
 PZI_EVENT( "teamplay_setup_finished", "PZI_Bots_TeamplaySetupFinished", function( params ) {

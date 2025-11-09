@@ -87,7 +87,7 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
 
     local scope = PZI_Util.GetEntScope( player )
 
-    printl( player + " : " + NetName( player ) )
+    // printl( player + " : " + NetName( player ) )
 
     PZI_Util.RemoveThink( player, "GhostThink" )
 
@@ -472,7 +472,7 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
 
         // no world geometry found
         if ( !nav_trace.hit )
-            return ClientPrint( player, HUD_PRINTCENTER, "No valid spawn point found!" )
+            return // ClientPrint( player, HUD_PRINTCENTER, "No valid spawn point found!" )
 
         tracepos = nav_trace.pos
 
@@ -486,7 +486,7 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
             local nav_area = GetNearestNavArea( tracepos, SUMMON_RADIUS * 2, true, true )
 
             if ( !nav_area || !nav_area.IsFlat() )
-                return ClientPrint( player, HUD_PRINTCENTER, "Not a valid spawn area!" )
+                return // ClientPrint( player, HUD_PRINTCENTER, "Not a valid spawn area!" )
 
             spawnpos = nav_area.GetCenter()
         }
@@ -503,7 +503,7 @@ PZI_EVENT( "player_spawn", "SpawnAnywhere_PlayerSpawn", function( params ) {
         local function in_triggerhurt( pos ) { return PZI_Util.IsPointInTrigger( pos, "trigger_hurt" ) }
 
         if ( in_triggerhurt( spawnpos ) || in_triggerhurt( spawnpos + Vector( 0, 0, 64 ) ) )
-            return ClientPrint( player, HUD_PRINTCENTER, "Too close to a trigger_hurt!" )
+            return // ClientPrint( player, HUD_PRINTCENTER, "Too close to a trigger_hurt!" )
 
         // check if we can fit here
         else if ( !PZI_Util.IsSpaceToSpawnHere( spawnpos + Vector( 0, 0, 20 ), player.GetBoundingMins(), player.GetBoundingMaxs() ) )

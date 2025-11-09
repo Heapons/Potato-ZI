@@ -1172,6 +1172,8 @@ function CTFPlayer_ResetInfectionVars() {
 
     // AddThinkToEnt( this, null )
 
+    this.AcceptInput( "DispatchEffect", "ParticleEffectStop", null, null )
+
     Assert( this.IsPlayer(), "CTFPlayer_ResetInfectionVars: NON A PLAYER!" )
 
     if ( !( "m_iUserConfigFlags" in _sc ) )
