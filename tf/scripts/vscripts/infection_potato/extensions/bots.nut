@@ -1736,8 +1736,8 @@ PZI_EVENT( "player_spawn", "PZI_BotsSpawn", function( params ) {
 	scope.areas <- {}
 	function BotThink[scope]() {
 
-		if ( !self.IsAlive() )
-			return
+		if ( !self.IsValid() || !self.IsAlive() )
+			return printl( self )
 
 		if ( !( self.GetFlags() & FL_ATCONTROLS ) && !self.GetActiveWeapon() )
 			return PZI_Util.SwitchToFirstValidWeapon( self )
