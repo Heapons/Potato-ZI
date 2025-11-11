@@ -2370,7 +2370,7 @@ function PZI_Util::RemoveThink( ent, func = null ) {
 	if (!func || func == "" )
 		return scope[ thinktable_name ].clear()
 	else if ( !( func in scope[ thinktable_name ] ) ) 
-		return printf( "Function %s not found in thinktable %s\n", func, thinktable_name )
+		return // printf( "Function %s not found in thinktable %s\n", func, thinktable_name )
 
 	delete scope[ thinktable_name ][ func ]
 }
