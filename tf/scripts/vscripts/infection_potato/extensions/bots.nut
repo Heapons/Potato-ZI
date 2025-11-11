@@ -860,7 +860,6 @@ PZI_Bots.PZI_BotBehavior <- class {
 		cur_eye_ang = bot.EyeAngles()
 		cur_eye_fwd = cur_eye_ang.Forward()
 		time = Time()
-		printl( bot + " : " + time )
 
 		if ( !threat || !threat.IsValid() )
 			return threat = null, threat_pos = Vector()
@@ -1378,9 +1377,10 @@ function PZI_Bots::PrepareNavmesh() {
 function PZI_Bots::GenericZombie( bot, threat_type = "closest" ) {
 
 	local scope = PZI_Util.GetEntScope( bot )
-	local b = scope.PZI_BotBehavior
 
     function GenericZombieThink[scope]() {
+
+	local b = scope.PZI_BotBehavior
 
         if ( !self.IsAlive() || self.GetTeam() != TEAM_ZOMBIE )
             return
@@ -1449,9 +1449,10 @@ function PZI_Bots::GenericZombie( bot, threat_type = "closest" ) {
 function PZI_Bots::GenericSpecial( bot ) {
 
 	local scope = PZI_Util.GetEntScope( bot )
-	local b = scope.PZI_BotBehavior
 
 	function GenericSpecialThink[scope]() {
+
+		local b = scope.PZI_BotBehavior
 
 		if ( self.GetFlags() & FL_ATCONTROLS )
 			return
@@ -1481,9 +1482,10 @@ function PZI_Bots::ScoutZombie( bot ) { bot.SetAutoJump( 0.05, 2 ) }
 function PZI_Bots::SoldierZombie( bot ) {
 
 	local scope = PZI_Util.GetEntScope( bot )
-	local b = scope.PZI_BotBehavior
 
 	function SoldierZombieThink[scope]() {
+
+		local b = scope.PZI_BotBehavior
 
 		if ( self.GetFlags() & FL_ATCONTROLS )
 			return
@@ -1508,10 +1510,11 @@ function PZI_Bots::SoldierZombie( bot ) {
 function PZI_Bots::MedicZombie( bot ) {
 
 	local scope = PZI_Util.GetEntScope( bot )
-	local b = scope.PZI_BotBehavior
 
 	// heal nearby teammates
     function MedicZombieThink[scope]() {
+
+		local b = scope.PZI_BotBehavior
 
 		if ( self.GetFlags() & FL_ATCONTROLS )
 			return
@@ -1537,6 +1540,8 @@ function PZI_Bots::EngineerZombie( bot ) {
 	bot[ b.threat ? "SetBehaviorFlag" : "ClearBehaviorFlag" ]( 511 )
 
     function EngineerZombieThink[scope]() {
+
+		local b = scope.PZI_BotBehavior
 
 		if ( self.GetFlags() & FL_ATCONTROLS )
 			return
