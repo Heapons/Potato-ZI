@@ -1661,12 +1661,12 @@ function PZI_Util::GiveWeapon( player, class_name, item_id ) {
 			EntShredder.append( old )
 			SetPropEntityArray( player, STRING_NETPROP_MYWEAPONS, weapon, i )
 
-			player.Weapon_Equip( weapon )
-			WeaponSwitchSlot( player, slot )
-
-			return weapon
+			break
 		}
 	}
+	
+	player.Weapon_Equip( weapon )
+	WeaponSwitchSlot( player, slot )
 
 	return weapon
 }
