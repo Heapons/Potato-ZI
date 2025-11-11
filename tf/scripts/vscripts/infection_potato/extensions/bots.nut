@@ -1739,9 +1739,6 @@ PZI_EVENT( "player_spawn", "PZI_BotsSpawn", function( params ) {
 		if ( !self.IsValid() || !self.IsAlive() )
 			return printl( "INVALID BOT: " + self )
 
-		if ( !( self.GetFlags() & FL_ATCONTROLS ) && !self.GetActiveWeapon() )
-			return printl( "INVALID WEAPON: " + self), PZI_Util.SwitchToFirstValidWeapon( self )
-
 		b.OnUpdate()
 
 		// unstuck behavior, tell the bot to path to another nearby area
@@ -1810,10 +1807,14 @@ PZI_EVENT( "player_spawn", "PZI_BotsSpawn", function( params ) {
 
 		if ( self.GetTeam() == TEAM_HUMAN ) {
 
-			if ( self.GetPlayerClass() == TF_CLASS_PYRO ) {
+
+			if ( !( self.GetFlags() & FL_ATCONTROLS ) && (!self.GetActiveWeapon() || !self.GetActiveWeapon().IsValid() ) )
+				return printl( "INVALID WEAPON: " + self), PZI_Util.SwitchToFirstValidWeapon( self )
+
+			// if ( self.GetPlayerClass() == TF_CLASS_PYRO ) {
 
 
-			}
+			// }
 		}
 	}
 
