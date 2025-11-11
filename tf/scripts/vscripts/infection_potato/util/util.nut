@@ -1667,6 +1667,8 @@ function PZI_Util::GiveWeapon( player, class_name, item_id ) {
 			return weapon
 		}
 	}
+
+	return weapon
 }
 
 function PZI_Util::IsEntityClassnameInList( entity, list ) {
