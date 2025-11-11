@@ -1740,7 +1740,7 @@ PZI_EVENT( "player_spawn", "PZI_BotsSpawn", function( params ) {
 			return printl( self )
 
 		if ( !( self.GetFlags() & FL_ATCONTROLS ) && !self.GetActiveWeapon() )
-			return PZI_Util.SwitchToFirstValidWeapon( self )
+			return printl(self), PZI_Util.SwitchToFirstValidWeapon( self )
 
 		b.OnUpdate()
 
