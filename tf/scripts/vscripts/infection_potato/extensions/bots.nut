@@ -1737,7 +1737,7 @@ PZI_EVENT( "player_spawn", "PZI_BotsSpawn", function( params ) {
 	function BotThink[scope]() {
 
 		if ( !self.IsValid() || !self.IsAlive() )
-			return printl( "INVALID BOT: " + self )
+			return
 
 		b.OnUpdate()
 
@@ -1808,7 +1808,7 @@ PZI_EVENT( "player_spawn", "PZI_BotsSpawn", function( params ) {
 		if ( self.GetTeam() == TEAM_HUMAN ) {
 
 
-			if ( !( self.GetFlags() & FL_ATCONTROLS ) && (!self.GetActiveWeapon() || !self.GetActiveWeapon().IsValid() ) )
+			if ( !( self.GetFlags() & FL_ATCONTROLS ) && ( !self.GetActiveWeapon() || !self.GetActiveWeapon().IsValid() ) )
 				return printl( "INVALID WEAPON: " + self), PZI_Util.SwitchToFirstValidWeapon( self )
 
 			// if ( self.GetPlayerClass() == TF_CLASS_PYRO ) {
