@@ -1737,10 +1737,10 @@ PZI_EVENT( "player_spawn", "PZI_BotsSpawn", function( params ) {
 	function BotThink[scope]() {
 
 		if ( !self.IsValid() || !self.IsAlive() )
-			return printl( self )
+			return printl( "INVALID BOT: " + self )
 
 		if ( !( self.GetFlags() & FL_ATCONTROLS ) && !self.GetActiveWeapon() )
-			return printl(self), PZI_Util.SwitchToFirstValidWeapon( self )
+			return printl( "INVALID WEAPON: " + self), PZI_Util.SwitchToFirstValidWeapon( self )
 
 		b.OnUpdate()
 
