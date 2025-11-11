@@ -210,7 +210,7 @@ function ZIPlayerThink() {
                 // removed with new spawn mechanic
                 // self.SetHealth      ( self.GetMaxHealth() )
 
-                self.SetNextActTime ( ZOMBIE_BECOME_ZOMBIE, ACT_LOCKED )
+                self.SetNextActTime( ZOMBIE_BECOME_ZOMBIE, ACT_LOCKED )
 
                 self.GiveZombieAbility()
 

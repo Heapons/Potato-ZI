@@ -1809,7 +1809,7 @@ PZI_EVENT( "player_spawn", "PZI_BotsSpawn", function( params ) {
 
 
 			if ( !( self.GetFlags() & FL_ATCONTROLS ) && ( !self.GetActiveWeapon() || !self.GetActiveWeapon().IsValid() ) )
-				return printl( "INVALID WEAPON: " + self), PZI_Util.SwitchToFirstValidWeapon( self )
+				return PZI_Util.SwitchToFirstValidWeapon( self )
 
 			// if ( self.GetPlayerClass() == TF_CLASS_PYRO ) {
 
