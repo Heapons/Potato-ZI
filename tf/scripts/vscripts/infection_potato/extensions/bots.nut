@@ -1485,7 +1485,7 @@ function PZI_Bots::SoldierZombie( bot ) {
 
 	function SoldierZombieThink[scope]() {
 
-		local b = scope.PZI_BotBehavior
+		local b = PZI_BotBehavior
 
 		if ( self.GetFlags() & FL_ATCONTROLS )
 			return
@@ -1514,7 +1514,7 @@ function PZI_Bots::MedicZombie( bot ) {
 	// heal nearby teammates
     function MedicZombieThink[scope]() {
 
-		local b = scope.PZI_BotBehavior
+		local b = PZI_BotBehavior
 
 		if ( self.GetFlags() & FL_ATCONTROLS )
 			return
@@ -1541,7 +1541,7 @@ function PZI_Bots::EngineerZombie( bot ) {
 
     function EngineerZombieThink[scope]() {
 
-		local b = scope.PZI_BotBehavior
+		local b = PZI_BotBehavior
 
 		if ( self.GetFlags() & FL_ATCONTROLS )
 			return
@@ -1743,7 +1743,7 @@ PZI_EVENT( "player_spawn", "PZI_BotsSpawn", function( params ) {
 		if ( !self.IsValid() || !self.IsAlive() )
 			return
 
-		local b = scope.PZI_BotBehavior
+		local b = PZI_BotBehavior
 
 		b.OnUpdate()
 
@@ -1901,8 +1901,6 @@ PZI_EVENT( "player_hurt", "PZI_Bots_PlayerHurt", function( params ) {
 
 	if ( scope && "PZI_BotBehavior" in scope ) {
 
-		local b = scope.PZI_BotBehavior
-
-		b.OnTakeDamage( attacker )
+		scope.PZI_BotBehavior.OnTakeDamage( attacker )
 	}
 })
