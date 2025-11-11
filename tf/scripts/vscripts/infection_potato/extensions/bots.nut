@@ -1732,13 +1732,13 @@ PZI_EVENT( "player_spawn", "PZI_BotsSpawn", function( params ) {
 
 	" , 7.0 )
 
-	local b = scope.PZI_BotBehavior
-
 	scope.areas <- {}
 	function BotThink[scope]() {
 
 		if ( !self.IsValid() || !self.IsAlive() )
 			return
+
+		local b = scope.PZI_BotBehavior
 
 		b.OnUpdate()
 
