@@ -197,11 +197,11 @@ function PZI_Nav::CreateNav() {
 
 	player.SetMoveType( MOVETYPE_NOCLIP, MOVECOLLIDE_DEFAULT )
 
-	scope <- PZI_Util.GetEntScope( player )
+	local scope = PZI_Util.GetEntScope( player )
 
 	local gen = NavGenerator()
 
-	function scope::NavThink() {
+	function NavThink() {
 
 		if ( gen.getstatus() != "dead" )
 			resume gen
@@ -215,7 +215,7 @@ function PZI_Nav::CreateNav() {
 
 		return 0.05
 	}
-
+	scope.NavThink <- NavThink
 	AddThinkToEnt( player, "NavThink" )
 }
 
