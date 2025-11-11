@@ -562,7 +562,7 @@ PZI_EVENT( "player_spawn", "PZI_MapLogic_PlayerSpawn", function ( params ) {
     PZI_Util.SetNextRespawnTime( player, BASE_RESPAWN_TIME )
 
     // we control this with a respawn_override trigger instead
-    EntFire( "tf_gamerules", "SetBlueTeamRespawnWaveTime", "999999", -1 )
-    EntFire( "tf_gamerules", "SetRedTeamRespawnWaveTime", "999999", -1 )
+    EntFire( "tf_gamerules", "SetBlueTeamRespawnWaveTime", "3", -1 )
+    EntFire( "tf_gamerules", "SetRedTeamRespawnWaveTime", "3", -1 )
     EntFire( "tf_weapon_passtime_gun", "Kill", null, 0.05 )
 })
