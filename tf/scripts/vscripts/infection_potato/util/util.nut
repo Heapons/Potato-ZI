@@ -2321,7 +2321,7 @@ function PZI_Util::AddThink( ent, func ) {
 
 		// 	return -1
 		// }
-		compilestring( format( "function %s() { foreach( name, _func in %s ) { printl(name); _func() }; return -1 }", thinktable_func, thinktable_name ) ).call( scope )
+		compilestring( format( "function %s() { foreach( name, _func in %s ) { _func() }; return -1 }", thinktable_func, thinktable_name ) ).call( scope )
 		AddThinkToEnt( ent, thinktable_func )
 	}
 	// only initialize blank think setup for empty string
