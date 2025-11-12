@@ -1672,15 +1672,14 @@ PZI_EVENT( "player_spawn", "PZI_BotsSpawn", function( params ) {
 	// need to re-organize m_hMyWeapons after doing this
 	// GetPropEntity( bot, "m_hViewModel" ).Kill()
 
-    local scope = PZI_Util.GetEntScope( bot )
+    local scope = bot.GetScriptScope() || ( bot.ValidateScriptScope(), bot.GetScriptScope() )
 
 	// fold PZI_Bots into the bot's scope
 	foreach( k, v in PZI_Bots )
 		if ( !( k in scope ) && k != "PZI_BotBehavior" )
 			scope[ k ] <- v
 
-	if ( !( "PZI_BotBehavior" in scope ) )
-		scope.PZI_BotBehavior <- PZI_Bots.PZI_BotBehavior( bot )
+	scope.PZI_BotBehavior <- PZI_Bots.PZI_BotBehavior( bot )
 
 	local cls = bot.GetPlayerClass()
 
