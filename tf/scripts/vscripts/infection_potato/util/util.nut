@@ -1932,7 +1932,7 @@ function PZI_Util::RoundWin( team = 2 ) {
 	round_win.AcceptInput( "RoundWin", null, null, null )
 	bGameStarted = false
 
-	foreach ( cls in [ "tf_wea*", "tf_viewmodel*", "tf_ragdoll", "pd_dispenser", "obj*" ] )
+	foreach ( cls in [ "tf_wea*", "tf_viewmodel*", "tf_ragdoll", "pd_dispenser", "obj*", "bot_generator" ] )
 		for ( local ent; ent = FindByClassname( ent, cls ); )
 			PZI_Util.EntShredder.append( ent )
 
@@ -2138,7 +2138,7 @@ function PZI_Util::SetDestroyCallback( entity, callback ) {
 					scope.__pzi_util_destroy_callback()
 
 					if ( "PZI_GameStrings" in ROOT )
-						PZI_GameStrings.PurgeGameString( id )
+						PZI_GameStrings.PurgeString( id )
 				}
 
 				delete parent[k]

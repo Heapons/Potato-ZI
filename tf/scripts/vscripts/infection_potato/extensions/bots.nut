@@ -564,7 +564,7 @@ PZI_Bots.PZI_BotBehavior <- class {
 	function GiveRandomLoadout() {
 
 		local botcls = bot.GetPlayerClass()
-		local loadouts = scope.RandomLoadouts[ botcls ]
+		local loadouts = PZI_Bots.RandomLoadouts[ botcls ]
 
 		bot.AddEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE )
 
@@ -1531,15 +1531,7 @@ function PZI_Bots::MedicZombie( bot ) {
 
 function PZI_Bots::EngineerZombie( bot ) {
 
-	local scope = PZI_Util.GetEntScope( bot )
-	local b 	= scope.PZI_BotBehavior
-
-	local building
-
-	if ( red_buildings.len() )
-		building = red_buildings.keys()[ RandomInt( 0, red_buildings.len() - 1 ) ]
-
-	bot[ b.threat ? "SetBehaviorFlag" : "ClearBehaviorFlag" ]( 511 )
+	local scope = bot.GetScriptScope() || ( bot.ValidateScriptScope(), bot.GetScriptScope() )
 
     function EngineerZombieThink[scope]() {
 
@@ -1548,19 +1540,19 @@ function PZI_Bots::EngineerZombie( bot ) {
 		if ( self.GetFlags() & FL_ATCONTROLS )
 			return
 
-		else if ( b.threat && b.threat in red_buildings )
+		else if ( b.threat && b.threat in PZI_Bots.red_buildings )
 			return
 
-		if ( !red_buildings.len() ) {
+		if ( !PZI_Bots.red_buildings.len() ) {
 
 			self.ClearBehaviorFlag( 511 )
 			return
 		}
 
-		building = red_buildings.keys()[ RandomInt( 0, red_buildings.len() - 1 ) ]
+		local building = PZI_Bots.red_buildings.keys()[ RandomInt( 0, PZI_Bots.red_buildings.len() - 1 ) ]
 
 		if ( !building || !building.IsValid() )
-			return delete red_buildings[ building ]
+			return delete PZI_Bots.red_buildings[ building ]
 
 		b.SetThreat( building )
 
@@ -1675,9 +1667,9 @@ PZI_EVENT( "player_spawn", "PZI_BotsSpawn", function( params ) {
     local scope = bot.GetScriptScope() || ( bot.ValidateScriptScope(), bot.GetScriptScope() )
 
 	// fold PZI_Bots into the bot's scope
-	foreach( k, v in PZI_Bots )
-		if ( !( k in scope ) && k != "PZI_BotBehavior" )
-			scope[ k ] <- v
+	// foreach( k, v in PZI_Bots )
+	// 	if ( !( k in scope ) && k != "PZI_BotBehavior" )
+	// 		scope[ k ] <- v
 
 	scope.PZI_BotBehavior <- PZI_Bots.PZI_BotBehavior( bot )
 
