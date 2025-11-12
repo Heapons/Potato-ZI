@@ -109,11 +109,6 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
 
     EntFire( "__pzi_spawn_hint_" + PZI_Util.PlayerTables.All[ player ], "Kill" )
 
-    scope.m_iFlags = scope.m_iFlags|ZBIT_PENDING_ZOMBIE
-
-    if ( "m_hZombieAbility" in scope && scope.m_hZombieAbility instanceof CZombieAbility ) 
-        scope.m_hZombieAbility.PutAbilityOnCooldown( scope.m_hZombieAbility.m_fAbilityCooldown + 2.0 )
-
     local playercls = player.GetPlayerClass()
 
     /**************************************************************************
@@ -176,6 +171,11 @@ function PZI_SpawnAnywhere::BeginSummonSequence( player, origin ) {
     player.SetSolid( SOLID_BBOX )
     player.SetSolidFlags( FSOLID_NOT_STANDABLE )
     player.SetCollisionGroup( COLLISION_GROUP_PLAYER )
+
+    scope.m_iFlags = scope.m_iFlags|ZBIT_PENDING_ZOMBIE
+
+    if ( "m_hZombieAbility" in scope && scope.m_hZombieAbility instanceof CZombieAbility ) 
+        scope.m_hZombieAbility.PutAbilityOnCooldown( scope.m_hZombieAbility.m_fAbilityCooldown + 2.0 )
 
     PZI_Util.ScriptEntFireSafe( player, "self.AddCond( TF_COND_HALLOWEEN_QUICK_HEAL )", SUMMON_HEAL_DELAY )
 

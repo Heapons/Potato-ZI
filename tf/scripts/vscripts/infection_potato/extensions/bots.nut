@@ -1382,6 +1382,8 @@ function PZI_Bots::GenericZombie( bot, threat_type = "closest" ) {
 
 	local b = scope.PZI_BotBehavior
 
+	printl( b.bot + " : " + self )
+
         if ( !self.IsAlive() || self.GetTeam() != TEAM_ZOMBIE )
             return
 
@@ -1452,7 +1454,7 @@ function PZI_Bots::GenericSpecial( bot ) {
 
 	function GenericSpecialThink[scope]() {
 
-		local b = scope.PZI_BotBehavior
+		local b = PZI_BotBehavior
 
 		if ( self.GetFlags() & FL_ATCONTROLS )
 			return
