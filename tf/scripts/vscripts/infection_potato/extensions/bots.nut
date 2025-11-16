@@ -1382,7 +1382,7 @@ function PZI_Bots::GenericZombie( bot, threat_type = "closest" ) {
 
 	local b = scope.PZI_BotBehavior
 
-	printl( b.bot + " : " + self )
+	// printl( b.bot + " : " + self )
 
         if ( !self.IsAlive() || self.GetTeam() != TEAM_ZOMBIE )
             return
